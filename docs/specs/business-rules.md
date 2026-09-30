@@ -1,10 +1,29 @@
-# Regras de Negócio
+# Regras de Negócio — Clínica Hans
 
-> Este documento deve ser preenchido com base na história.
-
-## Orientação
-Toda regra deve ser:
-- clara;
-- verificável;
-- ligada ao domínio;
-- reutilizável em backend, frontend e fluxos.
+- **RN-001:** um paciente deve possuir um identificador único no sistema.
+- **RN-002:** um médico só pode ser considerado disponível para agenda quando estiver com status Ativo e possuir CRM/UF informado.
+- **RN-003:** especialidade anunciada como qualificação formal deve permitir registro de RQE quando aplicável.
+- **RN-004:** não pode existir conflito de horário para o mesmo médico.
+- **RN-005:** um agendamento deve estar vinculado a um paciente e a um médico.
+- **RN-006:** cancelamento e ausência devem permanecer no histórico para cálculo de indicadores.
+- **RN-007:** informações clínicas pertencem à jornada do paciente, e não exclusivamente ao médico que as registrou.
+- **RN-008:** alergias e reações medicamentosas classificadas como críticas devem ser destacadas antes do atendimento.
+- **RN-009:** recepção pode operar agenda e dados administrativos, mas não deve visualizar conteúdo clínico além do estritamente necessário.
+- **RN-010:** somente profissionais autorizados podem registrar ou consultar evolução clínica.
+- **RN-011:** atendimento finalizado deve registrar autoria e data/hora.
+- **RN-012:** correção de informação clínica finalizada deve preservar valor anterior ou evento de retificação.
+- **RN-013:** toda solicitação de exame deve estar vinculada ao paciente e, preferencialmente, ao atendimento que a originou.
+- **RN-014:** resultado de exame deve permanecer associado à solicitação correspondente.
+- **RN-015:** exame com prazo ultrapassado sem conclusão deve ser sinalizado como pendente/atrasado.
+- **RN-016:** quando houver necessidade de retorno, deve existir prazo, condição ou motivo de acompanhamento.
+- **RN-017:** acompanhamentos não devem depender apenas da memória do médico ou paciente.
+- **RN-018:** alertas clínicos não podem ser removidos por perfis administrativos.
+- **RN-019:** dados financeiros devem ser separados conceitualmente dos dados clínicos, ainda que vinculados ao atendimento.
+- **RN-020:** indicadores devem ser calculados a partir de eventos registrados, evitando valores manuais sem origem rastreável.
+- **RN-021:** acesso a prontuário e alteração de informações sensíveis devem gerar evento de auditoria.
+- **RN-022:** médico inativo ou afastado não deve receber novos agendamentos durante o período de indisponibilidade.
+- **RN-023:** exclusão física de registros clínicos não deve ser operação padrão; preferir inativação, cancelamento ou retificação.
+- **RN-024:** dados obrigatórios do médico: nome, CRM, UF do CRM, especialidade principal, contato e status.
+- **RN-025:** CPF de médico e paciente deve ser único quando informado como identificador cadastral.
+- **RN-026:** um horário liberado por cancelamento pode retornar à disponibilidade da agenda.
+- **RN-027:** perfis de Gestão podem visualizar indicadores consolidados sem necessidade de exposição de conteúdo clínico detalhado.
