@@ -13,6 +13,12 @@ const patients = [
   { name: 'Beatriz Costa', age: 52, phone: '(11) 95553-8090', flags: ['Acompanhamento'] }
 ];
 
+const doctors = [
+  { name: 'Dr. Hans Chucrute', crm: 'CRM 184521/SP', rqe: 'RQE 92114', specialty: 'Clínica Médica', phone: '(11) 98888-4100', email: 'hans@clinicahans.com.br', schedule: 'Seg–Sex · 08h–17h', status: 'Ativo' },
+  { name: 'Dra. Paula Reis', crm: 'CRM 198733/SP', rqe: 'RQE 104882', specialty: 'Cardiologia', phone: '(11) 97777-2301', email: 'paula@clinicahans.com.br', schedule: 'Ter/Qui · 09h–18h', status: 'Ativo' },
+  { name: 'Dra. Laura Nunes', crm: 'CRM 176904/SP', rqe: 'RQE 88731', specialty: 'Endocrinologia', phone: '(11) 96666-5120', email: 'laura@clinicahans.com.br', schedule: 'Seg/Qua/Sex · 10h–16h', status: 'Ativo' }
+];
+
 const exams = [
   { title: 'Hemograma — Mariana Souza', detail: 'Solicitado em 12/09 · prazo sugerido 7 dias', tone: 'danger', status: 'Atrasado' },
   { title: 'Ecocardiograma — Carlos Lima', detail: 'Solicitado em 25/09', tone: 'warning', status: 'Pendente' },
@@ -26,7 +32,7 @@ const returns = [
 ];
 
 const pageTitles = {
-  dashboard: 'Visão geral', agenda: 'Agenda médica', pacientes: 'Pacientes', prontuario: 'Prontuário integrado', atendimento: 'Atendimento clínico', exames: 'Exames e retornos', financeiro: 'Faturamento', indicadores: 'Indicadores de gestão'
+  dashboard: 'Visão geral', agenda: 'Agenda médica', pacientes: 'Pacientes', medicos: 'Cadastro de médicos', prontuario: 'Prontuário integrado', atendimento: 'Atendimento clínico', exames: 'Exames e retornos', financeiro: 'Faturamento', indicadores: 'Indicadores de gestão'
 };
 
 function setView(view) {
@@ -69,6 +75,14 @@ function renderPatients(filter = '') {
   `).join('') || '<p>Nenhum paciente encontrado.</p>';
 }
 
+function renderDoctors(filter = '') {
+  const normalized = filter.toLowerCase();
+  const filtered = doctors.filter(item => `${item.name} ${item.crm} ${item.rqe} ${item.specialty} ${item.email}`.toLowerCase().includes(normalized));
+  document.getElementById('doctor-cards').innerHTML = filtered.map(item => `
+    <article class="patient-card"><div class="panel-header"><div><p class="eyebrow">${item.specialty}</p><h3>${item.name}</h3></div><span class="badge success">${item.status}</span></div><p><strong>${item.crm}</strong> · ${item.rqe}</p><p>${item.phone}<br>${item.email}</p><p><strong>Agenda:</strong> ${item.schedule}</p><button class="secondary-button" type="button" data-doctor="${item.name}">Ver cadastro</button></article>
+  `).join('') || '<p>Nenhum médico encontrado.</p>';
+}
+
 function renderList(targetId, items) {
   document.getElementById(targetId).innerHTML = items.map(item => `
     <div class="followup-item"><div><strong>${item.title}</strong><p>${item.detail}</p></div><span class="badge ${item.tone}">${item.status}</span></div>
@@ -94,7 +108,7 @@ function openModal(type) {
       <label>Data e horário<input required type="datetime-local" /></label>
       <label>Observação<input placeholder="Ex.: retorno, encaixe" /></label>
       <div class="form-actions"><button class="primary-button" type="submit">Agendar</button></div>`;
-  } else {
+  } else if (type === 'patient') {
     modalTitle.textContent = 'Novo paciente';
     modalForm.innerHTML = `
       <label>Nome completo<input required placeholder="Nome do paciente" /></label>
@@ -102,6 +116,29 @@ function openModal(type) {
       <label>Telefone<input required placeholder="(11) 99999-9999" /></label>
       <label>Observação clínica inicial<textarea placeholder="Somente informações essenciais conhecidas no cadastro"></textarea></label>
       <div class="form-actions"><button class="primary-button" type="submit">Cadastrar</button></div>`;
+  } else {
+    modalTitle.textContent = 'Novo médico';
+    modalForm.innerHTML = `
+      <label>Nome completo<input required placeholder="Nome do médico" /></label>
+      <label>CPF<input required placeholder="000.000.000-00" /></label>
+      <label>Data de nascimento<input required type="date" /></label>
+      <label>CRM<input required placeholder="Ex.: 184521" /></label>
+      <label>UF do CRM<select required><option value="">Selecione</option><option>SP</option><option>RJ</option><option>MG</option><option>PR</option><option>SC</option><option>RS</option><option>Outro</option></select></label>
+      <label>RQE<input placeholder="Registro de Qualificação de Especialista" /></label>
+      <label>Especialidade principal<input required placeholder="Ex.: Clínica Médica" /></label>
+      <label>Subespecialidade<input placeholder="Opcional" /></label>
+      <label>Telefone<input required placeholder="(11) 99999-9999" /></label>
+      <label>E-mail<input required type="email" placeholder="medico@clinicahans.com.br" /></label>
+      <label>CEP<input placeholder="00000-000" /></label>
+      <label>Endereço<input placeholder="Rua, número e complemento" /></label>
+      <label>Cidade / UF<input placeholder="Ex.: São Paulo / SP" /></label>
+      <label>Duração padrão da consulta<select><option>20 minutos</option><option selected>30 minutos</option><option>40 minutos</option><option>60 minutos</option></select></label>
+      <label>Sala / consultório<input placeholder="Ex.: Consultório 02" /></label>
+      <label>Disponibilidade semanal<textarea placeholder="Ex.: Segunda a sexta, das 08h às 17h"></textarea></label>
+      <label>Modalidade<select><option>Presencial</option><option>Telemedicina</option><option>Presencial e telemedicina</option></select></label>
+      <label>Status<select><option>Ativo</option><option>Inativo</option><option>Férias/Afastado</option></select></label>
+      <label>Observações administrativas<textarea placeholder="Informações internas do cadastro"></textarea></label>
+      <div class="form-actions"><button class="primary-button" type="submit">Cadastrar médico</button></div>`;
   }
   modal.classList.add('open');
   modal.setAttribute('aria-hidden', 'false');
@@ -121,6 +158,7 @@ function toast(message) {
 
 document.getElementById('new-appointment').addEventListener('click', () => openModal('appointment'));
 document.getElementById('new-patient').addEventListener('click', () => openModal('patient'));
+document.getElementById('new-doctor').addEventListener('click', () => openModal('doctor'));
 document.getElementById('close-modal').addEventListener('click', closeModal);
 modal.addEventListener('click', event => { if (event.target === modal) closeModal(); });
 modalForm.addEventListener('submit', event => { event.preventDefault(); closeModal(); toast('Registro salvo no protótipo.'); });
@@ -128,6 +166,8 @@ document.getElementById('consultation-form').addEventListener('submit', event =>
 document.getElementById('agenda-search').addEventListener('input', event => renderAgenda(event.target.value));
 document.getElementById('agenda-status').addEventListener('change', () => renderAgenda(document.getElementById('agenda-search').value));
 document.getElementById('patient-search').addEventListener('input', event => renderPatients(event.target.value));
+document.getElementById('doctor-search').addEventListener('input', event => renderDoctors(event.target.value));
+document.getElementById('doctor-cards').addEventListener('click', event => { const button = event.target.closest('[data-doctor]'); if (button) toast(`Cadastro de ${button.dataset.doctor} aberto no protótipo.`); });
 document.getElementById('role-select').addEventListener('change', event => toast(`Perfil de visualização: ${event.target.value}.`));
 
 document.querySelectorAll('.task-list input').forEach(input => input.addEventListener('change', event => {
@@ -137,5 +177,6 @@ document.querySelectorAll('.task-list input').forEach(input => input.addEventLis
 renderToday();
 renderAgenda();
 renderPatients();
+renderDoctors();
 renderList('exam-list', exams);
 renderList('return-list', returns);
