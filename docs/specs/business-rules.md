@@ -1,29 +1,68 @@
 # Regras de Negócio — Clínica Hans
 
-- **RN-001:** um paciente deve possuir um identificador único no sistema.
-- **RN-002:** um médico só pode ser considerado disponível para agenda quando estiver com status Ativo e possuir CRM/UF informado.
-- **RN-003:** especialidade anunciada como qualificação formal deve permitir registro de RQE quando aplicável.
-- **RN-004:** não pode existir conflito de horário para o mesmo médico.
-- **RN-005:** um agendamento deve estar vinculado a um paciente e a um médico.
-- **RN-006:** cancelamento e ausência devem permanecer no histórico para cálculo de indicadores.
-- **RN-007:** informações clínicas pertencem à jornada do paciente, e não exclusivamente ao médico que as registrou.
-- **RN-008:** alergias e reações medicamentosas classificadas como críticas devem ser destacadas antes do atendimento.
-- **RN-009:** recepção pode operar agenda e dados administrativos, mas não deve visualizar conteúdo clínico além do estritamente necessário.
-- **RN-010:** somente profissionais autorizados podem registrar ou consultar evolução clínica.
-- **RN-011:** atendimento finalizado deve registrar autoria e data/hora.
-- **RN-012:** correção de informação clínica finalizada deve preservar valor anterior ou evento de retificação.
-- **RN-013:** toda solicitação de exame deve estar vinculada ao paciente e, preferencialmente, ao atendimento que a originou.
-- **RN-014:** resultado de exame deve permanecer associado à solicitação correspondente.
-- **RN-015:** exame com prazo ultrapassado sem conclusão deve ser sinalizado como pendente/atrasado.
-- **RN-016:** quando houver necessidade de retorno, deve existir prazo, condição ou motivo de acompanhamento.
-- **RN-017:** acompanhamentos não devem depender apenas da memória do médico ou paciente.
-- **RN-018:** alertas clínicos não podem ser removidos por perfis administrativos.
-- **RN-019:** dados financeiros devem ser separados conceitualmente dos dados clínicos, ainda que vinculados ao atendimento.
-- **RN-020:** indicadores devem ser calculados a partir de eventos registrados, evitando valores manuais sem origem rastreável.
-- **RN-021:** acesso a prontuário e alteração de informações sensíveis devem gerar evento de auditoria.
-- **RN-022:** médico inativo ou afastado não deve receber novos agendamentos durante o período de indisponibilidade.
-- **RN-023:** exclusão física de registros clínicos não deve ser operação padrão; preferir inativação, cancelamento ou retificação.
-- **RN-024:** dados obrigatórios do médico: nome, CRM, UF do CRM, especialidade principal, contato e status.
-- **RN-025:** CPF de médico e paciente deve ser único quando informado como identificador cadastral.
-- **RN-026:** um horário liberado por cancelamento pode retornar à disponibilidade da agenda.
-- **RN-027:** perfis de Gestão podem visualizar indicadores consolidados sem necessidade de exposição de conteúdo clínico detalhado.
+## Paciente
+- **RN-001:** paciente possui ID interno imutável.
+- **RN-002:** CPF, quando informado, é único entre cadastros ativos; potencial duplicidade sem CPF deve ser sinalizada, não mesclada automaticamente.
+- **RN-003:** merge de pacientes é operação administrativa especial e auditada; não faz parte do MVP inicial.
+
+## Médico e agenda
+- **RN-010:** CRM deve ser armazenado com UF; a combinação CRM+UF identifica registro profissional no contexto do sistema.
+- **RN-011:** RQE é associado à qualificação/especialidade e não substitui CRM.
+- **RN-012:** médico Inativo/Afastado não recebe novo agendamento em período indisponível.
+- **RN-013:** duração do agendamento deve respeitar duração padrão ou exceção explicitada.
+- **RN-014:** dois agendamentos ativos não podem sobrepor o mesmo médico.
+- **RN-015:** bloqueio de agenda tem precedência sobre disponibilidade recorrente.
+- **RN-016:** cancelamento libera capacidade quando não houver regra de bloqueio posterior.
+- **RN-017:** ausência, cancelamento e remarcação são eventos históricos e não devem ser apagados.
+- **RN-018:** check-in só é permitido para agendamento elegível no período configurado.
+- **RN-019:** início do atendimento muda o estado da jornada, mas não apaga estado anterior de recepção.
+
+## Prontuário e segurança do paciente
+- **RN-020:** informação clínica pertence ao prontuário longitudinal do paciente.
+- **RN-021:** alergia/reação crítica ativa deve aparecer no resumo antes de evolução/conduta.
+- **RN-022:** alerta clínico precisa ter origem rastreável; alertas manuais possuem autor e motivo.
+- **RN-023:** Recepção não acessa texto de evolução, diagnóstico, alergias detalhadas ou documentos clínicos, salvo exceção formalmente autorizada.
+- **RN-024:** profissional autorizado pode visualizar histórico necessário mesmo que outro médico tenha produzido o registro.
+- **RN-025:** conteúdo de atendimento em rascunho não equivale a registro final.
+- **RN-026:** atendimento finalizado é imutável no fluxo comum.
+- **RN-027:** correção posterior é feita por adendo/retificação, preservando registro original, autor, data e motivo.
+- **RN-028:** exclusão física de conteúdo clínico não é operação de negócio padrão.
+
+## Exames
+- **RN-030:** solicitação deve apontar paciente e profissional solicitante; quando originada em consulta, aponta também o atendimento.
+- **RN-031:** resultado deve apontar a solicitação original quando ela existir.
+- **RN-032:** “resultado recebido” e “resultado revisado” são estados distintos.
+- **RN-033:** pendência vencida é derivada de prazo + estado, não de edição manual de flag.
+- **RN-034:** revisão clínica de resultado registra profissional e data/hora.
+
+## Continuidade do cuidado
+- **RN-040:** acompanhamento exige paciente, motivo, prioridade, responsável e estado.
+- **RN-041:** acompanhamento baseado em prazo torna-se vencido automaticamente após dueAt quando aberto.
+- **RN-042:** tentativa de contato não encerra acompanhamento automaticamente.
+- **RN-043:** agendamento de retorno pode satisfazer um acompanhamento, mas o encerramento deve ser explícito ou por regra definida.
+- **RN-044:** acompanhamento crítico vencido deve aparecer em fila prioritária.
+
+## Financeiro
+- **RN-050:** lançamento financeiro deriva de atendimento/procedimento identificável.
+- **RN-051:** estorno/cancelamento financeiro preserva lançamento original e motivo.
+- **RN-052:** status clínico e status financeiro são independentes.
+- **RN-053:** Gestão pode ver valor/indicadores sem receber conteúdo clínico.
+- **RN-054:** convênio/TISS/TUSS é extensão do financeiro/faturamento e não deve alterar sem necessidade o modelo central do prontuário.
+
+## Auditoria e acesso
+- **RN-060:** toda leitura relevante de prontuário deve registrar usuário, paciente, ação, horário e contexto técnico mínimo.
+- **RN-061:** alterações de permissão, status de usuário, alerta crítico, alergia e atendimento finalizado são ações auditáveis.
+- **RN-062:** evento de auditoria não é editável por usuários funcionais.
+- **RN-063:** usuário desativado perde capacidade de autenticação, sem apagar autoria histórica.
+- **RN-064:** toda decisão de autorização é feita no backend; ocultar botão na interface não constitui segurança.
+
+## Indicadores
+- **RN-070:** taxa de ausência usa denominador documentado e estados fechados do agendamento.
+- **RN-071:** ocupação considera capacidade configurada menos bloqueios e horários não ofertáveis.
+- **RN-072:** novo paciente é definido pela primeira ocorrência elegível, com regra explicitada no relatório.
+- **RN-073:** indicador deve guardar definição/versão quando a regra puder mudar.
+
+## Regras de arquitetura de domínio
+- **RN-080:** estados de entidades críticas são enums controlados no backend e constraints no banco quando adequado.
+- **RN-081:** transições inválidas devem ser rejeitadas pelo serviço de domínio, não apenas pela UI.
+- **RN-082:** datas de criação, autoria e versão são geradas/garantidas no backend.
