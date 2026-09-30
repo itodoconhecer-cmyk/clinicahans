@@ -29,6 +29,7 @@
         <button class="nav-item active" data-view="dashboard">Visão geral</button>
         <button class="nav-item" data-view="agenda">Agenda</button>
         <button class="nav-item" data-view="pacientes">Pacientes</button>
+        <button class="nav-item" data-view="medicos">Médicos</button>
         <button class="nav-item" data-view="prontuario">Prontuário</button>
         <button class="nav-item" data-view="atendimento">Atendimento</button>
         <button class="nav-item" data-view="exames">Exames e retornos</button>
@@ -122,6 +123,25 @@
           </div>
           <div class="filters"><input id="patient-search" type="search" placeholder="Buscar por nome, CPF ou telefone" /></div>
           <div class="cards" id="patient-cards"></div>
+        </div>
+      </section>
+
+      <section id="view-medicos" class="view">
+        <div class="metric-grid">
+          <article class="metric-card"><span>Médicos ativos</span><strong>3</strong><small>corpo clínico cadastrado</small></article>
+          <article class="metric-card"><span>Especialidades</span><strong>3</strong><small>Clínica, Cardio e Endócrino</small></article>
+          <article class="metric-card"><span>Com RQE</span><strong>3</strong><small>qualificação registrada</small></article>
+          <article class="metric-card"><span>Agenda disponível</span><strong>100%</strong><small>parâmetros configurados</small></article>
+        </div>
+        <div class="panel">
+          <div class="panel-header">
+            <div><p class="eyebrow">Corpo clínico</p><h2>Cadastro de médicos</h2></div>
+            <button class="primary-button" id="new-doctor">+ Novo médico</button>
+          </div>
+          <div class="filters">
+            <input id="doctor-search" type="search" placeholder="Buscar por nome, CRM, RQE, especialidade ou e-mail" />
+          </div>
+          <div class="cards" id="doctor-cards"></div>
         </div>
       </section>
 
