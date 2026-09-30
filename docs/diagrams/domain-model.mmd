@@ -1,18 +1,134 @@
 erDiagram
+    USER ||--o{ AUDIT_EVENT : generates
+    PATIENT ||--o{ APPOINTMENT : has
+    DOCTOR ||--o{ APPOINTMENT : attends
+    SPECIALTY ||--o{ DOCTOR_SPECIALTY : classifies
+    DOCTOR ||--o{ DOCTOR_SPECIALTY : has
+    PATIENT ||--o{ ENCOUNTER : receives
+    DOCTOR ||--o{ ENCOUNTER : performs
+    APPOINTMENT ||--o| ENCOUNTER : results_in
+    PATIENT ||--o{ ALLERGY : has
+    PATIENT ||--o{ MEDICATION : uses
+    PATIENT ||--o{ CLINICAL_CONDITION : has
+    ENCOUNTER ||--o{ EXAM_ORDER : requests
+    EXAM_ORDER ||--o| EXAM_RESULT : receives
+    PATIENT ||--o{ FOLLOW_UP : requires
+    ENCOUNTER ||--o{ FOLLOW_UP : defines
+    ENCOUNTER ||--o| BILLING : generates
+
     USER {
-        bigint id
-        string username
-        string password_hash
-        string role
-        datetime created_at
+      bigint id PK
+      string username
+      string password_hash
+      string role
+      boolean active
+      datetime created_at
     }
-
-    BUSINESS_ENTITY {
-        bigint id
-        string name
-        string status
-        datetime created_at
-        datetime updated_at
+    PATIENT {
+      bigint id PK
+      string full_name
+      string cpf
+      date birth_date
+      string phone
+      string email
+      datetime created_at
     }
-
-    USER ||--o{ BUSINESS_ENTITY : manages
+    DOCTOR {
+      bigint id PK
+      string full_name
+      string cpf
+      string crm
+      string crm_state
+      string rqe
+      string phone
+      string email
+      string status
+      int default_appointment_minutes
+    }
+    SPECIALTY {
+      bigint id PK
+      string name
+    }
+    DOCTOR_SPECIALTY {
+      bigint doctor_id FK
+      bigint specialty_id FK
+      boolean primary_specialty
+    }
+    APPOINTMENT {
+      bigint id PK
+      bigint patient_id FK
+      bigint doctor_id FK
+      datetime starts_at
+      datetime ends_at
+      string status
+      string notes
+    }
+    ENCOUNTER {
+      bigint id PK
+      bigint patient_id FK
+      bigint doctor_id FK
+      bigint appointment_id FK
+      string chief_complaint
+      text assessment
+      text plan
+      string status
+      datetime completed_at
+    }
+    ALLERGY {
+      bigint id PK
+      bigint patient_id FK
+      string substance
+      string reaction
+      string severity
+      boolean active
+    }
+    MEDICATION {
+      bigint id PK
+      bigint patient_id FK
+      string name
+      string dosage
+      boolean active
+    }
+    CLINICAL_CONDITION {
+      bigint id PK
+      bigint patient_id FK
+      string description
+      string status
+    }
+    EXAM_ORDER {
+      bigint id PK
+      bigint encounter_id FK
+      string exam_name
+      string status
+      date expected_by
+    }
+    EXAM_RESULT {
+      bigint id PK
+      bigint exam_order_id FK
+      string document_uri
+      datetime received_at
+      datetime reviewed_at
+    }
+    FOLLOW_UP {
+      bigint id PK
+      bigint patient_id FK
+      bigint encounter_id FK
+      date due_date
+      string reason
+      string status
+    }
+    BILLING {
+      bigint id PK
+      bigint encounter_id FK
+      decimal amount
+      string payment_type
+      string status
+    }
+    AUDIT_EVENT {
+      bigint id PK
+      bigint user_id FK
+      string action
+      string entity_type
+      string entity_id
+      datetime occurred_at
+    }
