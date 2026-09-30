@@ -1,24 +1,22 @@
-flowchart TD
-    A[Paciente necessita atendimento] --> B[Recepção localiza ou cadastra paciente]
-    B --> C[Consulta agenda e médico disponível]
-    C --> D[Cria agendamento]
-    D --> E[Notificação / confirmação]
-    E --> F{Compareceu?}
-    F -- Não --> G[Registrar ausência ou cancelamento]
-    G --> H[Disponibilizar horário e alimentar indicadores]
-    F -- Sim --> I[Médico abre prontuário integrado]
-    I --> J{Há alerta clínico crítico?}
-    J -- Sim --> K[Destacar alergias / reações / riscos]
-    J -- Não --> L[Prosseguir atendimento]
-    K --> L
-    L --> M[Registrar avaliação e conduta]
-    M --> N{Solicitou exame?}
-    N -- Sim --> O[Criar solicitação e acompanhar resultado]
-    N -- Não --> P{Necessita retorno?}
-    O --> P
-    P -- Sim --> Q[Criar acompanhamento com prazo]
-    P -- Não --> R[Finalizar atendimento]
-    Q --> R
-    R --> S[Atualizar linha do tempo clínica]
-    S --> T[Registrar faturamento]
-    T --> U[Atualizar indicadores de gestão]
+stateDiagram-v2
+  [*] --> Requested: necessidade de atendimento
+  Requested --> Scheduled: horário reservado
+  Scheduled --> Confirmed: paciente confirma
+  Scheduled --> Cancelled: cancelamento
+  Confirmed --> CheckedIn: check-in
+  Confirmed --> NoShow: não comparecimento
+  CheckedIn --> InCare: médico inicia
+  InCare --> Completed: atendimento finalizado
+  InCare --> Draft: salvar rascunho
+  Draft --> InCare: retomar
+  Completed --> ExamPending: exame solicitado
+  Completed --> FollowUpPending: retorno/acompanhamento
+  ExamPending --> ResultReceived: resultado recebido
+  ResultReceived --> Reviewed: médico revisa
+  Reviewed --> FollowUpPending: requer retorno
+  Reviewed --> Closed: sem nova ação
+  FollowUpPending --> Scheduled: retorno agendado
+  FollowUpPending --> Closed: acompanhamento resolvido
+  Cancelled --> [*]
+  NoShow --> FollowUpPending: contato/reagendamento
+  Closed --> [*]
