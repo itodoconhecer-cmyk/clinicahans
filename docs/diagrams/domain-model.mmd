@@ -1,134 +1,253 @@
 erDiagram
-    USER ||--o{ AUDIT_EVENT : generates
-    PATIENT ||--o{ APPOINTMENT : has
-    DOCTOR ||--o{ APPOINTMENT : attends
-    SPECIALTY ||--o{ DOCTOR_SPECIALTY : classifies
-    DOCTOR ||--o{ DOCTOR_SPECIALTY : has
-    PATIENT ||--o{ ENCOUNTER : receives
-    DOCTOR ||--o{ ENCOUNTER : performs
-    APPOINTMENT ||--o| ENCOUNTER : results_in
-    PATIENT ||--o{ ALLERGY : has
-    PATIENT ||--o{ MEDICATION : uses
-    PATIENT ||--o{ CLINICAL_CONDITION : has
-    ENCOUNTER ||--o{ EXAM_ORDER : requests
-    EXAM_ORDER ||--o| EXAM_RESULT : receives
-    PATIENT ||--o{ FOLLOW_UP : requires
-    ENCOUNTER ||--o{ FOLLOW_UP : defines
-    ENCOUNTER ||--o| BILLING : generates
+  USER ||--o{ USER_ROLE : has
+  ROLE ||--o{ USER_ROLE : grants
+  USER ||--o{ AUDIT_EVENT : generates
 
-    USER {
-      bigint id PK
-      string username
-      string password_hash
-      string role
-      boolean active
-      datetime created_at
-    }
-    PATIENT {
-      bigint id PK
-      string full_name
-      string cpf
-      date birth_date
-      string phone
-      string email
-      datetime created_at
-    }
-    DOCTOR {
-      bigint id PK
-      string full_name
-      string cpf
-      string crm
-      string crm_state
-      string rqe
-      string phone
-      string email
-      string status
-      int default_appointment_minutes
-    }
-    SPECIALTY {
-      bigint id PK
-      string name
-    }
-    DOCTOR_SPECIALTY {
-      bigint doctor_id FK
-      bigint specialty_id FK
-      boolean primary_specialty
-    }
-    APPOINTMENT {
-      bigint id PK
-      bigint patient_id FK
-      bigint doctor_id FK
-      datetime starts_at
-      datetime ends_at
-      string status
-      string notes
-    }
-    ENCOUNTER {
-      bigint id PK
-      bigint patient_id FK
-      bigint doctor_id FK
-      bigint appointment_id FK
-      string chief_complaint
-      text assessment
-      text plan
-      string status
-      datetime completed_at
-    }
-    ALLERGY {
-      bigint id PK
-      bigint patient_id FK
-      string substance
-      string reaction
-      string severity
-      boolean active
-    }
-    MEDICATION {
-      bigint id PK
-      bigint patient_id FK
-      string name
-      string dosage
-      boolean active
-    }
-    CLINICAL_CONDITION {
-      bigint id PK
-      bigint patient_id FK
-      string description
-      string status
-    }
-    EXAM_ORDER {
-      bigint id PK
-      bigint encounter_id FK
-      string exam_name
-      string status
-      date expected_by
-    }
-    EXAM_RESULT {
-      bigint id PK
-      bigint exam_order_id FK
-      string document_uri
-      datetime received_at
-      datetime reviewed_at
-    }
-    FOLLOW_UP {
-      bigint id PK
-      bigint patient_id FK
-      bigint encounter_id FK
-      date due_date
-      string reason
-      string status
-    }
-    BILLING {
-      bigint id PK
-      bigint encounter_id FK
-      decimal amount
-      string payment_type
-      string status
-    }
-    AUDIT_EVENT {
-      bigint id PK
-      bigint user_id FK
-      string action
-      string entity_type
-      string entity_id
-      datetime occurred_at
-    }
+  PATIENT ||--o{ APPOINTMENT : books
+  DOCTOR ||--o{ APPOINTMENT : attends
+  DOCTOR ||--o{ DOCTOR_SPECIALTY : has
+  SPECIALTY ||--o{ DOCTOR_SPECIALTY : classifies
+  DOCTOR ||--o{ DOCTOR_AVAILABILITY : offers
+  DOCTOR ||--o{ SCHEDULE_BLOCK : blocks
+  APPOINTMENT ||--o{ APPOINTMENT_STATUS_HISTORY : transitions
+
+  PATIENT ||--o{ ENCOUNTER : receives
+  DOCTOR ||--o{ ENCOUNTER : performs
+  APPOINTMENT ||--o| ENCOUNTER : results_in
+  ENCOUNTER ||--o{ ENCOUNTER_ADDENDUM : corrected_by
+
+  PATIENT ||--o{ ALLERGY : has
+  PATIENT ||--o{ MEDICATION : uses
+  PATIENT ||--o{ CLINICAL_CONDITION : has
+  PATIENT ||--o{ CLINICAL_DOCUMENT : owns
+  PATIENT ||--o{ CLINICAL_ALERT : receives
+  ALLERGY ||--o{ CLINICAL_ALERT : may_raise
+
+  ENCOUNTER ||--o{ EXAM_ORDER : requests
+  EXAM_ORDER ||--o| EXAM_RESULT : receives
+  EXAM_RESULT ||--o{ RESULT_REVIEW : reviewed_by
+
+  PATIENT ||--o{ FOLLOW_UP : requires
+  ENCOUNTER ||--o{ FOLLOW_UP : originates
+  FOLLOW_UP ||--o{ FOLLOW_UP_ACTION : tracks
+
+  ENCOUNTER ||--o| RECEIVABLE : generates
+  RECEIVABLE ||--o{ PAYMENT : settled_by
+
+  PATIENT {
+    uuid id PK
+    string full_name
+    string cpf UK
+    date birth_date
+    string phone
+    string email
+    string status
+    timestamptz created_at
+    timestamptz updated_at
+  }
+  DOCTOR {
+    uuid id PK
+    string full_name
+    string cpf UK
+    string crm
+    string crm_state
+    string rqe
+    string phone
+    string email
+    string status
+    int default_appointment_minutes
+    string modality
+  }
+  SPECIALTY {
+    uuid id PK
+    string name
+    string external_code
+  }
+  DOCTOR_SPECIALTY {
+    uuid doctor_id FK
+    uuid specialty_id FK
+    boolean primary_specialty
+  }
+  DOCTOR_AVAILABILITY {
+    uuid id PK
+    uuid doctor_id FK
+    int weekday
+    time starts_at
+    time ends_at
+    int slot_minutes
+    boolean active
+  }
+  SCHEDULE_BLOCK {
+    uuid id PK
+    uuid doctor_id FK
+    timestamptz starts_at
+    timestamptz ends_at
+    string reason
+  }
+  APPOINTMENT {
+    uuid id PK
+    uuid patient_id FK
+    uuid doctor_id FK
+    timestamptz starts_at
+    timestamptz ends_at
+    string modality
+    string status
+    timestamptz checked_in_at
+    string cancellation_reason
+  }
+  APPOINTMENT_STATUS_HISTORY {
+    uuid id PK
+    uuid appointment_id FK
+    string from_status
+    string to_status
+    uuid changed_by FK
+    timestamptz changed_at
+  }
+  ENCOUNTER {
+    uuid id PK
+    uuid patient_id FK
+    uuid doctor_id FK
+    uuid appointment_id FK
+    text chief_complaint
+    text assessment
+    text plan
+    string status
+    int version
+    timestamptz started_at
+    timestamptz completed_at
+  }
+  ENCOUNTER_ADDENDUM {
+    uuid id PK
+    uuid encounter_id FK
+    uuid author_user_id FK
+    text reason
+    text content
+    timestamptz created_at
+  }
+  ALLERGY {
+    uuid id PK
+    uuid patient_id FK
+    string substance
+    text reaction
+    string severity
+    boolean active
+    uuid recorded_by FK
+    timestamptz recorded_at
+  }
+  MEDICATION {
+    uuid id PK
+    uuid patient_id FK
+    string name
+    string dosage
+    string frequency
+    date started_on
+    date ended_on
+    boolean active
+  }
+  CLINICAL_CONDITION {
+    uuid id PK
+    uuid patient_id FK
+    string description
+    string status
+    date onset_date
+  }
+  CLINICAL_ALERT {
+    uuid id PK
+    uuid patient_id FK
+    string type
+    string severity
+    string source_type
+    uuid source_id
+    boolean active
+  }
+  CLINICAL_DOCUMENT {
+    uuid id PK
+    uuid patient_id FK
+    uuid encounter_id FK
+    string document_type
+    string storage_key
+    string mime_type
+    string checksum
+  }
+  EXAM_ORDER {
+    uuid id PK
+    uuid patient_id FK
+    uuid encounter_id FK
+    uuid requested_by FK
+    string exam_name
+    string priority
+    string status
+    date expected_by
+  }
+  EXAM_RESULT {
+    uuid id PK
+    uuid exam_order_id FK
+    string storage_key
+    string mime_type
+    timestamptz received_at
+  }
+  RESULT_REVIEW {
+    uuid id PK
+    uuid exam_result_id FK
+    uuid reviewed_by FK
+    text note
+    timestamptz reviewed_at
+  }
+  FOLLOW_UP {
+    uuid id PK
+    uuid patient_id FK
+    uuid encounter_id FK
+    uuid owner_user_id FK
+    string reason
+    string priority
+    string status
+    timestamptz due_at
+  }
+  FOLLOW_UP_ACTION {
+    uuid id PK
+    uuid follow_up_id FK
+    uuid actor_user_id FK
+    string action_type
+    text note
+    timestamptz created_at
+  }
+  RECEIVABLE {
+    uuid id PK
+    uuid encounter_id FK
+    string payer_type
+    decimal amount
+    date due_date
+    string status
+  }
+  PAYMENT {
+    uuid id PK
+    uuid receivable_id FK
+    decimal amount
+    string method
+    timestamptz paid_at
+  }
+  USER {
+    uuid id PK
+    string username UK
+    string password_hash
+    boolean active
+    timestamptz created_at
+  }
+  ROLE {
+    uuid id PK
+    string code UK
+  }
+  USER_ROLE {
+    uuid user_id FK
+    uuid role_id FK
+  }
+  AUDIT_EVENT {
+    uuid id PK
+    uuid user_id FK
+    string action
+    string entity_type
+    string entity_id
+    string correlation_id
+    inet source_ip
+    timestamptz occurred_at
+  }
