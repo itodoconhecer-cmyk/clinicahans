@@ -38,3 +38,18 @@ Criar protótipos funcionais iniciais usando HTML, CSS e JavaScript puro, com fo
 - Não sofisticar design.
 - Focar em entendimento do produto.
 - Não gerar backend nesta etapa.
+
+
+## Identidade visual obrigatória da Clínica Hans
+
+- Nome oficial no protótipo: **Clínica Hans**.
+- Manter uma logomarca visível e consistente, associando saúde, cuidado humano e tecnologia.
+- Paleta oficial:
+  - `#506BCA`
+  - `#6A83D7`
+  - `#859AE5`
+  - `#9FB2F2`
+  - `#B9C9FF`
+- Branco e neutros podem ser usados apenas como apoio de contraste e legibilidade.
+- Não voltar à paleta verde/teal anterior.
+- Futuras regenerações do Prompt 01 devem preservar nome, logomarca e paleta, salvo decisão explícita posterior.
