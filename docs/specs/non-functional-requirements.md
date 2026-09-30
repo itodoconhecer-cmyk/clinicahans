@@ -1,13 +1,26 @@
-# Requisitos Não Funcionais
+# Requisitos Não Funcionais — Clínica Hans
 
-## Diretrizes-base
-- segurança por autenticação e autorização;
-- logs estruturados;
-- API documentada;
-- banco versionado;
-- interface responsiva básica;
-- nomes claros e consistentes;
-- possibilidade de evolução.
-
-## Instrução
-A IA deve refinar este documento com base no domínio descrito na história.
+- **RNF-001 — Segurança:** toda comunicação deve usar TLS e credenciais nunca devem ser armazenadas em texto puro.
+- **RNF-002 — Autorização:** aplicar controle de acesso baseado em papéis e, quando necessário, regras por contexto clínico.
+- **RNF-003 — Princípio do menor privilégio:** cada perfil acessa apenas o necessário para sua função.
+- **RNF-004 — Privacidade/LGPD:** tratamento de dados pessoais e sensíveis deve observar finalidade, necessidade, rastreabilidade e mecanismos de atendimento aos direitos do titular.
+- **RNF-005 — Auditoria:** acessos e alterações relevantes em prontuário, alergias, medicamentos, exames e dados cadastrais devem gerar trilha imutável ou protegida contra alteração comum.
+- **RNF-006 — Integridade:** dados clínicos finalizados não podem ser sobrescritos silenciosamente; correções devem preservar histórico.
+- **RNF-007 — Disponibilidade:** serviços essenciais de agenda e prontuário devem ser desenhados para alta disponibilidade compatível com operação clínica.
+- **RNF-008 — Backup e recuperação:** banco e documentos clínicos devem possuir cópias periódicas, retenção definida e teste de restauração.
+- **RNF-009 — Desempenho:** telas operacionais devem responder, em condições normais, em poucos segundos; alertas críticos devem aparecer sem navegação adicional relevante.
+- **RNF-010 — Observabilidade:** logs estruturados, métricas e correlação de requisições devem permitir diagnóstico operacional.
+- **RNF-011 — Rastreabilidade:** entidades principais devem possuir identificador, timestamps e autoria de criação/alteração quando aplicável.
+- **RNF-012 — Usabilidade:** a interface deve priorizar legibilidade, baixa carga cognitiva e destaque visual consistente para alertas clínicos.
+- **RNF-013 — Responsividade:** fluxos principais devem funcionar em desktop e telas menores sem perda de informação essencial.
+- **RNF-014 — Acessibilidade:** componentes devem utilizar HTML semântico, foco visível, labels e contraste adequado.
+- **RNF-015 — Interoperabilidade:** APIs devem ser documentadas em OpenAPI e projetadas para futura integração com serviços externos.
+- **RNF-016 — Persistência:** PostgreSQL 15+ com migrações versionadas.
+- **RNF-017 — Backend:** Java 17+ e Spring Boot, com SQL explícito conforme padrão do projeto.
+- **RNF-018 — Frontend:** HTML, CSS e JavaScript moderno, sem dependência obrigatória de framework.
+- **RNF-019 — Testabilidade:** regras de negócio e serviços críticos devem possuir testes automatizados.
+- **RNF-020 — Evolução:** módulos de pacientes, médicos, agenda, prontuário, exames, financeiro e indicadores devem ter baixo acoplamento.
+- **RNF-021 — Retenção:** política de retenção deve diferenciar registros clínicos, administrativos, logs e documentos.
+- **RNF-022 — Segregação de dados sensíveis:** informações clínicas não devem aparecer em logs de aplicação em texto aberto.
+- **RNF-023 — Sessão:** sessões/token devem expirar e suportar revogação conforme política de segurança.
+- **RNF-024 — Concorrência:** alterações concorrentes em agenda e prontuário devem evitar dupla reserva e perda de atualização.
