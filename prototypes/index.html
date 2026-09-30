@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Clínica Dr. Hans Chucrute — Protótipo</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Navegação principal">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">+</div>
+        <div>
+          <strong>Clínica Hans</strong>
+          <span>Jornada do paciente</span>
+        </div>
+      </div>
+
+      <nav id="main-nav" class="nav-list">
+        <button class="nav-item active" data-view="dashboard">Visão geral</button>
+        <button class="nav-item" data-view="agenda">Agenda</button>
+        <button class="nav-item" data-view="pacientes">Pacientes</button>
+        <button class="nav-item" data-view="prontuario">Prontuário</button>
+        <button class="nav-item" data-view="atendimento">Atendimento</button>
+        <button class="nav-item" data-view="exames">Exames e retornos</button>
+        <button class="nav-item" data-view="financeiro">Faturamento</button>
+        <button class="nav-item" data-view="indicadores">Indicadores</button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <span class="status-dot"></span>
+        Protótipo funcional — sem dados reais
+      </div>
+    </aside>
+
+    <main class="content">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Clínica Médica Dr. Hans Chucrute</p>
+          <h1 id="page-title">Visão geral</h1>
+        </div>
+        <div class="topbar-actions">
+          <label class="role-switcher">
+            Perfil
+            <select id="role-select">
+              <option>Médico</option>
+              <option>Recepção</option>
+              <option>Gestão</option>
+            </select>
+          </label>
+          <div class="user-chip">HC</div>
+        </div>
+      </header>
+
+      <section id="view-dashboard" class="view active">
+        <div class="alert critical">
+          <div>
+            <strong>Alerta clínico prioritário</strong>
+            <p>Mariana Souza possui reação medicamentosa registrada. Informação destacada antes do próximo atendimento.</p>
+          </div>
+          <button class="link-button" data-view="prontuario">Abrir prontuário</button>
+        </div>
+
+        <div class="metric-grid">
+          <article class="metric-card"><span>Consultas hoje</span><strong>18</strong><small>3 aguardando</small></article>
+          <article class="metric-card"><span>Confirmações pendentes</span><strong>6</strong><small>ações da recepção</small></article>
+          <article class="metric-card"><span>Exames pendentes</span><strong>11</strong><small>4 com prazo vencido</small></article>
+          <article class="metric-card"><span>Retornos a acompanhar</span><strong>8</strong><small>2 prioritários</small></article>
+        </div>
+
+        <div class="two-columns">
+          <article class="panel">
+            <div class="panel-header"><div><p class="eyebrow">Hoje</p><h2>Próximos atendimentos</h2></div><button class="secondary-button" data-view="agenda">Ver agenda</button></div>
+            <div class="list" id="today-appointments"></div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-header"><div><p class="eyebrow">Continuidade</p><h2>Acompanhamentos que exigem ação</h2></div></div>
+            <div class="task-list">
+              <label><input type="checkbox" /> Confirmar retorno cardiológico de Carlos Lima</label>
+              <label><input type="checkbox" /> Cobrar resultado de hemograma de Mariana Souza</label>
+              <label><input type="checkbox" /> Revisar exame de imagem de André Martins</label>
+              <label><input type="checkbox" /> Reagendar paciente que faltou ontem</label>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section id="view-agenda" class="view">
+        <div class="panel">
+          <div class="panel-header">
+            <div><p class="eyebrow">Operação</p><h2>Agenda médica</h2></div>
+            <button class="primary-button" id="new-appointment">+ Novo agendamento</button>
+          </div>
+          <div class="filters">
+            <input id="agenda-search" type="search" placeholder="Buscar paciente ou médico" />
+            <select id="agenda-status"><option value="">Todos os status</option><option>Confirmada</option><option>Pendente</option><option>Em atendimento</option><option>Cancelada</option></select>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Horário</th><th>Paciente</th><th>Médico</th><th>Especialidade</th><th>Status</th><th>Ação</th></tr></thead>
+              <tbody id="agenda-table"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-pacientes" class="view">
+        <div class="panel">
+          <div class="panel-header">
+            <div><p class="eyebrow">Cadastro</p><h2>Pacientes</h2></div>
+            <button class="primary-button" id="new-patient">+ Novo paciente</button>
+          </div>
+          <div class="filters"><input id="patient-search" type="search" placeholder="Buscar por nome, CPF ou telefone" /></div>
+          <div class="cards" id="patient-cards"></div>
+        </div>
+      </section>
+
+      <section id="view-prontuario" class="view">
+        <div class="patient-header">
+          <div>
+            <p class="eyebrow">Paciente selecionada</p>
+            <h2>Mariana Souza, 46 anos</h2>
+            <p>Última consulta: 12/09/2026 · Clínica Médica</p>
+          </div>
+          <button class="primary-button" data-view="atendimento">Iniciar atendimento</button>
+        </div>
+
+        <div class="alert critical"><div><strong>Reação medicamentosa</strong><p>Amoxicilina — reação cutânea importante registrada em 14/03/2026.</p></div><span class="badge danger">Crítico</span></div>
+
+        <div class="three-columns">
+          <article class="panel compact"><p class="eyebrow">Alergias e reações</p><h3>1 registro crítico</h3><p>Amoxicilina — evitar prescrição até avaliação médica.</p></article>
+          <article class="panel compact"><p class="eyebrow">Medicamentos atuais</p><h3>2 ativos</h3><p>Losartana 50 mg · Vitamina D</p></article>
+          <article class="panel compact"><p class="eyebrow">Pendências</p><h3>2 acompanhamentos</h3><p>Hemograma e retorno em 30 dias.</p></article>
+        </div>
+
+        <div class="two-columns">
+          <article class="panel">
+            <div class="panel-header"><div><p class="eyebrow">Histórico</p><h2>Linha do tempo clínica</h2></div></div>
+            <div class="timeline">
+              <div class="timeline-item"><strong>12/09/2026 — Consulta</strong><p>Revisão de pressão arterial. Mantida medicação. Solicitado hemograma.</p></div>
+              <div class="timeline-item"><strong>14/03/2026 — Reação medicamentosa</strong><p>Paciente apresentou reação cutânea após uso de amoxicilina. Registro classificado como crítico.</p></div>
+              <div class="timeline-item"><strong>20/01/2026 — Exame</strong><p>Perfil lipídico anexado ao acompanhamento clínico.</p></div>
+            </div>
+          </article>
+          <article class="panel">
+            <div class="panel-header"><div><p class="eyebrow">Documentos</p><h2>Exames e registros</h2></div></div>
+            <div class="document-list">
+              <button>Hemograma — pendente</button>
+              <button>Perfil lipídico — 20/01/2026</button>
+              <button>Eletrocardiograma — 08/11/2025</button>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section id="view-atendimento" class="view">
+        <div class="panel">
+          <div class="panel-header"><div><p class="eyebrow">Consulta em andamento</p><h2>Atendimento — Mariana Souza</h2></div><span class="badge warning">Rascunho</span></div>
+          <div class="alert critical small"><strong>Atenção:</strong>&nbsp; reação importante à amoxicilina registrada no prontuário.</div>
+          <form id="consultation-form" class="form-grid">
+            <label>Queixa principal<textarea required placeholder="Motivo da consulta"></textarea></label>
+            <label>História e avaliação<textarea required placeholder="Evolução, achados e avaliação clínica"></textarea></label>
+            <label>Conduta<textarea placeholder="Orientações e plano terapêutico"></textarea></label>
+            <label>Solicitar exame<input type="text" placeholder="Ex.: Hemograma completo" /></label>
+            <label>Retorno<select><option>Sem retorno definido</option><option>7 dias</option><option>15 dias</option><option>30 dias</option><option>60 dias</option></select></label>
+            <label class="checkbox-line"><input type="checkbox" /> Marcar necessidade de acompanhamento ativo pela clínica</label>
+            <div class="form-actions"><button type="button" class="secondary-button">Salvar rascunho</button><button type="submit" class="primary-button">Finalizar atendimento</button></div>
+          </form>
+        </div>
+      </section>
+
+      <section id="view-exames" class="view">
+        <div class="two-columns">
+          <article class="panel"><div class="panel-header"><div><p class="eyebrow">Exames</p><h2>Pendências de realização</h2></div></div><div id="exam-list" class="followup-list"></div></article>
+          <article class="panel"><div class="panel-header"><div><p class="eyebrow">Retornos</p><h2>Pacientes a acompanhar</h2></div></div><div id="return-list" class="followup-list"></div></article>
+        </div>
+      </section>
+
+      <section id="view-financeiro" class="view">
+        <div class="metric-grid">
+          <article class="metric-card"><span>Faturamento do mês</span><strong>R$ 78,4 mil</strong><small>protótipo demonstrativo</small></article>
+          <article class="metric-card"><span>Consultas faturadas</span><strong>312</strong><small>setembro/2026</small></article>
+          <article class="metric-card"><span>Pendências</span><strong>14</strong><small>necessitam conferência</small></article>
+          <article class="metric-card"><span>Ticket médio</span><strong>R$ 251</strong><small>consulta/procedimento</small></article>
+        </div>
+        <article class="panel"><div class="panel-header"><div><p class="eyebrow">Operação</p><h2>Lançamentos recentes</h2></div></div><div class="table-wrap"><table><thead><tr><th>Paciente</th><th>Atendimento</th><th>Forma</th><th>Valor</th><th>Status</th></tr></thead><tbody><tr><td>Mariana Souza</td><td>Consulta clínica</td><td>Particular</td><td>R$ 280</td><td><span class="badge success">Pago</span></td></tr><tr><td>Carlos Lima</td><td>Cardiologia</td><td>Convênio</td><td>R$ 220</td><td><span class="badge warning">A conferir</span></td></tr></tbody></table></div></article>
+      </section>
+
+      <section id="view-indicadores" class="view">
+        <div class="metric-grid">
+          <article class="metric-card"><span>Novos pacientes</span><strong>42</strong><small>no mês</small></article>
+          <article class="metric-card"><span>Taxa de ausência</span><strong>8,2%</strong><small>-1,3 p.p.</small></article>
+          <article class="metric-card"><span>Tempo médio até consulta</span><strong>4,6 dias</strong><small>todas as especialidades</small></article>
+          <article class="metric-card"><span>Acompanhamentos pendentes</span><strong>19</strong><small>5 prioritários</small></article>
+        </div>
+        <div class="two-columns">
+          <article class="panel"><div class="panel-header"><div><p class="eyebrow">Capacidade</p><h2>Ocupação por especialidade</h2></div></div><div class="bar-list"><div><span>Clínica médica</span><progress value="88" max="100"></progress><strong>88%</strong></div><div><span>Cardiologia</span><progress value="74" max="100"></progress><strong>74%</strong></div><div><span>Endocrinologia</span><progress value="63" max="100"></progress><strong>63%</strong></div></div></article>
+          <article class="panel"><div class="panel-header"><div><p class="eyebrow">Gestão</p><h2>Sinais operacionais</h2></div></div><ul class="insight-list"><li>Maior índice de faltas: segunda-feira, 08h–10h.</li><li>6 horários liberados por cancelamento antecipado nesta semana.</li><li>4 exames prioritários ainda sem resultado associado.</li><li>Tempo médio de confirmação de consulta: 3h15.</li></ul></article>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="modal" class="modal" aria-hidden="true">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <div class="panel-header"><div><p class="eyebrow">Protótipo</p><h2 id="modal-title">Novo registro</h2></div><button id="close-modal" class="icon-button" aria-label="Fechar">×</button></div>
+      <form id="modal-form" class="form-grid"></form>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="app.js"></script>
+</body>
+</html>
