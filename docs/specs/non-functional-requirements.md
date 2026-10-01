@@ -20,7 +20,8 @@ Metas abaixo são alvos de engenharia para o projeto e devem ser validadas em pr
 - **RNF-021 [P0] Transação:** finalização de atendimento + eventos dependentes críticos deve ser atômica quando necessário.
 - **RNF-022 [P0] Concorrência:** agenda deve evitar dupla reserva por constraint/transação, não apenas validação de tela.
 - **RNF-023 [P0] Relógio:** timestamps persistidos em UTC com apresentação no fuso da clínica.
-- **RNF-024 [P1] Identificadores:** IDs internos não carregam significado de negócio.
+- **RNF-024 [P1] Identificadores:** IDs internos devem usar UUID e não carregar significado de negócio.
+- **RNF-025 [P1] Concorrência de edição:** cadastros e registros mutáveis críticos devem usar versão/controle otimista quando houver risco de perda de atualização.
 
 ## Disponibilidade, continuidade e recuperação
 - **RNF-030 [P1] Disponibilidade alvo:** 99,5% mensal para MVP, excluindo janela planejada; alvo deve crescer conforme criticidade.
