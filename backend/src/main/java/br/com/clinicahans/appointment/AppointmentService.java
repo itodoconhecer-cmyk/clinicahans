@@ -41,7 +41,6 @@ public class AppointmentService {
         OffsetDateTime end=start.plusMinutes(minutes);
         if(repository.hasConflict(doctorId,start,end)) throw new BusinessRuleException("Horário conflita com outro agendamento do médico.");
         var a=repository.create(patientId,doctorId,start,end,modality,notes,users.currentUserId());
-        repository.changeStatus(a.id(),AppointmentStatus.SCHEDULED,"Criação do agendamento",users.currentUserId());
         audit.record("APPOINTMENT_CREATED","APPOINTMENT",a.id());
         return repository.get(a.id());
     }
