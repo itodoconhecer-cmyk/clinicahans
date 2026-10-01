@@ -21,6 +21,25 @@ public class DoctorService {
     }
     public DoctorRepository.Doctor get(UUID id){return repository.get(id);}
     public List<DoctorRepository.Doctor> search(String q,int limit){return repository.search(q,limit);}
+    public DoctorRepository.Specialty createSpecialty(String name,String system,String code){
+        var specialty=repository.createSpecialty(name.trim(),system,code);
+        audit.record("SPECIALTY_CREATED","SPECIALTY",specialty.id());
+        return specialty;
+    }
+    public List<DoctorRepository.Specialty> specialties(){return repository.listSpecialties();}
+    public void linkSpecialty(UUID doctorId,UUID specialtyId,boolean primary){
+        repository.linkSpecialty(doctorId,specialtyId,primary);
+        audit.record("DOCTOR_SPECIALTY_LINKED","DOCTOR",doctorId);
+    }
+    public void addScheduleBlock(UUID doctorId,java.time.OffsetDateTime start,java.time.OffsetDateTime end,String reason){
+        if(!end.isAfter(start)) throw new BusinessRuleException("Fim do bloqueio deve ser posterior ao início.");
+        repository.addScheduleBlock(doctorId,start,end,reason);
+        audit.record("DOCTOR_SCHEDULE_BLOCK_CREATED","DOCTOR",doctorId);
+    }
+    public List<DoctorRepository.ScheduleBlock> scheduleBlocks(UUID doctorId,java.time.OffsetDateTime from,java.time.OffsetDateTime to){
+        repository.get(doctorId); return repository.scheduleBlocks(doctorId,from,to);
+    }
+
     public void linkUser(UUID doctorId, UUID userId) {
         repository.linkUser(doctorId,userId);
         audit.record("DOCTOR_USER_LINKED","DOCTOR",doctorId);
