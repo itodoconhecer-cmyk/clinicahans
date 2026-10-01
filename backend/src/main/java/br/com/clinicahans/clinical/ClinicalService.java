@@ -33,6 +33,8 @@ public class ClinicalService {
     @Transactional
     public ClinicalRepository.Encounter start(UUID appointmentId){
         var a=appointments.get(appointmentId);
+        if(!users.currentUserHasRole("ADMIN") && !users.currentDoctorId().equals(a.doctorId()))
+            throw new BusinessRuleException("Médico autenticado não corresponde ao profissional do agendamento.");
         if(a.status()!=AppointmentStatus.CHECKED_IN) throw new BusinessRuleException("Atendimento exige consulta em check-in.");
         appointments.transition(appointmentId,AppointmentStatus.IN_CARE,"Início do atendimento clínico");
         var encounter=repository.createEncounter(a.patientId(),a.doctorId(),a.id(),users.currentUserId());
@@ -42,6 +44,7 @@ public class ClinicalService {
 
     @Transactional
     public ClinicalRepository.Encounter saveDraft(UUID id,String chief,String assessment,String plan,int version){
+        assertEncounterOwnership(repository.getEncounter(id));
         var result=repository.saveDraft(id,chief,assessment,plan,version);
         audit.record("ENCOUNTER_DRAFT_SAVED","ENCOUNTER",id); return result;
     }
@@ -49,6 +52,7 @@ public class ClinicalService {
     @Transactional
     public ClinicalRepository.Encounter finalizeEncounter(UUID id,int version){
         var current=repository.getEncounter(id);
+        assertEncounterOwnership(current);
         if(current.assessment()==null||current.assessment().isBlank()) throw new BusinessRuleException("Avaliação clínica é obrigatória para finalizar.");
         var result=repository.finalizeEncounter(id,version);
         appointments.transition(current.appointmentId(),AppointmentStatus.COMPLETED,"Atendimento finalizado");
@@ -56,8 +60,14 @@ public class ClinicalService {
     }
 
     public ClinicalRepository.Addendum addAddendum(UUID id,String reason,String content){
+        assertEncounterOwnership(repository.getEncounter(id));
         var result=repository.addAddendum(id,users.currentUserId(),reason,content);
         audit.record("ENCOUNTER_ADDENDUM_CREATED","ENCOUNTER",id); return result;
+    }
+
+    private void assertEncounterOwnership(ClinicalRepository.Encounter encounter) {
+        if(!users.currentUserHasRole("ADMIN") && !users.currentDoctorId().equals(encounter.doctorId()))
+            throw new BusinessRuleException("Somente o médico responsável pelo atendimento pode alterar/finalizar este registro.");
     }
 
     public ClinicalRepository.Allergy addAllergy(UUID patientId,String substance,String reaction,String severity){
