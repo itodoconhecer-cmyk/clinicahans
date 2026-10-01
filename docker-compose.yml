@@ -1,21 +1,21 @@
 services:
   db:
     image: postgres:16-alpine
-    container_name: academy-db
+    container_name: clinicahans-db
     restart: unless-stopped
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_DB: academy_db
+      POSTGRES_DB: clinicahans
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
     volumes:
-      - academy_pgdata:/var/lib/postgresql/data
+      - clinicahans_pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d academy_db"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d clinicahans"]
       interval: 5s
       timeout: 3s
-      retries: 5
+      retries: 10
 
 volumes:
-  academy_pgdata:
+  clinicahans_pgdata:
