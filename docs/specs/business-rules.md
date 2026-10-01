@@ -9,6 +9,8 @@
 - **RN-010:** CRM deve ser armazenado com UF; a combinação CRM+UF identifica registro profissional no contexto do sistema.
 - **RN-011:** RQE é associado à qualificação/especialidade e não substitui CRM.
 - **RN-012:** médico Inativo/Afastado não recebe novo agendamento em período indisponível.
+- **RN-012A:** identidade de autenticação e cadastro médico são entidades distintas e devem possuir vínculo explícito 1:0..1; possuir role MEDICO, isoladamente, não autoriza atuar como qualquer médico.
+- **RN-012B:** iniciar, editar, finalizar ou adendar atendimento exige que o médico autenticado corresponda ao médico responsável pelo atendimento, salvo operação administrativa excepcional formalmente autorizada e auditada.
 - **RN-013:** duração do agendamento deve respeitar duração padrão ou exceção explicitada.
 - **RN-014:** dois agendamentos ativos não podem sobrepor o mesmo médico.
 - **RN-015:** bloqueio de agenda tem precedência sobre disponibilidade recorrente.
