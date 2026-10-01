@@ -20,12 +20,14 @@ public class ClinicalService {
     }
 
     public ClinicalRepository.SafetySnapshot safetySnapshot(UUID patientId){
+        assertPatientAccess(patientId);
         var snapshot=repository.safetySnapshot(patientId);
         audit.record("MEDICAL_RECORD_VIEWED","PATIENT",patientId);
         return snapshot;
     }
 
     public List<ClinicalRepository.TimelineEvent> timeline(UUID patientId,int limit){
+        assertPatientAccess(patientId);
         audit.record("MEDICAL_TIMELINE_VIEWED","PATIENT",patientId);
         return repository.timeline(patientId,limit);
     }
@@ -70,7 +72,13 @@ public class ClinicalService {
             throw new BusinessRuleException("Somente o médico responsável pelo atendimento pode alterar/finalizar este registro.");
     }
 
+    private void assertPatientAccess(UUID patientId) {
+        if(!users.currentDoctorHasRelationshipWithPatient(patientId))
+            throw new BusinessRuleException("Médico não possui relação assistencial registrada com este paciente.");
+    }
+
     public ClinicalRepository.Allergy addAllergy(UUID patientId,String substance,String reaction,String severity){
+        assertPatientAccess(patientId);
         var result=repository.createAllergy(patientId,substance,reaction,severity,users.currentUserId());
         audit.record("ALLERGY_CREATED","PATIENT",patientId); return result;
     }
