@@ -50,3 +50,6 @@ As metas de disponibilidade/RPO/RTO e integrações TISS/TUSS são requisitos pl
 
 ## Validação contínua
 O workflow `Backend CI` compila o projeto com Java 21 e executa `mvn clean test` em alterações do backend.
+
+## Integração com frontend
+O CORS é configurável por `CORS_ALLOWED_ORIGINS`; alterações em backend continuam protegidas pelo Backend CI.
