@@ -26,7 +26,7 @@ public class AppointmentController {
     public List<AppointmentRepository.Appointment> list(@RequestParam OffsetDateTime from,@RequestParam OffsetDateTime to,@RequestParam(required=false) UUID doctorId){
         return service.list(from,to,doctorId);
     }
-    @PostMapping("/{id}/transition") @PreAuthorize("hasAnyRole('RECEPCAO','MEDICO','ADMIN')")
+    @PostMapping("/{id}/transition") @PreAuthorize("hasAnyRole('RECEPCAO','ADMIN')")
     public AppointmentRepository.Appointment transition(@PathVariable UUID id,@Valid @RequestBody TransitionRequest r){
         return service.transition(id,r.target(),r.reason());
     }
