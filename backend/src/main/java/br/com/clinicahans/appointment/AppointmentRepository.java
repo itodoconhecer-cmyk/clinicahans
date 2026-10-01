@@ -19,6 +19,10 @@ public class AppointmentRepository {
           insert into appointment(id,patient_id,doctor_id,starts_at,ends_at,modality,status,notes,created_by)
           values (?,?,?,?,?,?, 'SCHEDULED', ?,?)
           """,id,patientId,doctorId,start,end,modality,notes,createdBy);
+        jdbc.update("""
+          insert into appointment_status_history(id,appointment_id,from_status,to_status,changed_by,reason)
+          values (?,?,null,'SCHEDULED',?,'Criação do agendamento')
+          """,UUID.randomUUID(),id,createdBy);
         return get(id);
     }
 
