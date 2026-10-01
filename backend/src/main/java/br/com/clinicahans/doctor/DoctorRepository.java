@@ -24,7 +24,7 @@ public class DoctorRepository {
 
     public Doctor get(UUID id) {
         return jdbc.query("""
-          select id,full_name,cpf,crm,crm_state,rqe,phone,email,status,default_appointment_minutes,modality,user_id,user_id
+          select id,full_name,cpf,crm,crm_state,rqe,phone,email,status,default_appointment_minutes,modality,user_id
           from doctor where id=?
           """, mapper(), id).stream().findFirst().orElseThrow(() -> new NotFoundException("Médico não encontrado."));
     }
@@ -32,7 +32,7 @@ public class DoctorRepository {
     public List<Doctor> search(String term, int limit) {
         String q = "%" + (term == null ? "" : term.trim().toLowerCase()) + "%";
         return jdbc.query("""
-          select id,full_name,cpf,crm,crm_state,rqe,phone,email,status,default_appointment_minutes,modality
+          select id,full_name,cpf,crm,crm_state,rqe,phone,email,status,default_appointment_minutes,modality,user_id
           from doctor
           where lower(full_name) like ? or lower(crm) like ? or lower(coalesce(rqe,'')) like ? or lower(coalesce(email,'')) like ?
           order by full_name limit ?
