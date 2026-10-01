@@ -32,3 +32,14 @@ Registrar decisões e correções descobertas ao transformar a especificação e
 - terminologias clínicas estruturadas.
 
 Essas pendências estão preparadas arquiteturalmente, mas não foram inventadas como requisito obrigatório do MVP.
+
+## Validação executável
+- Workflow: **Backend CI**
+- Ambiente: Java 21 / Maven
+- Comando: `mvn -B -ntp clean test`
+- GitHub Actions run: **#23**
+- Resultado: **success**
+- PR técnico de validação: **#1**
+- Merge de validação: `92d2d48933de45ff679424b7597e76f6bcab7d7b`
+
+A validação confirma compilação e testes automatizados existentes. Não substitui testes de carga, segurança ofensiva, restore de backup ou homologação clínica.
