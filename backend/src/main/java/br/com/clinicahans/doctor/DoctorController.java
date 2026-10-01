@@ -23,6 +23,8 @@ public class DoctorController {
     public DoctorRepository.Doctor get(@PathVariable UUID id){return service.get(id);}
     @GetMapping @PreAuthorize("hasAnyRole('RECEPCAO','MEDICO','GESTAO','ADMIN')")
     public List<DoctorRepository.Doctor> search(@RequestParam(defaultValue="") String q,@RequestParam(defaultValue="30") int limit){return service.search(q,limit);}
+    @PostMapping("/{id}/user-link") @PreAuthorize("hasRole('ADMIN')")
+    public void linkUser(@PathVariable UUID id,@Valid @RequestBody UserLinkRequest r){service.linkUser(id,r.userId());}
     @GetMapping("/{id}/availability") @PreAuthorize("hasAnyRole('RECEPCAO','MEDICO','GESTAO','ADMIN')")
     public List<DoctorRepository.Availability> availability(@PathVariable UUID id){return service.availability(id);}
     @PostMapping("/{id}/availability") @PreAuthorize("hasAnyRole('GESTAO','ADMIN')")
@@ -32,5 +34,6 @@ public class DoctorController {
       @NotBlank @Pattern(regexp="[A-Za-z]{2}") String crmState,String rqe,String phone,@Email String email,
       @Pattern(regexp="ACTIVE|INACTIVE|AWAY") String status,@Min(5) @Max(480) int defaultAppointmentMinutes,
       @Pattern(regexp="PRESENCIAL|TELEMEDICINA|HIBRIDO") String modality){}
+    public record UserLinkRequest(@NotNull UUID userId){}
     public record AvailabilityRequest(@Min(1) @Max(7) int weekday,@NotNull LocalTime startsAt,@NotNull LocalTime endsAt,@Min(5) @Max(480) int slotMinutes){}
 }
