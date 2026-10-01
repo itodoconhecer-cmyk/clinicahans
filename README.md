@@ -132,6 +132,8 @@ História de negócio
 - IA Factory consolidada
 - Arquitetura técnica unificada
 - História da Clínica Dr. Hans Chucrute carregada
-- Prompt 01 executado
-- Protótipo funcional disponível em `prototypes/`
-- Próxima etapa: Prompt 02 — especificações e fluxos
+- Prompt 01 executado e protótipo funcional disponível em `prototypes/`
+- Prompt 02 refeito em nível sênior com benchmark de mercado, especificações e diagramas
+- Prompt 03 executado: backend Java 21/Spring Boot + JDBC/SQL explícito + PostgreSQL + JWT + OpenAPI
+- Backend validado pelo GitHub Actions (Backend CI)
+- Próxima etapa: Prompt 04 — frontend integrado à API
