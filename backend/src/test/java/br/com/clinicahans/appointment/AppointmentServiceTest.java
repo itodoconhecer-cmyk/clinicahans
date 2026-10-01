@@ -27,6 +27,9 @@ class AppointmentServiceTest {
         var start=OffsetDateTime.now().plusDays(1).withSecond(0).withNano(0);
         when(doctors.get(doctorId)).thenReturn(new DoctorRepository.Doctor(
             doctorId,"Dr. Hans",null,"12345","SP",null,null,null,"ACTIVE",30,"PRESENCIAL",null));
+        when(doctors.availability(doctorId)).thenReturn(java.util.List.of(
+            new DoctorRepository.Availability(UUID.randomUUID(),start.getDayOfWeek().getValue(),
+                java.time.LocalTime.MIN,java.time.LocalTime.of(23,59),30,true)));
         when(repository.hasConflict(eq(doctorId),eq(start),any())).thenReturn(true);
 
         assertThrows(BusinessRuleException.class,
