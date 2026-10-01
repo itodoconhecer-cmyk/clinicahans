@@ -1,22 +1,51 @@
 stateDiagram-v2
-  [*] --> Requested: necessidade de atendimento
-  Requested --> Scheduled: horário reservado
-  Scheduled --> Confirmed: paciente confirma
-  Scheduled --> Cancelled: cancelamento
-  Confirmed --> CheckedIn: check-in
-  Confirmed --> NoShow: não comparecimento
-  CheckedIn --> InCare: médico inicia
-  InCare --> Completed: atendimento finalizado
-  InCare --> Draft: salvar rascunho
-  Draft --> InCare: retomar
-  Completed --> ExamPending: exame solicitado
-  Completed --> FollowUpPending: retorno/acompanhamento
-  ExamPending --> ResultReceived: resultado recebido
-  ResultReceived --> Reviewed: médico revisa
-  Reviewed --> FollowUpPending: requer retorno
-  Reviewed --> Closed: sem nova ação
-  FollowUpPending --> Scheduled: retorno agendado
-  FollowUpPending --> Closed: acompanhamento resolvido
-  Cancelled --> [*]
-  NoShow --> FollowUpPending: contato/reagendamento
-  Closed --> [*]
+  state "Agenda" as Agenda {
+    [*] --> SCHEDULED
+    SCHEDULED --> CONFIRMED: confirmar
+    SCHEDULED --> CHECKED_IN: check-in direto permitido
+    SCHEDULED --> CANCELLED: cancelar
+    SCHEDULED --> NO_SHOW: ausência
+    CONFIRMED --> CHECKED_IN: check-in
+    CONFIRMED --> CANCELLED: cancelar
+    CONFIRMED --> NO_SHOW: ausência
+    CHECKED_IN --> IN_CARE: médico inicia atendimento
+    CHECKED_IN --> CANCELLED: exceção operacional
+    IN_CARE --> COMPLETED: atendimento finalizado
+    COMPLETED --> [*]
+    CANCELLED --> [*]
+    NO_SHOW --> [*]
+  }
+
+  state "Atendimento" as Encounter {
+    [*] --> DRAFT
+    DRAFT --> DRAFT: salvar rascunho/versionar
+    DRAFT --> FINAL: finalizar com avaliação
+    FINAL --> FINAL: adendo separado
+    FINAL --> [*]
+  }
+
+  state "Exames" as Exam {
+    [*] --> REQUESTED
+    REQUESTED --> PERFORMED: realização registrada
+    REQUESTED --> RESULT_RECEIVED: resultado recebido
+    PERFORMED --> RESULT_RECEIVED: resultado recebido
+    RESULT_RECEIVED --> REVIEWED: médico revisa
+    REQUESTED --> CANCELLED: cancelar
+    PERFORMED --> CANCELLED: cancelar
+    REVIEWED --> [*]
+    CANCELLED --> [*]
+  }
+
+  state "Follow-up" as FollowUp {
+    [*] --> OPEN
+    OPEN --> OVERDUE: prazo expirou (estado derivado)
+    OPEN --> CLOSED: concluir
+    OVERDUE --> CLOSED: concluir
+    CLOSED --> [*]
+  }
+
+  state "Fila de espera" as Waitlist {
+    [*] --> WAITING
+    WAITING --> RESOLVED: converter em agendamento
+    RESOLVED --> [*]
+  }
