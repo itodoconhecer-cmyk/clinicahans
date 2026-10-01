@@ -47,3 +47,6 @@ O runner próprio mantém `schema_migration` e executa os scripts em ordem. A in
 
 ## Observação de produção
 As metas de disponibilidade/RPO/RTO e integrações TISS/TUSS são requisitos planejados e precisam de validação operacional antes de produção real.
+
+## Validação contínua
+O workflow `Backend CI` compila o projeto com Java 21 e executa `mvn clean test` em alterações do backend.
