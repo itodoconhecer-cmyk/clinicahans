@@ -49,6 +49,14 @@ public class AppointmentRepository {
           """,mapper(),from,to,doctorId);
     }
 
+    public boolean hasScheduleBlock(UUID doctorId,OffsetDateTime start,OffsetDateTime end){
+        Integer count=jdbc.queryForObject("""
+          select count(*) from schedule_block
+          where doctor_id=? and starts_at < ? and ends_at > ?
+          """,Integer.class,doctorId,end,start);
+        return count!=null && count>0;
+    }
+
     public boolean hasConflict(UUID doctorId,OffsetDateTime start,OffsetDateTime end){
         Integer count=jdbc.queryForObject("""
           select count(*) from appointment
