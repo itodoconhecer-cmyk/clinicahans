@@ -24,6 +24,9 @@ public class SecurityConfig {
             .authorizeHttpRequests(a -> a
                 .requestMatchers("/api/v1/auth/login", "/actuator/health/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                 .anyRequest().authenticated())
+            .exceptionHandling(e -> e
+                .authenticationEntryPoint((request,response,ex) -> response.sendError(401))
+                .accessDeniedHandler((request,response,ex) -> response.sendError(403)))
             .addFilterBefore(jwt, UsernamePasswordAuthenticationFilter.class)
             .build();
     }
