@@ -77,6 +77,44 @@ public class ClinicalService {
             throw new BusinessRuleException("Médico não possui relação assistencial registrada com este paciente.");
     }
 
+    public ClinicalRepository.Medication addMedication(UUID patientId,String name,String dosage,String frequency,java.time.LocalDate startedOn){
+        assertPatientAccess(patientId);
+        var result=repository.createMedication(patientId,name,dosage,frequency,startedOn);
+        audit.record("MEDICATION_CREATED","PATIENT",patientId); return result;
+    }
+
+    public ClinicalRepository.Condition addCondition(UUID patientId,String description,String status,java.time.LocalDate onsetDate){
+        assertPatientAccess(patientId);
+        var result=repository.createCondition(patientId,description,status,onsetDate);
+        audit.record("CLINICAL_CONDITION_CREATED","PATIENT",patientId); return result;
+    }
+
+    public ClinicalRepository.Alert addAlert(UUID patientId,String type,String severity,String message){
+        assertPatientAccess(patientId);
+        var result=repository.createManualAlert(patientId,type,severity,message);
+        audit.record("CLINICAL_ALERT_CREATED","PATIENT",patientId); return result;
+    }
+
+    public void deactivateAlert(UUID patientId,UUID alertId){
+        assertPatientAccess(patientId);
+        repository.deactivateAlert(patientId,alertId);
+        audit.record("CLINICAL_ALERT_DEACTIVATED","PATIENT",patientId);
+    }
+
+    public ClinicalRepository.ClinicalDocument addDocument(UUID patientId,UUID encounterId,String type,String storageKey,String mimeType,String checksum){
+        assertPatientAccess(patientId);
+        if(encounterId!=null && !repository.getEncounter(encounterId).patientId().equals(patientId))
+            throw new BusinessRuleException("Documento não pode ser associado a atendimento de outro paciente.");
+        var result=repository.createDocument(patientId,encounterId,type,storageKey,mimeType,checksum);
+        audit.record("CLINICAL_DOCUMENT_CREATED","PATIENT",patientId); return result;
+    }
+
+    public List<ClinicalRepository.ClinicalDocument> documents(UUID patientId){
+        assertPatientAccess(patientId);
+        audit.record("CLINICAL_DOCUMENTS_VIEWED","PATIENT",patientId);
+        return repository.documents(patientId);
+    }
+
     public ClinicalRepository.Allergy addAllergy(UUID patientId,String substance,String reaction,String severity){
         assertPatientAccess(patientId);
         var result=repository.createAllergy(patientId,substance,reaction,severity,users.currentUserId());
