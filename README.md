@@ -136,4 +136,8 @@ História de negócio
 - Prompt 02 refeito em nível sênior com benchmark de mercado, especificações e diagramas
 - Prompt 03 executado: backend Java 21/Spring Boot + JDBC/SQL explícito + PostgreSQL + JWT + OpenAPI
 - Backend validado pelo GitHub Actions (Backend CI)
-- Próxima etapa: Prompt 04 — frontend integrado à API
+- Especificação funcional consolidada e catálogo de domínios publicados em `docs/specs/`
+- Diagramas revisados: modelo de domínio, máquinas de estado, context map, BPMN e draw.io
+- Prompt 04 executado: frontend Vanilla JS integrado à API real em `frontend/`
+- Frontend e backend validados pelo GitHub Actions (Frontend CI + Backend CI)
+- Próxima etapa: Prompt 05 — revisão técnica integrada e preparação de deploy
