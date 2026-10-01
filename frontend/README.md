@@ -62,3 +62,6 @@ A navegação é apenas UX; o backend continua sendo a autoridade de autorizaç�
 - envio real de e-mail/WhatsApp depende de consumidor da notification outbox;
 - portal do paciente, TISS/TUSS, prescrição digital e telemedicina completa permanecem evolução;
 - a SPA não duplica regras críticas como conflito de agenda ou autorização clínica.
+
+## CI
+Alterações no frontend são validadas automaticamente pelo workflow Frontend CI.
