@@ -5,24 +5,41 @@
  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
  id="Definitions_ClinicaHans" targetNamespace="https://clinicahans.local/bpmn">
  <bpmn:process id="Process_JornadaPaciente" name="Jornada Assistencial da Clínica Hans" isExecutable="false">
+  <bpmn:laneSet id="LaneSet_1">
+   <bpmn:lane id="Lane_Recepcao" name="Recepção">
+    <bpmn:flowNodeRef>Start</bpmn:flowNodeRef><bpmn:flowNodeRef>Identify</bpmn:flowNodeRef><bpmn:flowNodeRef>Schedule</bpmn:flowNodeRef><bpmn:flowNodeRef>Notify</bpmn:flowNodeRef><bpmn:flowNodeRef>Attendance</bpmn:flowNodeRef><bpmn:flowNodeRef>NoShow</bpmn:flowNodeRef><bpmn:flowNodeRef>CheckIn</bpmn:flowNodeRef>
+   </bpmn:lane>
+   <bpmn:lane id="Lane_Medico" name="Médico">
+    <bpmn:flowNodeRef>SafetySnapshot</bpmn:flowNodeRef><bpmn:flowNodeRef>CriticalAlert</bpmn:flowNodeRef><bpmn:flowNodeRef>AcknowledgeRisk</bpmn:flowNodeRef><bpmn:flowNodeRef>Care</bpmn:flowNodeRef><bpmn:flowNodeRef>NeedExam</bpmn:flowNodeRef><bpmn:flowNodeRef>NeedFollowUp</bpmn:flowNodeRef><bpmn:flowNodeRef>Finalize</bpmn:flowNodeRef>
+   </bpmn:lane>
+   <bpmn:lane id="Lane_Continuidade" name="Continuidade do cuidado">
+    <bpmn:flowNodeRef>Exam</bpmn:flowNodeRef><bpmn:flowNodeRef>FollowUp</bpmn:flowNodeRef><bpmn:flowNodeRef>ResultReceived</bpmn:flowNodeRef><bpmn:flowNodeRef>ReviewResult</bpmn:flowNodeRef>
+   </bpmn:lane>
+   <bpmn:lane id="Lane_Gestao" name="Financeiro e Gestão">
+    <bpmn:flowNodeRef>Billing</bpmn:flowNodeRef><bpmn:flowNodeRef>Metrics</bpmn:flowNodeRef><bpmn:flowNodeRef>End</bpmn:flowNodeRef>
+   </bpmn:lane>
+  </bpmn:laneSet>
+
   <bpmn:startEvent id="Start" name="Necessidade de atendimento"/>
   <bpmn:task id="Identify" name="Localizar ou cadastrar paciente"/>
-  <bpmn:task id="Schedule" name="Selecionar médico, disponibilidade e agendar"/>
-  <bpmn:task id="Notify" name="Solicitar confirmação"/>
+  <bpmn:task id="Schedule" name="Validar capacidade e criar agendamento"/>
+  <bpmn:sendTask id="Notify" name="Publicar confirmação na outbox"/>
   <bpmn:exclusiveGateway id="Attendance" name="Paciente compareceu?"/>
-  <bpmn:task id="NoShow" name="Registrar cancelamento/ausência e liberar capacidade"/>
+  <bpmn:task id="NoShow" name="Registrar ausência/cancelamento"/>
   <bpmn:task id="CheckIn" name="Realizar check-in"/>
-  <bpmn:task id="SafetySnapshot" name="Abrir prontuário e carregar safety snapshot"/>
+  <bpmn:task id="SafetySnapshot" name="Abrir prontuário, auditar e carregar safety snapshot"/>
   <bpmn:exclusiveGateway id="CriticalAlert" name="Há alerta clínico crítico?"/>
-  <bpmn:task id="AcknowledgeRisk" name="Apresentar contexto crítico ao médico"/>
-  <bpmn:task id="Care" name="Realizar atendimento e registrar evolução"/>
-  <bpmn:exclusiveGateway id="NeedExam" name="Há exame solicitado?"/>
-  <bpmn:task id="Exam" name="Criar pedido e acompanhar resultado"/>
-  <bpmn:exclusiveGateway id="NeedFollowUp" name="Há continuidade necessária?"/>
-  <bpmn:task id="FollowUp" name="Criar acompanhamento com responsável e prazo"/>
-  <bpmn:task id="Finalize" name="Finalizar registro clínico"/>
-  <bpmn:task id="Billing" name="Gerar lançamento financeiro"/>
-  <bpmn:task id="Metrics" name="Atualizar eventos para indicadores"/>
+  <bpmn:task id="AcknowledgeRisk" name="Apresentar contexto crítico"/>
+  <bpmn:task id="Care" name="Iniciar atendimento e registrar evolução"/>
+  <bpmn:exclusiveGateway id="NeedExam" name="Exame necessário?"/>
+  <bpmn:task id="Exam" name="Criar pedido de exame"/>
+  <bpmn:task id="ResultReceived" name="Receber resultado"/>
+  <bpmn:task id="ReviewResult" name="Revisar resultado"/>
+  <bpmn:exclusiveGateway id="NeedFollowUp" name="Continuidade necessária?"/>
+  <bpmn:task id="FollowUp" name="Criar follow-up com responsável e prazo"/>
+  <bpmn:task id="Finalize" name="Finalizar atendimento imutável"/>
+  <bpmn:task id="Billing" name="Gerar recebível do atendimento"/>
+  <bpmn:task id="Metrics" name="Disponibilizar eventos para indicadores"/>
   <bpmn:endEvent id="End" name="Etapa da jornada concluída"/>
 
   <bpmn:sequenceFlow id="F01" sourceRef="Start" targetRef="Identify"/>
@@ -47,5 +64,8 @@
   <bpmn:sequenceFlow id="F20" sourceRef="Finalize" targetRef="Billing"/>
   <bpmn:sequenceFlow id="F21" sourceRef="Billing" targetRef="Metrics"/>
   <bpmn:sequenceFlow id="F22" sourceRef="Metrics" targetRef="End"/>
+
+  <bpmn:association id="A01" sourceRef="Exam" targetRef="ResultReceived"/>
+  <bpmn:association id="A02" sourceRef="ResultReceived" targetRef="ReviewResult"/>
  </bpmn:process>
 </bpmn:definitions>
