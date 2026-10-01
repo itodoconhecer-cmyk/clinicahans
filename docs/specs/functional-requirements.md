@@ -14,6 +14,8 @@ Transformar a Clínica Hans de registros fragmentados para uma plataforma centra
   - Aceite: CRM+UF não pode duplicar médico ativo; status controla possibilidade de novos agendamentos.
 - **RF-004 [P1] Gerenciar disponibilidade médica** por dia da semana, faixas, duração padrão e bloqueios.
 - **RF-005 [P1] Pesquisar corpo clínico** por nome, CRM/UF, RQE, especialidade e status.
+- **RF-006 [P0] Vincular identidade digital ao médico:** usuário com perfil MEDICO deve estar explicitamente vinculado a um único cadastro médico para executar atos clínicos em nome daquele profissional.
+  - Aceite: usuário MEDICO não vinculado não inicia atendimento; médico A não altera atendimento do médico B.
 
 ## 3. Paciente
 - **RF-010 [P0] Cadastrar paciente** com identificador interno, nome, nascimento, CPF quando informado, contatos e dados administrativos.
