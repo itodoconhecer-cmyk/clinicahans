@@ -1,0 +1,32 @@
+flowchart LR
+  IA[Identity & Access]
+  PR[Patient Registry]
+  CW[Clinical Workforce]
+  SC[Scheduling]
+  CR[Clinical Record]
+  CC[Care Continuity]
+  BI[Billing]
+  MG[Management]
+  AU[Audit]
+  IN[Integration / Outbox]
+
+  IA --> CW
+  IA --> SC
+  IA --> CR
+  IA --> CC
+  IA --> AU
+  PR --> SC
+  CW --> SC
+  PR --> CR
+  SC --> CR
+  CR --> CC
+  PR --> CC
+  CR --> BI
+  SC --> MG
+  CC --> MG
+  BI --> MG
+  SC --> IN
+  CR --> AU
+  SC --> AU
+  CC --> AU
+  BI --> AU
