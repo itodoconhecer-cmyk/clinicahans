@@ -17,6 +17,19 @@ public class UserIdentityService {
         return auth != null && auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_" + role));
     }
 
+    public boolean currentDoctorHasRelationshipWithPatient(UUID patientId) {
+        if (currentUserHasRole("ADMIN")) return true;
+        UUID doctorId = currentDoctorId();
+        Integer count = jdbc.queryForObject("""
+            select count(*) from (
+              select 1 from appointment where doctor_id=? and patient_id=?
+              union all
+              select 1 from encounter where doctor_id=? and patient_id=?
+            ) rel
+            """, Integer.class, doctorId, patientId, doctorId, patientId);
+        return count != null && count > 0;
+    }
+
     public UUID currentDoctorId() {
         UUID userId = currentUserId();
         var ids = jdbc.query("select id from doctor where user_id = ? and status = 'ACTIVE'",
