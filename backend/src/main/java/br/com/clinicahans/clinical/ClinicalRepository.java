@@ -86,6 +86,56 @@ public class ClinicalRepository {
             rs.getString("content"),rs.getObject("created_at",OffsetDateTime.class)),id).getFirst();
     }
 
+    public Medication createMedication(UUID patientId,String name,String dosage,String frequency,java.time.LocalDate startedOn){
+        UUID id=UUID.randomUUID();
+        jdbc.update("""
+          insert into medication(id,patient_id,name,dosage,frequency,started_on,active)
+          values (?,?,?,?,?,?,true)
+          """,id,patientId,name,dosage,frequency,startedOn);
+        return new Medication(id,name,dosage,frequency);
+    }
+
+    public Condition createCondition(UUID patientId,String description,String status,java.time.LocalDate onsetDate){
+        UUID id=UUID.randomUUID();
+        jdbc.update("""
+          insert into clinical_condition(id,patient_id,description,status,onset_date)
+          values (?,?,?,?,?)
+          """,id,patientId,description,status,onsetDate);
+        return new Condition(id,description,status);
+    }
+
+    public Alert createManualAlert(UUID patientId,String type,String severity,String message){
+        UUID id=UUID.randomUUID();
+        jdbc.update("""
+          insert into clinical_alert(id,patient_id,alert_type,severity,source_type,source_id,message,active)
+          values (?,?,?,?, 'MANUAL', null, ?, true)
+          """,id,patientId,type,severity,message);
+        return new Alert(id,type,severity,message,OffsetDateTime.now());
+    }
+
+    public void deactivateAlert(UUID patientId,UUID alertId){
+        int changed=jdbc.update("update clinical_alert set active=false where id=? and patient_id=? and active=true",alertId,patientId);
+        if(changed==0) throw new NotFoundException("Alerta ativo não encontrado.");
+    }
+
+    public ClinicalDocument createDocument(UUID patientId,UUID encounterId,String documentType,String storageKey,String mimeType,String checksum){
+        UUID id=UUID.randomUUID();
+        jdbc.update("""
+          insert into clinical_document(id,patient_id,encounter_id,document_type,storage_key,mime_type,checksum)
+          values (?,?,?,?,?,?,?)
+          """,id,patientId,encounterId,documentType,storageKey,mimeType,checksum);
+        return new ClinicalDocument(id,patientId,encounterId,documentType,storageKey,mimeType,checksum,OffsetDateTime.now());
+    }
+
+    public List<ClinicalDocument> documents(UUID patientId){
+        return jdbc.query("""
+          select id,patient_id,encounter_id,document_type,storage_key,mime_type,checksum,created_at
+          from clinical_document where patient_id=? order by created_at desc
+          """,(rs,n)->new ClinicalDocument(rs.getObject("id",UUID.class),rs.getObject("patient_id",UUID.class),
+            rs.getObject("encounter_id",UUID.class),rs.getString("document_type"),rs.getString("storage_key"),
+            rs.getString("mime_type"),rs.getString("checksum"),rs.getObject("created_at",OffsetDateTime.class)),patientId);
+    }
+
     public Allergy createAllergy(UUID patientId,String substance,String reaction,String severity,UUID userId){
         UUID id=UUID.randomUUID();
         jdbc.update("""
@@ -125,5 +175,6 @@ public class ClinicalRepository {
     public record Condition(UUID id,String description,String status){}
     public record Encounter(UUID id,UUID patientId,UUID doctorId,UUID appointmentId,String chiefComplaint,String assessment,String plan,String status,int version,OffsetDateTime startedAt,OffsetDateTime completedAt){}
     public record Addendum(UUID id,UUID encounterId,String reason,String content,OffsetDateTime createdAt){}
+    public record ClinicalDocument(UUID id,UUID patientId,UUID encounterId,String documentType,String storageKey,String mimeType,String checksum,OffsetDateTime createdAt){}
     public record TimelineEvent(String type,UUID id,String title,OffsetDateTime occurredAt){}
 }
