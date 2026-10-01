@@ -23,6 +23,10 @@ public class AppointmentRepository {
           insert into appointment_status_history(id,appointment_id,from_status,to_status,changed_by,reason)
           values (?,?,null,'SCHEDULED',?,'Criação do agendamento')
           """,UUID.randomUUID(),id,createdBy);
+        jdbc.update("""
+          insert into notification_outbox(id,aggregate_type,aggregate_id,recipient_ref,template_code,channel)
+          values (?,'APPOINTMENT',?,?,'APPOINTMENT_CONFIRMATION',null)
+          """,UUID.randomUUID(),id,patientId);
         return get(id);
     }
 
