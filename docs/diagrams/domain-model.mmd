@@ -2,6 +2,7 @@ erDiagram
   USER ||--o{ USER_ROLE : has
   ROLE ||--o{ USER_ROLE : grants
   USER ||--o{ AUDIT_EVENT : generates
+  USER ||--o| DOCTOR : authenticates_as
 
   PATIENT ||--o{ APPOINTMENT : books
   DOCTOR ||--o{ APPOINTMENT : attends
@@ -57,6 +58,7 @@ erDiagram
     string status
     int default_appointment_minutes
     string modality
+    uuid user_id FK
   }
   SPECIALTY {
     uuid id PK
