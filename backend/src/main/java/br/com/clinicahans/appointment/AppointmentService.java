@@ -39,6 +39,11 @@ public class AppointmentService {
         int minutes=durationMinutes==null?doctor.defaultAppointmentMinutes():durationMinutes;
         if(minutes<5 || minutes>480) throw new BusinessRuleException("Duração do agendamento inválida.");
         OffsetDateTime end=start.plusMinutes(minutes);
+        boolean insideAvailability=doctors.availability(doctorId).stream().anyMatch(v ->
+            v.active() && v.weekday()==start.getDayOfWeek().getValue()
+            && !start.toLocalTime().isBefore(v.startsAt()) && !end.toLocalTime().isAfter(v.endsAt()));
+        if(!insideAvailability) throw new BusinessRuleException("Horário está fora da disponibilidade configurada do médico.");
+        if(repository.hasScheduleBlock(doctorId,start,end)) throw new BusinessRuleException("Horário está bloqueado na agenda do médico.");
         if(repository.hasConflict(doctorId,start,end)) throw new BusinessRuleException("Horário conflita com outro agendamento do médico.");
         var a=repository.create(patientId,doctorId,start,end,modality,notes,users.currentUserId());
         audit.record("APPOINTMENT_CREATED","APPOINTMENT",a.id());
