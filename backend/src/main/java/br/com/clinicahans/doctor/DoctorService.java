@@ -21,6 +21,10 @@ public class DoctorService {
     }
     public DoctorRepository.Doctor get(UUID id){return repository.get(id);}
     public List<DoctorRepository.Doctor> search(String q,int limit){return repository.search(q,limit);}
+    public void linkUser(UUID doctorId, UUID userId) {
+        repository.linkUser(doctorId,userId);
+        audit.record("DOCTOR_USER_LINKED","DOCTOR",doctorId);
+    }
     public List<DoctorRepository.Availability> availability(UUID id){repository.get(id);return repository.availability(id);}
     public void addAvailability(UUID id,int weekday, LocalTime start,LocalTime end,int slot){
         repository.get(id);
