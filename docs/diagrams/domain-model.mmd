@@ -11,6 +11,9 @@ erDiagram
   DOCTOR ||--o{ DOCTOR_AVAILABILITY : offers
   DOCTOR ||--o{ SCHEDULE_BLOCK : blocks
   APPOINTMENT ||--o{ APPOINTMENT_STATUS_HISTORY : transitions
+  PATIENT ||--o{ WAITLIST_ENTRY : waits
+  DOCTOR ||--o{ WAITLIST_ENTRY : preferred_doctor
+  SPECIALTY ||--o{ WAITLIST_ENTRY : preferred_specialty
 
   PATIENT ||--o{ ENCOUNTER : receives
   DOCTOR ||--o{ ENCOUNTER : performs
@@ -35,6 +38,8 @@ erDiagram
   ENCOUNTER ||--o| RECEIVABLE : generates
   RECEIVABLE ||--o{ PAYMENT : settled_by
 
+  APPOINTMENT ||--o{ NOTIFICATION_OUTBOX : publishes
+
   PATIENT {
     uuid id PK
     string full_name
@@ -43,11 +48,13 @@ erDiagram
     string phone
     string email
     string status
+    int version
     timestamptz created_at
     timestamptz updated_at
   }
   DOCTOR {
     uuid id PK
+    uuid user_id FK
     string full_name
     string cpf UK
     string crm
@@ -58,11 +65,11 @@ erDiagram
     string status
     int default_appointment_minutes
     string modality
-    uuid user_id FK
   }
   SPECIALTY {
     uuid id PK
     string name
+    string external_system
     string external_code
   }
   DOCTOR_SPECIALTY {
@@ -94,6 +101,7 @@ erDiagram
     timestamptz ends_at
     string modality
     string status
+    timestamptz confirmed_at
     timestamptz checked_in_at
     string cancellation_reason
   }
@@ -104,6 +112,17 @@ erDiagram
     string to_status
     uuid changed_by FK
     timestamptz changed_at
+    string reason
+  }
+  WAITLIST_ENTRY {
+    uuid id PK
+    uuid patient_id FK
+    uuid doctor_id FK
+    uuid specialty_id FK
+    timestamptz preferred_from
+    timestamptz preferred_to
+    string status
+    int priority
   }
   ENCOUNTER {
     uuid id PK
@@ -156,10 +175,11 @@ erDiagram
   CLINICAL_ALERT {
     uuid id PK
     uuid patient_id FK
-    string type
+    string alert_type
     string severity
     string source_type
     uuid source_id
+    string message
     boolean active
   }
   CLINICAL_DOCUMENT {
@@ -204,6 +224,7 @@ erDiagram
     string priority
     string status
     timestamptz due_at
+    timestamptz closed_at
   }
   FOLLOW_UP_ACTION {
     uuid id PK
@@ -217,6 +238,7 @@ erDiagram
     uuid id PK
     uuid encounter_id FK
     string payer_type
+    string payer_reference
     decimal amount
     date due_date
     string status
@@ -246,10 +268,22 @@ erDiagram
   AUDIT_EVENT {
     uuid id PK
     uuid user_id FK
+    string username
     string action
     string entity_type
     string entity_id
     string correlation_id
     inet source_ip
     timestamptz occurred_at
+  }
+  NOTIFICATION_OUTBOX {
+    uuid id PK
+    string aggregate_type
+    uuid aggregate_id
+    uuid recipient_ref
+    string template_code
+    string channel
+    string status
+    int attempts
+    timestamptz next_attempt_at
   }
