@@ -13,7 +13,7 @@ import java.util.List;
 
 @Component
 public class DatabaseMigrationRunner implements ApplicationRunner {
-    private static final List<String> MIGRATIONS = List.of("V001__initial_schema.sql");
+    private static final List<String> MIGRATIONS = List.of("V001__initial_schema.sql", "V002__doctor_user_link.sql");
     private final DataSource dataSource;
     private final JdbcTemplate jdbc;
 
