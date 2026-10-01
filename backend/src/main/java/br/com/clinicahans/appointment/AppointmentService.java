@@ -35,6 +35,7 @@ public class AppointmentService {
     @Transactional
     public AppointmentRepository.Appointment create(UUID patientId,UUID doctorId,OffsetDateTime start,Integer durationMinutes,String modality,String notes){
         patients.get(patientId); var doctor=doctors.get(doctorId);
+        if(start.isBefore(OffsetDateTime.now())) throw new BusinessRuleException("Não é permitido criar novo agendamento no passado.");
         if(!"ACTIVE".equals(doctor.status())) throw new BusinessRuleException("Médico não está ativo para novos agendamentos.");
         int minutes=durationMinutes==null?doctor.defaultAppointmentMinutes():durationMinutes;
         if(minutes<5 || minutes>480) throw new BusinessRuleException("Duração do agendamento inválida.");
