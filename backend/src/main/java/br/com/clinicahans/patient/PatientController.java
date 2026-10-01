@@ -22,11 +22,11 @@ public class PatientController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('RECEPCAO','MEDICO','GESTAO','ADMIN')")
+    @PreAuthorize("hasAnyRole('RECEPCAO','MEDICO','ADMIN')")
     public PatientRepository.Patient get(@PathVariable UUID id) { return service.get(id); }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('RECEPCAO','MEDICO','GESTAO','ADMIN')")
+    @PreAuthorize("hasAnyRole('RECEPCAO','MEDICO','ADMIN')")
     public List<PatientRepository.Patient> search(@RequestParam(defaultValue="") String q,
                                                   @RequestParam(defaultValue="30") int limit) {
         return service.search(q, limit);
