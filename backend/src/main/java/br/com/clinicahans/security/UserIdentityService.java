@@ -12,6 +12,19 @@ public class UserIdentityService {
     private final JdbcTemplate jdbc;
     public UserIdentityService(JdbcTemplate jdbc) { this.jdbc = jdbc; }
 
+    public boolean currentUserHasRole(String role) {
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        return auth != null && auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_" + role));
+    }
+
+    public UUID currentDoctorId() {
+        UUID userId = currentUserId();
+        var ids = jdbc.query("select id from doctor where user_id = ? and status = 'ACTIVE'",
+            (rs, n) -> rs.getObject("id", UUID.class), userId);
+        if (ids.isEmpty()) throw new BusinessRuleException("Usuário médico não está vinculado a um cadastro médico ativo.");
+        return ids.getFirst();
+    }
+
     public UUID currentUserId() {
         var auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !auth.isAuthenticated()) throw new BusinessRuleException("Usuário autenticado não encontrado.");
