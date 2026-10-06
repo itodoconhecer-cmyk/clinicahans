@@ -1,6 +1,8 @@
 # Frontend — Clínica Hans
 
-Frontend do Prompt 04 em HTML5, CSS3 e JavaScript ES Modules, sem framework.
+Frontend oficial em **HTML5 + CSS3 + JavaScript ES2022+ puro**, usando ES Modules e Fetch API.
+
+**Não usa e não deve usar React, Vue, Angular, Svelte, Vite, TypeScript, npm ou qualquer framework/bundler.** Não existe etapa de build: os arquivos são servidos diretamente ao navegador.
 
 ## Executar localmente
 
@@ -42,6 +44,13 @@ O JWT é armazenado em `sessionStorage` no MVP e removido no logout ou em respos
 
 A navegação é apenas UX; o backend continua sendo a autoridade de autorização.
 
+## Regra de integração com o backend
+
+Toda operação funcional consome a API Spring Boot real em `/api/v1/**`.
+Somente `frontend/services/api.js` pode executar `fetch`. Views, componentes e roteamento chamam os clientes de domínio exportados por esse arquivo.
+
+Não existem mocks como fonte de dados do sistema funcional. Loading, erro, vazio e sucesso são derivados das respostas reais do backend.
+
 ## Principais integrações
 
 - `/api/v1/auth/login`
@@ -71,3 +80,13 @@ A cobertura completa é controlada por `docs/specs/ui-screen-inventory.md`.
 
 ## Revisão rigorosa
 A cobertura funcional permanece parcial até existirem testes E2E por perfil, conforme `docs/reviews/rigorous-review.md`.
+
+
+## Gate arquitetural
+
+O arquivo `frontend/verify-architecture.mjs` é executado no Frontend CI e falha quando:
+- aparece React/Vite/TypeScript ou outro framework/bundler;
+- surge `package.json`, JSX ou TSX;
+- algum arquivo fora de `services/api.js` usa `fetch`;
+- um dos grupos principais de endpoints do backend deixa de possuir cliente no frontend;
+- `index.html` deixa de usar ES Modules nativos.
