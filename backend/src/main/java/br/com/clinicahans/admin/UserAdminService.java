@@ -33,6 +33,23 @@ public class UserAdminService {
         return new UserView(id,username,true,roles);
     }
 
+    public List<UserView> list(){
+        return jdbc.query("""
+          select u.id,u.username,u.active,
+                 coalesce(string_agg(r.code, ',' order by r.code),'') roles
+          from app_user u
+          left join user_role ur on ur.user_id=u.id
+          left join role r on r.id=ur.role_id
+          group by u.id,u.username,u.active
+          order by u.username
+          """,(rs,n)->new UserView(
+            rs.getObject("id",UUID.class),
+            rs.getString("username"),
+            rs.getBoolean("active"),
+            rs.getString("roles").isBlank()?List.of():List.of(rs.getString("roles").split(","))
+          ));
+    }
+
     public void deactivate(UUID id){
         int changed=jdbc.update("update app_user set active=false where id=?",id);
         if(changed==0) throw new BusinessRuleException("Usuário não encontrado.");
