@@ -466,6 +466,249 @@ async function renderAdmin(target){
   target.querySelector('#audit-load').addEventListener('click',load);await load();
 }
 
+
+async function renderPatientsFull(target) {
+  target.innerHTML = `
+    <article class="panel">
+      <div class="panel-header"><div><p class="eyebrow">Cadastro</p><h2>Pacientes</h2></div>${session.hasAnyRole('RECEPCAO','ADMIN')?'<button class="primary-button" id="new-patient-full">+ Novo paciente</button>':''}</div>
+      <div class="filters"><input id="patient-full-q" placeholder="Buscar por nome, CPF ou telefone"><button class="secondary-button" id="patient-full-search">Buscar</button></div>
+      <div id="patient-full-results">${loading()}</div>
+    </article>`;
+  const box=target.querySelector('#patient-full-results');
+  const load=async()=>{
+    box.innerHTML=loading();
+    try{
+      const rows=await patientApi.search(target.querySelector('#patient-full-q').value,100);
+      box.innerHTML=rows.length?`<div class="cards">${rows.map(p=>`
+        <article class="card"><h3>${escapeHtml(p.fullName)}</h3><p>${escapeHtml(p.cpf||'CPF não informado')}</p><p>${escapeHtml(p.phone||'Telefone não informado')}</p>
+        <div class="toolbar"><button class="secondary-button" data-patient-detail="${p.id}">Ficha</button>${session.hasAnyRole('MEDICO','ADMIN')?`<button class="secondary-button" data-patient-record="${p.id}">Prontuário</button>`:''}</div></article>`).join('')}</div>`:empty();
+      box.querySelectorAll('[data-patient-detail]').forEach(b=>b.addEventListener('click',()=>openPatientDetail(b.dataset.patientDetail,load)));
+      box.querySelectorAll('[data-patient-record]').forEach(b=>b.addEventListener('click',()=>{selectedPatientId=b.dataset.patientRecord;navigate('clinical');}));
+    }catch(err){renderError(box,err);}
+  };
+  target.querySelector('#patient-full-search').addEventListener('click',load);
+  target.querySelector('#new-patient-full')?.addEventListener('click',()=>openPatientModal(load));
+  await load();
+}
+
+async function openPatientDetail(id,onUpdated){
+  try{
+    const p=await patientApi.get(id);
+    const editable=session.hasAnyRole('RECEPCAO','ADMIN');
+    openModal('Ficha administrativa do paciente',`
+      <form id="patient-detail-form" class="form-grid two">
+        <label>Nome completo<input name="fullName" value="${escapeHtml(p.fullName)}" ${editable?'':'disabled'}></label>
+        <label>CPF<input value="${escapeHtml(p.cpf||'')}" disabled></label>
+        <label>Nascimento<input value="${formatDate(p.birthDate)}" disabled></label>
+        <label>Telefone<input name="phone" value="${escapeHtml(p.phone||'')}" ${editable?'':'disabled'}></label>
+        <label>E-mail<input name="email" value="${escapeHtml(p.email||'')}" ${editable?'':'disabled'}></label>
+        <label>Status<input value="${escapeHtml(p.status)}" disabled></label>
+        ${editable?'<div class="form-actions"><button class="primary-button">Salvar alterações</button></div>':''}
+      </form>`,modal=>{
+        if(editable) modal.querySelector('#patient-detail-form').addEventListener('submit',async e=>{
+          e.preventDefault();const fd=new FormData(e.currentTarget);
+          try{await patientApi.update(id,{fullName:fd.get('fullName'),phone:fd.get('phone'),email:fd.get('email'),version:p.version});closeModal();showToast('Paciente atualizado.','success');await onUpdated();}catch(err){showToast(err.message,'error');}
+        });
+      });
+  }catch(err){showToast(err.message,'error');}
+}
+
+async function renderDoctorsFull(target){
+  target.innerHTML=`
+    <article class="panel">
+      <div class="panel-header"><div><p class="eyebrow">Corpo clínico</p><h2>Médicos</h2></div>${session.hasAnyRole('GESTAO','ADMIN')?'<button class="primary-button" id="doctor-full-new">+ Novo médico</button>':''}</div>
+      <div class="filters"><input id="doctor-full-q" placeholder="Nome, CRM, RQE ou especialidade"><button class="secondary-button" id="doctor-full-search">Buscar</button></div>
+      <div id="doctor-full-results">${loading()}</div>
+    </article>`;
+  const box=target.querySelector('#doctor-full-results');
+  const load=async()=>{
+    try{
+      const rows=await doctorApi.search(target.querySelector('#doctor-full-q').value,100);
+      box.innerHTML=rows.length?`<div class="cards">${rows.map(d=>`
+        <article class="card"><div class="panel-header"><h3>${escapeHtml(d.fullName)}</h3>${badge(d.status,toneForStatus(d.status))}</div>
+        <p>CRM ${escapeHtml(d.crm)}/${escapeHtml(d.crmState)}</p><p>RQE: ${escapeHtml(d.rqe||'não informado')}</p><p>${escapeHtml(d.modality)}</p>
+        <button class="secondary-button" data-doctor-detail="${d.id}">Abrir cadastro completo</button></article>`).join('')}</div>`:empty();
+      box.querySelectorAll('[data-doctor-detail]').forEach(b=>b.addEventListener('click',()=>openDoctorDetail(b.dataset.doctorDetail)));
+    }catch(err){renderError(box,err);}
+  };
+  target.querySelector('#doctor-full-search').addEventListener('click',load);
+  target.querySelector('#doctor-full-new')?.addEventListener('click',()=>openDoctorModal(load));
+  await load();
+}
+
+async function openDoctorDetail(id){
+  try{
+    const d=await doctorApi.get(id);
+    const [availability,specialties]=await Promise.all([doctorApi.availability(id),doctorApi.specialties()]);
+    const now=new Date(), to=new Date();to.setMonth(to.getMonth()+3);
+    const blocks=await doctorApi.blocks(id,now.toISOString(),to.toISOString());
+    openModal('Cadastro completo do médico',`
+      <div class="metric-grid">
+        <article class="metric-card"><span>Status</span><strong>${escapeHtml(d.status)}</strong><small>${escapeHtml(d.modality)}</small></article>
+        <article class="metric-card"><span>CRM</span><strong>${escapeHtml(d.crm)}/${escapeHtml(d.crmState)}</strong><small>RQE ${escapeHtml(d.rqe||'—')}</small></article>
+      </div>
+      <div class="two-columns">
+        <article class="card"><h3>Dados profissionais</h3><p><strong>${escapeHtml(d.fullName)}</strong></p><p>${escapeHtml(d.email||'')}</p><p>${escapeHtml(d.phone||'')}</p><p>Consulta padrão: ${d.defaultAppointmentMinutes} min</p></article>
+        <article class="card"><h3>Identidade digital</h3><p>User ID: ${escapeHtml(d.userId||'não vinculado')}</p>${session.hasRole('ADMIN')?'<button class="secondary-button" id="doctor-link-user">Vincular usuário</button>':''}</article>
+      </div>
+      <article class="panel"><div class="panel-header"><h3>Disponibilidade</h3>${session.hasAnyRole('GESTAO','ADMIN')?'<button class="secondary-button" id="doctor-add-av">Adicionar faixa</button>':''}</div>
+        ${availability.length?`<div class="table-wrap"><table><thead><tr><th>Dia</th><th>Início</th><th>Fim</th><th>Slot</th></tr></thead><tbody>${availability.map(v=>`<tr><td>${v.weekday}</td><td>${escapeHtml(v.startsAt)}</td><td>${escapeHtml(v.endsAt)}</td><td>${v.slotMinutes} min</td></tr>`).join('')}</tbody></table></div>`:empty('Nenhuma disponibilidade cadastrada.')}
+      </article>
+      <article class="panel"><div class="panel-header"><h3>Bloqueios próximos</h3>${session.hasAnyRole('GESTAO','ADMIN')?'<button class="secondary-button" id="doctor-add-block">Novo bloqueio</button>':''}</div>
+        ${blocks.length?`<div class="table-wrap"><table><thead><tr><th>Início</th><th>Fim</th><th>Motivo</th></tr></thead><tbody>${blocks.map(b=>`<tr><td>${formatDateTime(b.startsAt)}</td><td>${formatDateTime(b.endsAt)}</td><td>${escapeHtml(b.reason||'')}</td></tr>`).join('')}</tbody></table></div>`:empty('Nenhum bloqueio próximo.')}
+      </article>
+      ${session.hasAnyRole('GESTAO','ADMIN')?`<article class="panel"><div class="panel-header"><h3>Especialidades</h3><button class="secondary-button" id="doctor-link-specialty">Vincular especialidade</button></div><p>O vínculo é administrado a partir do catálogo cadastrado.</p></article>`:''}
+    `,modal=>{
+      modal.querySelector('#doctor-add-av')?.addEventListener('click',()=>openAvailabilityForm(id,()=>{closeModal();openDoctorDetail(id);}));
+      modal.querySelector('#doctor-add-block')?.addEventListener('click',()=>openBlockForm(id,()=>{closeModal();openDoctorDetail(id);}));
+      modal.querySelector('#doctor-link-specialty')?.addEventListener('click',()=>openSpecialtyLinkForm(id,specialties,()=>{closeModal();openDoctorDetail(id);}));
+      modal.querySelector('#doctor-link-user')?.addEventListener('click',()=>openUserLinkForm(id,()=>{closeModal();openDoctorDetail(id);}));
+    });
+  }catch(err){showToast(err.message,'error');}
+}
+
+function openAvailabilityForm(id,onSaved){
+  openModal('Adicionar disponibilidade',`<form id="av-form" class="form-grid two"><label>Dia da semana (1-7)<input name="weekday" type="number" min="1" max="7" required></label><label>Início<input name="startsAt" type="time" required></label><label>Fim<input name="endsAt" type="time" required></label><label>Slot (min)<input name="slotMinutes" type="number" value="30" min="5" required></label><div class="form-actions"><button class="primary-button">Salvar</button></div></form>`,modal=>modal.querySelector('#av-form').addEventListener('submit',async e=>{e.preventDefault();const x=Object.fromEntries(new FormData(e.currentTarget).entries());x.weekday=Number(x.weekday);x.slotMinutes=Number(x.slotMinutes);try{await doctorApi.addAvailability(id,x);closeModal();showToast('Disponibilidade adicionada.','success');await onSaved();}catch(err){showToast(err.message,'error');}}));
+}
+function openBlockForm(id,onSaved){
+  openModal('Novo bloqueio de agenda',`<form id="block-form" class="form-grid"><label>Início<input name="startsAt" type="datetime-local" required></label><label>Fim<input name="endsAt" type="datetime-local" required></label><label>Motivo<input name="reason"></label><div class="form-actions"><button class="primary-button">Bloquear agenda</button></div></form>`,modal=>modal.querySelector('#block-form').addEventListener('submit',async e=>{e.preventDefault();const x=Object.fromEntries(new FormData(e.currentTarget).entries());x.startsAt=new Date(x.startsAt).toISOString();x.endsAt=new Date(x.endsAt).toISOString();try{await doctorApi.addBlock(id,x);closeModal();showToast('Bloqueio criado.','success');await onSaved();}catch(err){showToast(err.message,'error');}}));
+}
+function openSpecialtyLinkForm(id,specialties,onSaved){
+  openModal('Vincular especialidade',`<form id="spec-link-form" class="form-grid"><label>Especialidade<select name="specialtyId">${specialties.map(s=>`<option value="${s.id}">${escapeHtml(s.name)}</option>`).join('')}</select></label><label>Principal<select name="primary"><option value="false">Não</option><option value="true">Sim</option></select></label><div class="form-actions"><button class="primary-button">Vincular</button></div></form>`,modal=>modal.querySelector('#spec-link-form').addEventListener('submit',async e=>{e.preventDefault();const fd=new FormData(e.currentTarget);try{await doctorApi.linkSpecialty(id,fd.get('specialtyId'),fd.get('primary')==='true');closeModal();showToast('Especialidade vinculada.','success');await onSaved();}catch(err){showToast(err.message,'error');}}));
+}
+async function openUserLinkForm(id,onSaved){
+  try{
+    const users=await adminApi.users();
+    openModal('Vincular usuário ao médico',`<form id="user-link-form" class="form-grid"><label>Usuário<select name="userId">${users.filter(u=>u.active).map(u=>`<option value="${u.id}">${escapeHtml(u.username)} — ${escapeHtml((u.roles||[]).join(', '))}</option>`).join('')}</select></label><div class="form-actions"><button class="primary-button">Vincular</button></div></form>`,modal=>modal.querySelector('#user-link-form').addEventListener('submit',async e=>{e.preventDefault();const fd=new FormData(e.currentTarget);try{await doctorApi.linkUser(id,fd.get('userId'));closeModal();showToast('Usuário vinculado.','success');await onSaved();}catch(err){showToast(err.message,'error');}}));
+  }catch(err){showToast(err.message,'error');}
+}
+
+async function renderSpecialties(target){
+  target.innerHTML=`<article class="panel"><div class="panel-header"><div><p class="eyebrow">Corpo clínico</p><h2>Especialidades</h2></div><button class="primary-button" id="new-specialty">+ Nova especialidade</button></div><div id="specialty-list">${loading()}</div></article>`;
+  const box=target.querySelector('#specialty-list');
+  const load=async()=>{try{const rows=await doctorApi.specialties();box.innerHTML=rows.length?`<div class="table-wrap"><table><thead><tr><th>Especialidade</th><th>Sistema externo</th><th>Código</th></tr></thead><tbody>${rows.map(s=>`<tr><td>${escapeHtml(s.name)}</td><td>${escapeHtml(s.externalSystem||'—')}</td><td>${escapeHtml(s.externalCode||'—')}</td></tr>`).join('')}</tbody></table></div>`:empty();}catch(err){renderError(box,err);}};
+  target.querySelector('#new-specialty').addEventListener('click',()=>openModal('Nova especialidade',`<form id="specialty-form" class="form-grid"><label>Nome<input name="name" required></label><label>Sistema externo<input name="externalSystem"></label><label>Código externo<input name="externalCode"></label><div class="form-actions"><button class="primary-button">Cadastrar</button></div></form>`,modal=>modal.querySelector('#specialty-form').addEventListener('submit',async e=>{e.preventDefault();try{await doctorApi.createSpecialty(Object.fromEntries(new FormData(e.currentTarget).entries()));closeModal();showToast('Especialidade cadastrada.','success');await load();}catch(err){showToast(err.message,'error');}})));
+  await load();
+}
+
+async function renderWaitlist(target){
+  target.innerHTML=`<article class="panel"><div class="panel-header"><div><p class="eyebrow">Capacidade</p><h2>Fila de espera e repescagem</h2></div><button class="primary-button" id="wait-new">+ Adicionar paciente</button></div><div id="wait-list">${loading()}</div></article>`;
+  const box=target.querySelector('#wait-list');
+  const load=async()=>{try{const rows=await waitlistApi.list();box.innerHTML=rows.length?`<div class="table-wrap"><table><thead><tr><th>Paciente</th><th>Médico</th><th>Especialidade</th><th>Preferência</th><th>Prioridade</th><th>Ação</th></tr></thead><tbody>${rows.map(w=>`<tr><td>${escapeHtml(w.patientId)}</td><td>${escapeHtml(w.doctorId||'qualquer')}</td><td>${escapeHtml(w.specialtyId||'qualquer')}</td><td>${formatDateTime(w.preferredFrom)} — ${formatDateTime(w.preferredTo)}</td><td>${w.priority}</td><td><button class="secondary-button" data-wait-convert="${w.id}">Converter em consulta</button></td></tr>`).join('')}</tbody></table></div>`:empty();box.querySelectorAll('[data-wait-convert]').forEach(b=>b.addEventListener('click',()=>openWaitConvert(b.dataset.waitConvert,load)));}catch(err){renderError(box,err);}};
+  target.querySelector('#wait-new').addEventListener('click',()=>openWaitlistModal(load));await load();
+}
+function openWaitConvert(id,onSaved){
+  doctorApi.search('',100).then(doctors=>openModal('Converter fila em agendamento',`<form id="wait-convert-form" class="form-grid"><label>Médico<select name="doctorId"><option value="">Usar preferência da fila</option>${doctors.map(d=>`<option value="${d.id}">${escapeHtml(d.fullName)}</option>`).join('')}</select></label><label>Data/hora<input name="startsAt" type="datetime-local" required></label><label>Duração<input name="durationMinutes" type="number" value="30"></label><label>Modalidade<select name="modality"><option>PRESENCIAL</option><option>TELEMEDICINA</option><option>HIBRIDO</option></select></label><div class="form-actions"><button class="primary-button">Agendar e retirar da fila</button></div></form>`,modal=>modal.querySelector('#wait-convert-form').addEventListener('submit',async e=>{e.preventDefault();const x=Object.fromEntries(new FormData(e.currentTarget).entries());x.doctorId=x.doctorId||null;x.startsAt=new Date(x.startsAt).toISOString();x.durationMinutes=Number(x.durationMinutes);try{await waitlistApi.convert(id,x);closeModal();showToast('Repescagem concluída.','success');await onSaved();}catch(err){showToast(err.message,'error');}}))).catch(err=>showToast(err.message,'error'));
+}
+
+async function renderClinicalFull(target){
+  target.innerHTML=`<article class="panel"><div class="panel-header"><div><p class="eyebrow">Prontuário longitudinal</p><h2>Safety snapshot e histórico</h2></div><button class="secondary-button" id="go-encounter">Ir para atendimento</button></div><div class="filters"><input id="record-patient" placeholder="UUID do paciente" value="${escapeHtml(selectedPatientId||'')}"><button class="primary-button" id="record-open">Abrir prontuário</button></div><div id="record-box">${selectedPatientId?loading():empty('Selecione um paciente na tela Pacientes ou informe o UUID.')}</div></article>`;
+  target.querySelector('#go-encounter').addEventListener('click',()=>navigate('encounter'));
+  const open=async()=>{
+    selectedPatientId=target.querySelector('#record-patient').value.trim();const box=target.querySelector('#record-box');box.innerHTML=loading();
+    try{
+      const [s,t,docs]=await Promise.all([clinicalApi.snapshot(selectedPatientId),clinicalApi.timeline(selectedPatientId),clinicalApi.documents(selectedPatientId)]);
+      box.innerHTML=`
+        ${(s.alerts||[]).map(a=>`<div class="alert ${a.severity==='CRITICAL'?'danger':'warning'}"><strong>${escapeHtml(a.severity)} — ${escapeHtml(a.type)}</strong><p>${escapeHtml(a.message)}</p></div>`).join('')}
+        <div class="three-columns"><article class="card"><h3>Alergias</h3>${(s.allergies||[]).map(a=>`<p><strong>${escapeHtml(a.substance)}</strong> — ${escapeHtml(a.reaction||'')} ${badge(a.severity,toneForStatus(a.severity))}</p>`).join('')||'<p>Nenhuma ativa.</p>'}</article><article class="card"><h3>Medicamentos</h3>${(s.medications||[]).map(m=>`<p>${escapeHtml(m.name)} · ${escapeHtml(m.dosage||'')} · ${escapeHtml(m.frequency||'')}</p>`).join('')||'<p>Nenhum ativo.</p>'}</article><article class="card"><h3>Condições</h3>${(s.conditions||[]).map(c=>`<p>${escapeHtml(c.description)} — ${escapeHtml(c.status)}</p>`).join('')||'<p>Nenhuma ativa.</p>'}</article></div>
+        <div class="toolbar"><button class="secondary-button" id="record-add-allergy">+ Alergia</button><button class="secondary-button" id="record-add-med">+ Medicamento</button><button class="secondary-button" id="record-add-condition">+ Condição</button><button class="secondary-button" id="record-add-alert">+ Alerta</button><button class="secondary-button" id="record-add-document">+ Documento</button></div>
+        <div class="two-columns"><article class="panel"><h3>Linha do tempo</h3><div class="timeline">${t.map(x=>`<div class="timeline-item"><strong>${escapeHtml(x.type)}</strong><p>${escapeHtml(x.title)}</p><small>${formatDateTime(x.occurredAt)}</small></div>`).join('')||'<p>Sem eventos.</p>'}</div></article><article class="panel"><h3>Documentos</h3>${docs.map(d=>`<p><strong>${escapeHtml(d.documentType)}</strong> · ${escapeHtml(d.mimeType)}<br><small>${escapeHtml(d.storageKey)}</small></p>`).join('')||'<p>Sem documentos.</p>'}</article></div>`;
+      box.querySelector('#record-add-allergy').addEventListener('click',()=>quickClinicalEntry('Alergia',[['substance','Substância'],['reaction','Reação'],['severity','Severidade (LOW/MEDIUM/HIGH/CRITICAL)']],b=>clinicalApi.addAllergy(selectedPatientId,b),open));
+      box.querySelector('#record-add-med').addEventListener('click',()=>quickClinicalEntry('Medicamento',[['name','Nome'],['dosage','Dose'],['frequency','Frequência']],b=>clinicalApi.addMedication(selectedPatientId,b),open));
+      box.querySelector('#record-add-condition').addEventListener('click',()=>quickClinicalEntry('Condição',[['description','Descrição'],['status','Status (ACTIVE/CONTROLLED/RESOLVED)']],b=>clinicalApi.addCondition(selectedPatientId,b),open));
+      box.querySelector('#record-add-alert').addEventListener('click',()=>quickClinicalEntry('Alerta',[['type','Tipo'],['severity','Severidade (LOW/MEDIUM/HIGH/CRITICAL)'],['message','Mensagem']],b=>clinicalApi.addAlert(selectedPatientId,b),open));
+      box.querySelector('#record-add-document').addEventListener('click',()=>openDocumentForm(selectedPatientId,open));
+    }catch(err){renderError(box,err);}
+  };
+  target.querySelector('#record-open').addEventListener('click',open);if(selectedPatientId) await open();
+}
+function openDocumentForm(patientId,onSaved){
+  openModal('Adicionar documento clínico',`<form id="doc-form" class="form-grid"><label>Atendimento (opcional)<input name="encounterId"></label><label>Tipo<input name="documentType" required></label><label>Storage key<input name="storageKey" required placeholder="exames/arquivo.pdf"></label><label>MIME type<input name="mimeType" required value="application/pdf"></label><label>Checksum<input name="checksum"></label><div class="form-actions"><button class="primary-button">Registrar documento</button></div></form>`,modal=>modal.querySelector('#doc-form').addEventListener('submit',async e=>{e.preventDefault();const x=Object.fromEntries(new FormData(e.currentTarget).entries());x.encounterId=x.encounterId||null;try{await clinicalApi.addDocument(patientId,x);closeModal();showToast('Documento registrado.','success');await onSaved();}catch(err){showToast(err.message,'error');}}));
+}
+
+async function renderEncounter(target){
+  target.innerHTML=`
+    <article class="panel"><div class="panel-header"><div><p class="eyebrow">Consulta</p><h2>Atendimento clínico</h2></div>${activeEncounter?badge(activeEncounter.status,toneForStatus(activeEncounter.status)):''}</div>
+      <div class="filters"><input id="encounter-screen-appointment" placeholder="UUID do agendamento em CHECKED_IN" value="${escapeHtml(selectedAppointmentId||'')}"><button class="primary-button" id="encounter-screen-start">Iniciar atendimento</button></div>
+      <div id="encounter-screen-box">${activeEncounter?encounterForm(activeEncounter):empty('Nenhum atendimento ativo nesta sessão.')}</div>
+    </article>`;
+  const box=target.querySelector('#encounter-screen-box');
+  const wireExtras=()=>{
+    wireEncounter(box);
+    if(activeEncounter){
+      const actions=document.createElement('div');actions.className='toolbar';actions.innerHTML='<button class="secondary-button" id="enc-exam">Solicitar exame</button><button class="secondary-button" id="enc-follow">Criar acompanhamento</button><button class="secondary-button" id="enc-addendum">Registrar adendo</button>';box.appendChild(actions);
+      actions.querySelector('#enc-exam').addEventListener('click',()=>openExamCreate(activeEncounter.id,()=>showToast('Exame solicitado.','success')));
+      actions.querySelector('#enc-follow').addEventListener('click',()=>openFollowCreate(activeEncounter.patientId,activeEncounter.id,()=>showToast('Acompanhamento criado.','success')));
+      actions.querySelector('#enc-addendum').addEventListener('click',()=>openAddendum(activeEncounter.id));
+    }
+  };
+  target.querySelector('#encounter-screen-start').addEventListener('click',async()=>{const id=target.querySelector('#encounter-screen-appointment').value.trim();try{activeEncounter=await clinicalApi.startEncounter(id);selectedAppointmentId=id;selectedPatientId=activeEncounter.patientId;box.innerHTML=encounterForm(activeEncounter);wireExtras();showToast('Atendimento iniciado.','success');}catch(err){showToast(err.message,'error');}});
+  if(activeEncounter) wireExtras();
+}
+function openAddendum(encounterId){
+  openModal('Adendo ao atendimento',`<form id="addendum-form" class="form-grid"><label>Motivo<textarea name="reason" required></textarea></label><label>Conteúdo<textarea name="content" required></textarea></label><div class="form-actions"><button class="primary-button">Registrar adendo</button></div></form>`,modal=>modal.querySelector('#addendum-form').addEventListener('submit',async e=>{e.preventDefault();try{await clinicalApi.addAddendum(encounterId,Object.fromEntries(new FormData(e.currentTarget).entries()));closeModal();showToast('Adendo registrado sem alterar o original.','success');}catch(err){showToast(err.message,'error');}}));
+}
+
+async function renderExams(target){
+  target.innerHTML=`<article class="panel"><div class="panel-header"><div><p class="eyebrow">Continuidade</p><h2>Exames</h2></div><button class="primary-button" id="exam-new">+ Solicitar exame</button></div><div id="exam-screen-list">${loading()}</div></article>`;
+  const box=target.querySelector('#exam-screen-list');
+  const load=async()=>{try{const rows=await continuityApi.pendingExams();box.innerHTML=rows.length?`<div class="table-wrap"><table><thead><tr><th>Exame</th><th>Paciente</th><th>Prioridade</th><th>Status</th><th>Prazo</th><th>Ações</th></tr></thead><tbody>${rows.map(e=>`<tr><td>${escapeHtml(e.examName)}</td><td>${escapeHtml(e.patientId)}</td><td>${escapeHtml(e.priority)}</td><td>${badge(e.status,toneForStatus(e.status))}</td><td>${formatDate(e.expectedBy)}</td><td><div class="toolbar">${e.status==='RESULT_RECEIVED'?`<button class="secondary-button" data-exam-review="${e.id}">Revisar</button>`:`<button class="secondary-button" data-exam-result="${e.id}">Receber resultado</button>`}</div></td></tr>`).join('')}</tbody></table></div>`:empty();
+    box.querySelectorAll('[data-exam-result]').forEach(b=>b.addEventListener('click',()=>openResultReceive(b.dataset.examResult,load)));
+    box.querySelectorAll('[data-exam-review]').forEach(b=>b.addEventListener('click',()=>openResultReviewByOrder(b.dataset.examReview,load)));
+  }catch(err){renderError(box,err);}};
+  target.querySelector('#exam-new').addEventListener('click',()=>openExamCreate(null,load));await load();
+}
+function openExamCreate(encounterId,onSaved){
+  openModal('Solicitar exame',`<form id="exam-create-form" class="form-grid"><label>Atendimento<input name="encounterId" value="${escapeHtml(encounterId||activeEncounter?.id||'')}" required></label><label>Exame<input name="examName" required></label><label>Prioridade<select name="priority"><option>ROUTINE</option><option>HIGH</option><option>URGENT</option></select></label><label>Prazo esperado<input name="expectedBy" type="date"></label><div class="form-actions"><button class="primary-button">Solicitar</button></div></form>`,modal=>modal.querySelector('#exam-create-form').addEventListener('submit',async e=>{e.preventDefault();const x=Object.fromEntries(new FormData(e.currentTarget).entries());x.expectedBy=x.expectedBy||null;try{await continuityApi.createExam(x);closeModal();showToast('Exame solicitado.','success');await onSaved?.();}catch(err){showToast(err.message,'error');}}));
+}
+function openResultReceive(orderId,onSaved){
+  openModal('Receber resultado',`<form id="result-form" class="form-grid"><label>Storage key<input name="storageKey" required></label><label>MIME type<input name="mimeType" value="application/pdf" required></label><div class="form-actions"><button class="primary-button">Registrar resultado</button></div></form>`,modal=>modal.querySelector('#result-form').addEventListener('submit',async e=>{e.preventDefault();try{await continuityApi.receiveResult(orderId,Object.fromEntries(new FormData(e.currentTarget).entries()));closeModal();showToast('Resultado recebido; ainda requer revisão médica.','success');await onSaved();}catch(err){showToast(err.message,'error');}}));
+}
+async function openResultReviewByOrder(orderId,onSaved){
+  try{const r=await continuityApi.resultForExam(orderId);openModal('Revisar resultado',`<form id="review-form" class="form-grid"><p><strong>${escapeHtml(r.storageKey)}</strong></p><label>Nota de revisão<textarea name="note"></textarea></label><div class="form-actions"><button class="primary-button">Marcar como revisado</button></div></form>`,modal=>modal.querySelector('#review-form').addEventListener('submit',async e=>{e.preventDefault();const fd=new FormData(e.currentTarget);try{await continuityApi.reviewResult(r.id,fd.get('note'));closeModal();showToast('Resultado revisado.','success');await onSaved();}catch(err){showToast(err.message,'error');}}));}catch(err){showToast(err.message,'error');}
+}
+
+async function renderFollowUps(target){
+  target.innerHTML=`<article class="panel"><div class="panel-header"><div><p class="eyebrow">Continuidade</p><h2>Retornos e acompanhamentos</h2></div>${session.hasAnyRole('MEDICO','ADMIN')?'<button class="primary-button" id="follow-new">+ Novo acompanhamento</button>':''}</div><div id="follow-screen-list">${loading()}</div></article>`;
+  const box=target.querySelector('#follow-screen-list');
+  const load=async()=>{try{const rows=await continuityApi.followUps();box.innerHTML=rows.length?`<div class="table-wrap"><table><thead><tr><th>Paciente</th><th>Prioridade</th><th>Status</th><th>Prazo</th><th>Ação</th></tr></thead><tbody>${rows.map(x=>`<tr><td>${escapeHtml(x.patientName)}</td><td>${escapeHtml(x.priority)}</td><td>${badge(x.status,toneForStatus(x.status))}</td><td>${formatDateTime(x.dueAt)}</td><td><button class="secondary-button" data-follow-action="${x.id}">Registrar ação</button></td></tr>`).join('')}</tbody></table></div>`:empty();box.querySelectorAll('[data-follow-action]').forEach(b=>b.addEventListener('click',()=>openFollowAction(b.dataset.followAction,load)));}catch(err){renderError(box,err);}};
+  target.querySelector('#follow-new')?.addEventListener('click',()=>openFollowCreate(selectedPatientId,null,load));await load();
+}
+function openFollowCreate(patientId,encounterId,onSaved){
+  openModal('Novo acompanhamento',`<form id="follow-create-form" class="form-grid"><label>Paciente<input name="patientId" value="${escapeHtml(patientId||'')}" required></label><label>Atendimento (opcional)<input name="encounterId" value="${escapeHtml(encounterId||'')}"></label><label>Motivo<textarea name="reason" required></textarea></label><label>Prioridade<select name="priority"><option>LOW</option><option>MEDIUM</option><option>HIGH</option><option>CRITICAL</option></select></label><label>Prazo<input name="dueAt" type="datetime-local"></label><div class="form-actions"><button class="primary-button">Criar acompanhamento</button></div></form>`,modal=>modal.querySelector('#follow-create-form').addEventListener('submit',async e=>{e.preventDefault();const x=Object.fromEntries(new FormData(e.currentTarget).entries());x.encounterId=x.encounterId||null;x.dueAt=x.dueAt?new Date(x.dueAt).toISOString():null;try{await continuityApi.createFollowUp(x);closeModal();showToast('Acompanhamento criado.','success');await onSaved?.();}catch(err){showToast(err.message,'error');}}));
+}
+
+async function renderFinanceFull(target){
+  const [from,to]=monthRange();
+  target.innerHTML=`<article class="panel"><div class="panel-header"><div><p class="eyebrow">Financeiro</p><h2>Faturamento e recebimentos</h2></div><button class="primary-button" id="receivable-new">+ Novo recebível</button></div><div class="filters"><input id="finance-from" type="date" value="${from}"><input id="finance-to" type="date" value="${to}"><button class="secondary-button" id="finance-load">Carregar</button></div><div id="finance-list">${loading()}</div></article>`;
+  const box=target.querySelector('#finance-list');
+  const load=async()=>{try{const rows=await financeApi.list(target.querySelector('#finance-from').value,target.querySelector('#finance-to').value);box.innerHTML=rows.length?`<div class="table-wrap"><table><thead><tr><th>Atendimento</th><th>Pagador</th><th>Valor</th><th>Vencimento</th><th>Status</th><th>Ação</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${escapeHtml(r.encounterId)}</td><td>${escapeHtml(r.payerType)}</td><td>${formatMoney(r.amount)}</td><td>${formatDate(r.dueDate)}</td><td>${badge(r.status,toneForStatus(r.status))}</td><td>${r.status!=='PAID'?`<button class="secondary-button" data-payment="${r.id}">Registrar pagamento</button>`:''}</td></tr>`).join('')}</tbody></table></div>`:empty();box.querySelectorAll('[data-payment]').forEach(b=>b.addEventListener('click',()=>openPayment(b.dataset.payment,load)));}catch(err){renderError(box,err);}};
+  target.querySelector('#finance-load').addEventListener('click',load);target.querySelector('#receivable-new').addEventListener('click',()=>openReceivable(load));await load();
+}
+function openReceivable(onSaved){openModal('Novo recebível',`<form id="receivable-form" class="form-grid"><label>Atendimento finalizado<input name="encounterId" required></label><label>Pagador<select name="payerType"><option>PRIVATE</option><option>INSURANCE</option></select></label><label>Referência do pagador<input name="payerReference"></label><label>Valor<input name="amount" type="number" step="0.01" min="0" required></label><label>Vencimento<input name="dueDate" type="date"></label><div class="form-actions"><button class="primary-button">Criar recebível</button></div></form>`,modal=>modal.querySelector('#receivable-form').addEventListener('submit',async e=>{e.preventDefault();const x=Object.fromEntries(new FormData(e.currentTarget).entries());x.amount=Number(x.amount);x.dueDate=x.dueDate||null;try{await financeApi.create(x);closeModal();showToast('Recebível criado.','success');await onSaved();}catch(err){showToast(err.message,'error');}}));}
+function openPayment(id,onSaved){openModal('Registrar pagamento',`<form id="payment-form" class="form-grid"><label>Valor<input name="amount" type="number" step="0.01" min="0.01" required></label><label>Forma<input name="method" required placeholder="PIX, CARD, CASH"></label><div class="form-actions"><button class="primary-button">Registrar pagamento</button></div></form>`,modal=>modal.querySelector('#payment-form').addEventListener('submit',async e=>{e.preventDefault();const x=Object.fromEntries(new FormData(e.currentTarget).entries());x.amount=Number(x.amount);try{await financeApi.pay(id,x);closeModal();showToast('Pagamento registrado.','success');await onSaved();}catch(err){showToast(err.message,'error');}}));}
+
+async function renderIndicators(target){
+  const [from,to]=monthRange();target.innerHTML=`<article class="panel"><div class="panel-header"><div><p class="eyebrow">Gestão</p><h2>Indicadores</h2></div></div><div class="filters"><input id="ind-from" type="date" value="${from}"><input id="ind-to" type="date" value="${to}"><button class="secondary-button" id="ind-load">Atualizar</button></div><div id="ind-box">${loading()}</div></article>`;
+  const load=async()=>{const box=target.querySelector('#ind-box');try{const d=await managementApi.dashboard(target.querySelector('#ind-from').value,target.querySelector('#ind-to').value);box.innerHTML=`<div class="metric-grid"><article class="metric-card"><span>Agendamentos</span><strong>${d.appointments}</strong><small>período</small></article><article class="metric-card"><span>Ausências</span><strong>${d.noShows}</strong><small>${Number(d.noShowRate).toFixed(1)}%</small></article><article class="metric-card"><span>Cancelamentos</span><strong>${d.cancelled}</strong><small>período</small></article><article class="metric-card"><span>Recebíveis</span><strong>${formatMoney(d.grossReceivables)}</strong><small>bruto</small></article></div><div class="two-columns"><article class="panel"><h3>Continuidade</h3><p>Follow-ups abertos: <strong>${d.openFollowUps}</strong></p><p>Exames pendentes: <strong>${d.pendingExams}</strong></p></article><article class="panel"><h3>Governança</h3><p>Indicadores agregados não exibem conteúdo clínico detalhado.</p></article></div>`;}catch(err){renderError(box,err);}};
+  target.querySelector('#ind-load').addEventListener('click',load);await load();
+}
+
+async function renderAdminFull(target){
+  target.innerHTML=`<div class="two-columns"><article class="panel"><div class="panel-header"><h2>Usuários</h2><button class="primary-button" id="admin-user-new">+ Novo usuário</button></div><div id="admin-users">${loading()}</div></article><article class="panel"><div class="panel-header"><h2>Vínculo médico</h2></div><p>O vínculo usuário↔médico também pode ser realizado no cadastro completo do médico.</p><button class="secondary-button" id="admin-go-doctors">Abrir médicos</button></article></div>`;
+  const box=target.querySelector('#admin-users');
+  const load=async()=>{try{const rows=await adminApi.users();box.innerHTML=rows.length?`<div class="table-wrap"><table><thead><tr><th>Usuário</th><th>Perfis</th><th>Status</th><th>Ação</th></tr></thead><tbody>${rows.map(u=>`<tr><td>${escapeHtml(u.username)}</td><td>${escapeHtml((u.roles||[]).join(', '))}</td><td>${badge(u.active?'ACTIVE':'INACTIVE',u.active?'success':'danger')}</td><td>${u.active?`<button class="danger-button" data-user-off="${u.id}">Desativar</button>`:''}</td></tr>`).join('')}</tbody></table></div>`:empty();box.querySelectorAll('[data-user-off]').forEach(b=>b.addEventListener('click',async()=>{if(!confirm('Desativar este usuário?'))return;try{await adminApi.deactivateUser(b.dataset.userOff);showToast('Usuário desativado.','success');await load();}catch(err){showToast(err.message,'error');}}));}catch(err){renderError(box,err);}};
+  target.querySelector('#admin-user-new').addEventListener('click',()=>openUserCreate(load));target.querySelector('#admin-go-doctors').addEventListener('click',()=>navigate('doctors'));await load();
+}
+function openUserCreate(onSaved){openModal('Novo usuário',`<form id="user-create-form" class="form-grid"><label>Usuário<input name="username" required></label><label>Senha inicial<input name="password" type="password" minlength="12" required></label><label>Perfis (separados por vírgula)<input name="roles" placeholder="MEDICO,ADMIN" required></label><div class="form-actions"><button class="primary-button">Criar usuário</button></div></form>`,modal=>modal.querySelector('#user-create-form').addEventListener('submit',async e=>{e.preventDefault();const fd=new FormData(e.currentTarget);try{await adminApi.createUser({username:fd.get('username'),password:fd.get('password'),roles:String(fd.get('roles')).split(',').map(x=>x.trim()).filter(Boolean)});closeModal();showToast('Usuário criado.','success');await onSaved();}catch(err){showToast(err.message,'error');}}));}
+
+async function renderAudit(target){
+  target.innerHTML=`<article class="panel"><div class="panel-header"><div><p class="eyebrow">Governança</p><h2>Auditoria</h2></div></div><div class="filters"><input id="audit-full-type" placeholder="Tipo da entidade"><input id="audit-full-id" placeholder="ID da entidade"><button class="primary-button" id="audit-full-load">Pesquisar</button></div><div id="audit-full-box">${loading()}</div></article>`;
+  const box=target.querySelector('#audit-full-box');
+  const load=async()=>{try{const rows=await adminApi.audit(target.querySelector('#audit-full-type').value,target.querySelector('#audit-full-id').value);box.innerHTML=rows.length?`<div class="table-wrap"><table><thead><tr><th>Quando</th><th>Usuário</th><th>Ação</th><th>Entidade</th><th>ID</th><th>Correlation ID</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${formatDateTime(r.occurredAt)}</td><td>${escapeHtml(r.username||'sistema')}</td><td>${escapeHtml(r.action)}</td><td>${escapeHtml(r.entityType)}</td><td>${escapeHtml(r.entityId||'—')}</td><td><code>${escapeHtml(r.correlationId||'—')}</code></td></tr>`).join('')}</tbody></table></div>`:empty();}catch(err){renderError(box,err);}};
+  target.querySelector('#audit-full-load').addEventListener('click',load);await load();
+}
+
 function openModal(title,content,onReady){
   const el=document.createElement('div');el.className='modal';el.id='active-modal';el.innerHTML=`<div class="modal-card"><div class="panel-header"><h2>${escapeHtml(title)}</h2><button class="ghost-button" id="modal-close">Fechar</button></div>${content}</div>`;document.body.appendChild(el);
   el.querySelector('#modal-close').addEventListener('click',closeModal);el.addEventListener('click',e=>{if(e.target===el)closeModal();});onReady?.(el);
