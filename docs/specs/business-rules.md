@@ -57,6 +57,7 @@
 - **RN-062:** evento de auditoria não é editável por usuários funcionais.
 - **RN-063:** usuário desativado perde capacidade de autenticação, sem apagar autoria histórica.
 - **RN-064:** toda decisão de autorização é feita no backend; ocultar botão na interface não constitui segurança.
+- **RN-065:** perfil ADMIN não possui acesso clínico direto por padrão. Acesso excepcional futuro deve usar break-glass com justificativa, escopo, expiração e auditoria específica.
 
 ## Indicadores
 - **RN-070:** taxa de ausência usa denominador documentado e estados fechados do agendamento.
