@@ -46,16 +46,16 @@ Ficam preparados para evolução: TISS/TUSS, convênios avançados, prescrição
 | Agendar | ✓ | — | — | ✓ |
 | Confirmar/cancelar/check-in/no-show | ✓ | — | — | ✓ |
 | Fila de espera | ✓ | — | — | ✓ |
-| Safety snapshot/timeline | — | ✓ | — | ✓ |
-| Atendimento clínico | — | ✓ | — | ✓* |
-| Alergia/medicação/condição/alerta | — | ✓ | — | ✓* |
-| Exame/revisão | — | ✓ | — | ✓* |
+| Safety snapshot/timeline | — | ✓ | — | —* |
+| Atendimento clínico | — | ✓ | — | —* |
+| Alergia/medicação/condição/alerta | — | ✓ | — | —* |
+| Exame/revisão | — | ✓ | — | —* |
 | Follow-up operacional | ✓ | ✓ | — | ✓ |
 | Financeiro | ✓ | — | ✓ | ✓ |
 | Indicadores | — | — | ✓ | ✓ |
 | Auditoria | — | — | — | ✓ |
 
-\* Operação administrativa excepcional deve permanecer auditada.
+\* Acesso clínico excepcional de ADMIN está **bloqueado no MVP** até existir fluxo break-glass com motivo, escopo, duração e auditoria.
 
 ## 5. Domínio Identidade e Acesso
 
