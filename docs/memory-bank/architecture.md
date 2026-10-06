@@ -1,27 +1,39 @@
 # Memory Bank — Arquitetura
 
 ## Visão arquitetural
-A aplicação-alvo é pensada como uma solução web tradicional moderna:
-
-- **Frontend oficial: HTML5 + CSS3 + JavaScript ES2022+ puro, usando ES Modules e Fetch API. React, Vue, Angular, Svelte, Vite, TypeScript e qualquer framework/bundler não fazem parte da arquitetura.**
-- Backend em Java + Spring Boot + usar mesma arquitetura do git = https://github.com/itodoconhecer-cmyk/aulas_umc_2026_1_spring_boot
-- Banco relacional PostgreSQL
-- Autenticação baseada em JWT
-- Evolução de banco de dados usando migration própria e sem frameworks, sem JPA, tudo com SQL raiz
-- Documentação de API com Swagger/OpenAPI
-
-## Princípios
-- simplicidade primeiro;
-- clareza antes de sofisticação;
-- separação de responsabilidades;
-- forte aderência ao domínio;
-- documentação mínima útil;
-- baixo improviso.
-
+- **Frontend oficial multipágina:** HTML5 + CSS3 + JavaScript ES2022+ puro.
+- Cada tela/fluxo funcional possui pasta própria com HTML, CSS e JS homônimos.
+- Não existe SPA centralizada; navegação ocorre entre páginas HTML reais.
+- CSS geral compartilhado é permitido, mas não substitui o CSS próprio de cada tela.
+- Backend Java + Spring Boot.
+- PostgreSQL.
+- JWT.
+- SQL explícito, sem JPA/Hibernate.
+- Swagger/OpenAPI.
 
 ## Regra permanente do frontend
-- O browser consome exclusivamente os endpoints REST versionados do backend em `/api/v1/**`.
-- Toda chamada HTTP passa por `frontend/services/api.js`; views/componentes não usam `fetch` diretamente.
-- Não manter mocks como fonte de dados da aplicação funcional.
-- `frontend/index.html` deve carregar JavaScript nativo com `<script type="module">`.
-- O frontend deve poder ser servido como arquivos estáticos, sem etapa de build.
+
+Exemplo obrigatório:
+
+```text
+frontend/pacientes/
+  pacientes.html
+  pacientes.css
+  pacientes.js
+```
+
+Para qualquer nova tela, criar um novo diretório seguindo exatamente o mesmo padrão.
+
+### Compartilhado
+- `frontend/shared/global.css`
+- `frontend/shared/screen.js`
+- `frontend/services/api.js`
+- `frontend/state/session.js`
+- `frontend/components/`
+- `frontend/utils/`
+
+### Integração
+- browser consome somente endpoints REST `/api/v1/**`;
+- somente `services/api.js` usa `fetch`;
+- telas nunca usam mock como fonte funcional;
+- nenhuma etapa de build ou framework.
