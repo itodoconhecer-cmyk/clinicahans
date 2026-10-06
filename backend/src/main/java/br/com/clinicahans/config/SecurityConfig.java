@@ -3,6 +3,7 @@ package br.com.clinicahans.config;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -40,7 +41,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    SecurityFilterChain filterChain(HttpSecurity http, JwtAuthenticationFilter jwt, CorsConfigurationSource cors) throws Exception {
+    SecurityFilterChain filterChain(HttpSecurity http, JwtAuthenticationFilter jwt, @Qualifier("corsConfigurationSource") CorsConfigurationSource cors) throws Exception {
         return http
             .cors(c -> c.configurationSource(cors))
             .csrf(csrf -> csrf.disable())
