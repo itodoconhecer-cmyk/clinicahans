@@ -22,16 +22,22 @@ public class ContinuityService {
 
     public ContinuityRepository.ExamOrder createExam(UUID encounterId,String name,String priority,LocalDate expectedBy){
         var e=clinical.getEncounter(encounterId);
+        assertDoctorOwnsEncounter(e);
         var result=repository.createExam(e.patientId(),encounterId,users.currentUserId(),name,priority,expectedBy);
         audit.record("EXAM_ORDER_CREATED","EXAM_ORDER",result.id()); return result;
     }
     public ContinuityRepository.ExamResult receiveResult(UUID orderId,String storageKey,String mimeType){
+        assertExamAccess(repository.getExam(orderId));
         var result=repository.receiveResult(orderId,storageKey,mimeType);
         audit.record("EXAM_RESULT_RECEIVED","EXAM_ORDER",orderId); return result;
     }
-    public ContinuityRepository.ExamResult resultForOrder(UUID orderId){return repository.findResultByOrder(orderId);}
+    public ContinuityRepository.ExamResult resultForOrder(UUID orderId){
+        assertExamAccess(repository.getExam(orderId));
+        return repository.findResultByOrder(orderId);
+    }
 
     public void reviewResult(UUID resultId,String note){
+        assertExamAccess(repository.getExamByResult(resultId));
         repository.reviewResult(resultId,users.currentUserId(),note); audit.record("EXAM_RESULT_REVIEWED","EXAM_RESULT",resultId);
     }
 
@@ -50,5 +56,18 @@ public class ContinuityService {
     }
 
     public List<ContinuityRepository.OperationalFollowUp> operationalQueue(int limit){return repository.operationalQueue(limit);}
-    public List<ContinuityRepository.ExamOrder> pendingExams(int limit){return repository.pendingExams(limit);}
+    public List<ContinuityRepository.ExamOrder> pendingExams(int limit){
+        return users.currentUserHasRole("ADMIN") ? repository.pendingExams(limit) : repository.pendingExamsForDoctor(users.currentDoctorId(),limit);
+    }
+
+    private void assertExamAccess(ContinuityRepository.ExamOrder order){
+        if(users.currentUserHasRole("ADMIN")) return;
+        var encounter=clinical.getEncounter(order.encounterId());
+        assertDoctorOwnsEncounter(encounter);
+    }
+
+    private void assertDoctorOwnsEncounter(ClinicalRepository.Encounter encounter){
+        if(!users.currentUserHasRole("ADMIN") && !users.currentDoctorId().equals(encounter.doctorId()))
+            throw new br.com.clinicahans.exception.BusinessRuleException("Médico autenticado não é responsável por este atendimento/exame.");
+    }
 }
