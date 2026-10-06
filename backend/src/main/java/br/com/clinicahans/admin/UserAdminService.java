@@ -50,6 +50,7 @@ public class UserAdminService {
           ));
     }
 
+    @Transactional
     public void deactivate(UUID id){
         int changed=jdbc.update("update app_user set active=false where id=?",id);
         if(changed==0) throw new BusinessRuleException("Usuário não encontrado.");
