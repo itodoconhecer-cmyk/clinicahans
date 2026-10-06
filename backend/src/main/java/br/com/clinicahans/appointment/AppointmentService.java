@@ -59,10 +59,23 @@ public class AppointmentService {
         return repository.get(a.id());
     }
 
-    public AppointmentRepository.Appointment get(UUID id){return repository.get(id);}
+    public AppointmentRepository.Appointment get(UUID id){
+        var appointment=repository.get(id);
+        if(isDoctorOnly() && !users.currentDoctorId().equals(appointment.doctorId()))
+            throw new BusinessRuleException("Médico não possui acesso a este agendamento.");
+        return appointment;
+    }
     public List<AppointmentRepository.Appointment> list(OffsetDateTime from,OffsetDateTime to,UUID doctorId){
         if(!to.isAfter(from) || Duration.between(from,to).toDays()>93) throw new BusinessRuleException("Intervalo de consulta inválido.");
-        return repository.list(from,to,doctorId);
+        UUID effectiveDoctorId=isDoctorOnly()?users.currentDoctorId():doctorId;
+        return repository.list(from,to,effectiveDoctorId);
+    }
+
+    private boolean isDoctorOnly(){
+        return users.currentUserHasRole("MEDICO")
+            && !users.currentUserHasRole("ADMIN")
+            && !users.currentUserHasRole("RECEPCAO")
+            && !users.currentUserHasRole("GESTAO");
     }
 
     @Transactional
