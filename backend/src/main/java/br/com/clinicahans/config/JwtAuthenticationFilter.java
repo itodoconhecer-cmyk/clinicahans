@@ -1,5 +1,6 @@
 package br.com.clinicahans.config;
 
+import br.com.clinicahans.auth.UserAccountRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -15,7 +16,12 @@ import java.io.IOException;
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
-    public JwtAuthenticationFilter(JwtService jwtService) { this.jwtService = jwtService; }
+    private final UserAccountRepository users;
+
+    public JwtAuthenticationFilter(JwtService jwtService, UserAccountRepository users) {
+        this.jwtService = jwtService;
+        this.users = users;
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
@@ -23,10 +29,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String header = request.getHeader("Authorization");
         if (header != null && header.startsWith("Bearer ") && SecurityContextHolder.getContext().getAuthentication() == null) {
             try {
-                var data = jwtService.parse(header.substring(7));
-                var authorities = data.roles().stream().map(r -> new SimpleGrantedAuthority("ROLE_" + r)).toList();
-                SecurityContextHolder.getContext().setAuthentication(
-                    new UsernamePasswordAuthenticationToken(data.username(), null, authorities));
+                var token = jwtService.parse(header.substring(7));
+                var user = users.findByUsername(token.username()).orElse(null);
+                if (user != null && user.active()) {
+                    var authorities = user.roles().stream()
+                        .map(r -> new SimpleGrantedAuthority("ROLE_" + r))
+                        .toList();
+                    SecurityContextHolder.getContext().setAuthentication(
+                        new UsernamePasswordAuthenticationToken(user.username(), null, authorities));
+                } else {
+                    SecurityContextHolder.clearContext();
+                }
             } catch (Exception ignored) {
                 SecurityContextHolder.clearContext();
             }
