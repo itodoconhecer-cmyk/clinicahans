@@ -43,6 +43,15 @@ public class ContinuityRepository {
         return new ExamResult(id,orderId,storageKey,mimeType,OffsetDateTime.now());
     }
 
+    public ExamResult findResultByOrder(UUID orderId){
+        return jdbc.query("""
+          select id,exam_order_id,storage_key,mime_type,received_at
+          from exam_result where exam_order_id=?
+          """,(rs,n)->new ExamResult(rs.getObject("id",UUID.class),rs.getObject("exam_order_id",UUID.class),
+            rs.getString("storage_key"),rs.getString("mime_type"),rs.getObject("received_at",OffsetDateTime.class)),orderId)
+          .stream().findFirst().orElseThrow(()->new NotFoundException("Resultado do exame não encontrado."));
+    }
+
     public void reviewResult(UUID resultId,UUID reviewedBy,String note){
         Integer count=jdbc.queryForObject("select count(*) from result_review where exam_result_id=?",Integer.class,resultId);
         if(count!=null && count>0) throw new BusinessRuleException("Resultado já foi revisado.");
