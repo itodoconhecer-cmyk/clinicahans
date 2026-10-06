@@ -21,6 +21,7 @@ if (forbiddenFiles.length) {
 
 const forbiddenTerms = /\b(react|react-dom|vite|vue|angular|svelte|typescript)\b/i;
 for (const file of files.filter(f => /\.(js|mjs|html)$/.test(f))) {
+  if (relative(file) === 'frontend/verify-architecture.mjs') continue;
   const content = fs.readFileSync(file, 'utf8');
   if (forbiddenTerms.test(content)) {
     throw new Error('Framework/bundler detectado em ' + relative(file));
