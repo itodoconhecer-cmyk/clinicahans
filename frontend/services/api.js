@@ -76,13 +76,20 @@ export const doctorApi = {
 };
 
 export const appointmentApi = {
-  list: (from, to, doctorId) => api.get(`/api/v1/appointments?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}${doctorId ? `&doctorId=${doctorId}` : ''}`),
+  get: id => api.get(`/api/v1/appointments/${id}`),
+  list: (from, to, doctorId) => api.get(`/api/v1/appointments?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}${doctorId ? `&doctorId=${encodeURIComponent(doctorId)}` : ''}`),
   create: body => api.post('/api/v1/appointments', body),
   transition: (id, target, reason) => api.post(`/api/v1/appointments/${id}/transition`, { target, reason })
 };
 
 export const waitlistApi = {
-  list: () => api.get('/api/v1/waitlist'),
+  list: ({ doctorId = '', specialtyId = '', limit = 50 } = {}) => {
+    const params = new URLSearchParams();
+    if (doctorId) params.set('doctorId', doctorId);
+    if (specialtyId) params.set('specialtyId', specialtyId);
+    params.set('limit', String(limit));
+    return api.get(`/api/v1/waitlist?${params.toString()}`);
+  },
   create: body => api.post('/api/v1/waitlist', body),
   convert: (id, body) => api.post(`/api/v1/waitlist/${id}/convert`, body)
 };
@@ -104,18 +111,18 @@ export const clinicalApi = {
 };
 
 export const continuityApi = {
-  pendingExams: () => api.get('/api/v1/continuity/exams/pending'),
+  pendingExams: (limit = 50) => api.get(`/api/v1/continuity/exams/pending?limit=${limit}`),
   createExam: body => api.post('/api/v1/continuity/exams', body),
   receiveResult: (id, body) => api.post(`/api/v1/continuity/exams/${id}/result`, body),
   resultForExam: id => api.get(`/api/v1/continuity/exams/${id}/result`),
   reviewResult: (id, note) => api.post(`/api/v1/continuity/results/${id}/review`, { note }),
-  followUps: () => api.get('/api/v1/continuity/follow-ups/operational'),
+  followUps: (limit = 50) => api.get(`/api/v1/continuity/follow-ups/operational?limit=${limit}`),
   createFollowUp: body => api.post('/api/v1/continuity/follow-ups', body),
   addFollowUpAction: (id, body) => api.post(`/api/v1/continuity/follow-ups/${id}/actions`, body)
 };
 
 export const financeApi = {
-  list: (from, to) => api.get(`/api/v1/finance/receivables?from=${from}&to=${to}`),
+  list: (from, to, limit = 100) => api.get(`/api/v1/finance/receivables?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}&limit=${limit}`),
   create: body => api.post('/api/v1/finance/receivables', body),
   pay: (id, body) => api.post(`/api/v1/finance/receivables/${id}/payments`, body)
 };
@@ -128,5 +135,11 @@ export const adminApi = {
   users: () => api.get('/api/v1/admin/users'),
   createUser: body => api.post('/api/v1/admin/users', body),
   deactivateUser: id => api.post(`/api/v1/admin/users/${id}/deactivate`),
-  audit: (entityType = '', entityId = '') => api.get(`/api/v1/audit?entityType=${encodeURIComponent(entityType)}&entityId=${encodeURIComponent(entityId)}`)
+  audit: (entityType = '', entityId = '', limit = 100) => {
+    const params = new URLSearchParams();
+    if (entityType) params.set('entityType', entityType);
+    if (entityId) params.set('entityId', entityId);
+    params.set('limit', String(limit));
+    return api.get(`/api/v1/audit?${params.toString()}`);
+  }
 };
