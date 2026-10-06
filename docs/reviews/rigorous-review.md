@@ -256,3 +256,21 @@ Ordem recomendada:
 O projeto **fica de pé como arquitetura evolutiva e MVP de engenharia**, e melhorou significativamente nesta revisão. Porém, não é correto apresentá-lo como sistema clínico pronto ou conforme apenas porque compila, possui JWT e tem telas.
 
 A saída de NO-GO exige, no mínimo, zero P0 aberto e aceite explícito dos P1 residuais.
+
+
+## 11. Evidência de validação após a revisão
+
+A primeira execução do novo Backend CI falhou ao carregar o contexto Spring por ambiguidade de `CorsConfigurationSource`. Esse defeito não era detectado pelo CI anterior baseado apenas nos testes unitários existentes. A configuração foi corrigida com `@Qualifier("corsConfigurationSource")`.
+
+Validação final:
+- **Frontend CI #15:** success.
+- **Backend CI #65:** success.
+- Backend CI usa **PostgreSQL 16 real**.
+- Gate executado: `mvn -B -ntp clean verify`.
+- Migrations V001–V004 executadas durante o contexto de integração.
+- Teste de concorrência financeira executado contra PostgreSQL real.
+- Testes de revogação/role freshness do JWT e escopo médico de exames executados.
+- PR técnico de validação: **#4**.
+- Merge de validação: `beede11cee039ebf2cb191534ee11c71f85727eb`.
+
+O sucesso desses gates **não altera o parecer NO-GO para produção**, pois os bloqueadores operacionais (deploy seguro e backup/restore comprovado) permanecem abertos.
