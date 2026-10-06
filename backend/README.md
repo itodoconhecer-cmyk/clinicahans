@@ -53,3 +53,6 @@ O workflow `Backend CI` compila o projeto com Java 21 e executa `mvn clean test`
 
 ## Integração com frontend
 O CORS é configurável por `CORS_ALLOWED_ORIGINS`; alterações em backend continuam protegidas pelo Backend CI.
+
+## Contratos de apoio ao frontend
+A revisão de telas adicionou listagem administrativa de usuários e consulta de resultado de exame por pedido.
