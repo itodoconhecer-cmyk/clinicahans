@@ -19,7 +19,7 @@ class AppointmentServiceTest {
     private final DoctorRepository doctors=mock(DoctorRepository.class);
     private final UserIdentityService users=mock(UserIdentityService.class);
     private final AuditService audit=mock(AuditService.class);
-    private final AppointmentService service=new AppointmentService(repository,patients,doctors,users,audit);
+    private final AppointmentService service=new AppointmentService(repository,patients,doctors,users,audit,"America/Sao_Paulo");
 
     @Test
     void deveBloquearConflitoDeAgenda() {
@@ -28,7 +28,7 @@ class AppointmentServiceTest {
         when(doctors.get(doctorId)).thenReturn(new DoctorRepository.Doctor(
             doctorId,"Dr. Hans",null,"12345","SP",null,null,null,"ACTIVE",30,"PRESENCIAL",null));
         when(doctors.availability(doctorId)).thenReturn(java.util.List.of(
-            new DoctorRepository.Availability(UUID.randomUUID(),start.getDayOfWeek().getValue(),
+            new DoctorRepository.Availability(UUID.randomUUID(),start.atZoneSameInstant(java.time.ZoneId.of("America/Sao_Paulo")).getDayOfWeek().getValue(),
                 java.time.LocalTime.MIN,java.time.LocalTime.of(23,59),30,true)));
         when(repository.hasConflict(eq(doctorId),eq(start),any())).thenReturn(true);
 
