@@ -1,6 +1,6 @@
 ---
 agent: agent
-description: Gera backend Java/Spring Boot de nível sênior para a Clínica Hans com SQL explícito, segurança clínica e revisão cruzada das especificações.
+description: Implementa backend Java/Spring Boot com segurança clínica, SQL explícito, concorrência controlada e evidência de testes.
 tools:
   - search/codebase
   - read/readFile
@@ -8,91 +8,77 @@ tools:
   - execute/runInTerminal
 ---
 
-# Prompt 03 — Backend Sênior da Clínica Hans
+# Prompt 03 — Backend Sênior com Gate de Segurança
 
-## Leia antes de gerar
+## Leia antes
 - `input/application-story.md`
-- `prototypes/`
 - `docs/memory-bank/`
-- `docs/specs/`
-- `docs/architecture/` quando existir
+- todos os `docs/specs/`
 - `docs/diagrams/`
-- repositório de referência definido em `docs/memory-bank/architecture.md`
+- `prototypes/`
 
 ## Regra de revisão cruzada
-Antes e durante a implementação, confronte código, SQL e contratos com Prompt 02. Se uma decisão de implementação revelar lacuna, ambiguidade ou inconsistência:
-1. ajuste/enriqueça a especificação correspondente;
-2. atualize diagrama se a estrutura de domínio mudar;
-3. somente então consolide o código.
+Código não pode inventar regra silenciosamente. Lacuna encontrada deve primeiro retroalimentar especificação/diagrama e depois ser implementada.
 
-## Stack obrigatória
-- Java 21 preferencial (mínimo 17)
-- Spring Boot 3.x
-- Spring Web
-- Spring Security + JWT
-- Spring JDBC / NamedParameterJdbcTemplate
-- PostgreSQL 16
-- Bean Validation
-- OpenAPI/Swagger
-- SLF4J
-- SQL explícito; proibido JPA/Hibernate
-- migrations próprias versionadas; sem dependência obrigatória de Flyway
+## Stack
+Java 21; Spring Boot 3.x; Spring Web/Security/JDBC; PostgreSQL 16; Bean Validation; OpenAPI; SLF4J; SQL parametrizado; sem JPA/Hibernate.
 
-## Arquitetura
-- organização modular por capacidade de negócio;
-- controllers finos;
-- services/use-cases controlam transições e autorização contextual;
-- repositories com SQL parametrizado e mapeamento explícito;
-- DTOs separados de domínio/persistência;
-- erros padronizados com correlationId;
-- timestamps UTC;
-- IDs UUID;
-- constraints de banco para invariantes críticas.
+## Arquitetura obrigatória
+- módulos por capacidade;
+- DTO de API separado de record de persistência;
+- controller fino → use-case/service → repository;
+- enums/constraints para estados críticos;
+- timestamps em UTC + `business-zone` configurável;
+- UUID;
+- transações explícitas em mutações multi-etapa;
+- migrações com ordem, exclusão mútua entre instâncias e verificação de integridade/checksum.
 
-## Segurança clínica obrigatória
+## Segurança P0
 - deny-by-default;
-- menor privilégio;
-- recepção sem conteúdo clínico detalhado;
+- validar conta ativa e roles atuais em **toda requisição**, não confiar apenas em roles antigas do JWT;
+- access token curto; estratégia documentada de revogação/rotação;
+- proteção de brute force/rate limit no login antes de produção;
+- row-level authorization para médico: agenda, paciente clínico, encounter, exame, resultado e follow-up;
+- acesso administrativo excepcional a conteúdo clínico deve usar política break-glass, motivo e auditoria;
+- autenticação bem/mal sucedida e autorização negada auditáveis;
 - leitura de prontuário auditada;
-- atendimento finalizado imutável no fluxo comum;
-- correção por adendo;
-- sem PHI/token em logs;
-- prepared statements;
-- segredos externos ao repositório.
+- nenhuma PHI/token em log;
+- CORS e headers restritos por ambiente;
+- Swagger/Actuator com política de exposição por ambiente.
 
-## Entregas mínimas
-### Infraestrutura
-- `backend/pom.xml`
-- configuração por ambiente
-- OpenAPI
-- segurança JWT
-- correlation ID
-- tratamento global de erros
-- health/readiness
-- migration runner próprio
+## Integridade P0
+- conflito de agenda garantido pelo banco;
+- disponibilidade calculada no fuso de negócio;
+- atendimento FINAL imutável; correção por adendo;
+- revisão de resultado idempotente/única sob concorrência;
+- pagamento protegido contra corrida/overpayment;
+- enums/status críticos protegidos também no banco;
+- CPF/identificadores normalizados quando aplicável;
+- audit/evento e mutação clínica devem possuir fronteira transacional coerente.
 
-### Banco
-Schema inicial com usuários/perfis, paciente, médico/especialidade/disponibilidade, agenda e histórico de status, atendimento/adendo, alergia/alerta, medicamento/condição, exame/resultado/revisão, acompanhamento/ações, financeiro/pagamento e auditoria.
+## APIs
+Implementar apenas requisitos rastreados. Cada endpoint crítico deve:
+- validar entrada;
+- aplicar RBAC + escopo contextual;
+- minimizar DTO de resposta;
+- ter erro padronizado/correlationId;
+- possuir teste de sucesso, negação e concorrência quando aplicável.
 
-### APIs MVP
-- autenticação;
-- pacientes;
-- médicos e disponibilidade;
-- agenda + confirmação/cancelamento/check-in/no-show;
-- safety snapshot/timeline;
-- atendimento + finalização/adendo;
-- alergias/alertas;
-- exames/resultados/revisão;
-- follow-ups;
-- financeiro básico;
-- auditoria e indicadores essenciais.
+## Testes mínimos obrigatórios
+1. unitários de máquina de estados;
+2. integração PostgreSQL real/Testcontainers para migrations e SQL;
+3. conflito de agenda concorrente;
+4. médico A não lê/altera dados clínicos do médico B sem relação válida;
+5. exame/resultado de outro médico negado;
+6. usuário desativado com JWT ainda válido é negado;
+7. pagamento concorrente não ultrapassa recebível;
+8. revisão concorrente de resultado gera uma única revisão;
+9. timezone: slot configurado em America/Sao_Paulo funciona mesmo com payload UTC;
+10. atendimento finalizado não sofre update;
+11. audit trail mínimo para login, prontuário e mutações críticas.
 
-### Testes
-- unitários para regras/transições;
-- integração de persistência/endpoints críticos;
-- teste de conflito de agenda;
-- teste de autorização;
-- teste de imutabilidade de atendimento.
+## CI obrigatório
+`mvn clean verify`, PostgreSQL real para testes de integração, relatório de testes e falha do pipeline para P0.
 
 ## Definition of Done
-Código compilável, sem JPA/Hibernate, Swagger disponível, SQL parametrizado, migrations reproduzíveis, regras críticas testadas, documentação revisada e nenhuma discrepância conhecida entre specs, banco, domínio e DTOs.
+“Compila” não é pronto. Só considerar concluído quando requisito→API→SQL→teste estiver rastreado e não houver P0 aberto em `docs/reviews/`.
