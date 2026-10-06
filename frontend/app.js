@@ -13,13 +13,19 @@ let activeEncounter = null;
 
 const routes = {
   dashboard: { label: 'Visão geral', roles: ['RECEPCAO','MEDICO','GESTAO','ADMIN'], render: renderDashboard },
+  agenda: { label: 'Agenda', roles: ['RECEPCAO','MEDICO','GESTAO','ADMIN'], render: renderAgenda },
+  waitlist: { label: 'Fila de espera', roles: ['RECEPCAO','ADMIN'], render: renderWaitlist },
   patients: { label: 'Pacientes', roles: ['RECEPCAO','MEDICO','ADMIN'], render: renderPatients },
   doctors: { label: 'Médicos', roles: ['RECEPCAO','MEDICO','GESTAO','ADMIN'], render: renderDoctors },
-  agenda: { label: 'Agenda', roles: ['RECEPCAO','MEDICO','GESTAO','ADMIN'], render: renderAgenda },
+  specialties: { label: 'Especialidades', roles: ['GESTAO','ADMIN'], render: renderSpecialties },
   clinical: { label: 'Prontuário', roles: ['MEDICO','ADMIN'], render: renderClinical },
-  continuity: { label: 'Exames e retornos', roles: ['RECEPCAO','MEDICO','ADMIN'], render: renderContinuity },
-  finance: { label: 'Financeiro', roles: ['RECEPCAO','GESTAO','ADMIN'], render: renderFinance },
-  admin: { label: 'Administração', roles: ['ADMIN'], render: renderAdmin }
+  encounter: { label: 'Atendimento', roles: ['MEDICO','ADMIN'], render: renderEncounter },
+  exams: { label: 'Exames', roles: ['MEDICO','ADMIN'], render: renderExams },
+  followups: { label: 'Retornos', roles: ['RECEPCAO','MEDICO','ADMIN'], render: renderFollowUps },
+  finance: { label: 'Faturamento', roles: ['RECEPCAO','GESTAO','ADMIN'], render: renderFinance },
+  indicators: { label: 'Indicadores', roles: ['GESTAO','ADMIN'], render: renderIndicators },
+  admin: { label: 'Usuários', roles: ['ADMIN'], render: renderAdmin },
+  audit: { label: 'Auditoria', roles: ['ADMIN'], render: renderAudit }
 };
 
 function hasAccess(route) {
