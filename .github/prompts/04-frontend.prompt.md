@@ -1,6 +1,6 @@
 ---
 agent: agent
-description: Implementa frontend clínico task-oriented, completo por tela, sem IDs técnicos como UX e com testes de fluxo.
+description: Implementa frontend clínico multipágina em HTML/CSS/JavaScript puro, com uma pasta e três arquivos por tela.
 tools:
   - search/codebase
   - read/readFile
@@ -8,69 +8,62 @@ tools:
   - execute/runInTerminal
 ---
 
-# Prompt 04 — Frontend Completo e Verificável
+# Prompt 04 — Frontend Multipágina Vanilla
 
-## Fontes
-- história;
-- `docs/specs/functional-specification.md`;
-- `docs/specs/traceability-matrix.md`;
-- `docs/specs/ui-screen-inventory.md`;
-- domínios/regras;
-- diagramas;
-- protótipos;
-- OpenAPI/backend real.
-
-## Stack — decisão arquitetural fixa
+## Stack fixa
 HTML5 + CSS3 + JavaScript ES2022+ ES Modules + Fetch API nativa.
 
-**Proibido:** React, React DOM, Vue, Angular, Svelte, Vite, TypeScript, JSX/TSX, npm como requisito de runtime/build ou qualquer framework/bundler. O frontend deve ser publicável como arquivos estáticos sem etapa de compilação.
+**Proibido:** React, React DOM, Vue, Angular, Svelte, Vite, TypeScript, JSX/TSX, SPA centralizada, framework/bundler ou build obrigatório.
 
-## Estrutura obrigatória
-- `services/`: único ponto autorizado para HTTP/fetch; clientes por domínio devem mapear os endpoints REST reais do backend;
-- `state/`: sessão/estado mínimo;
-- `views/`: **uma view por tarefa/tela principal**;
-- `components/`: reutilizáveis;
-- `utils/`;
-- `app.js` apenas bootstrap/roteamento, sem virar monólito de todas as telas.
+## Estrutura obrigatória — regra principal
 
-## Regra de cobertura
-`ui-screen-inventory.md` é checklist vinculante.
-Uma tela só recebe `IMPLEMENTADO_E_VERIFICADO` se:
-1. possui rota/view real;
-2. ações principais funcionam;
-3. usa API real via services;
-4. trata loading/vazio/erro/sucesso;
-5. respeita role;
-6. possui teste de fluxo;
-7. não exige que usuário comum digite/copiei UUID técnico para operar.
+**Cada item de tela/fluxo do `docs/specs/ui-screen-inventory.md` deve ser uma página física própria.**
 
-## UX clínica
-- nomes e contexto humano, não UUIDs como coluna principal;
-- seleção de paciente/médico/agendamento por busca;
-- prontuário e atendimento separados;
-- alerta crítico visível antes de ação clínica;
-- estados e transições com linguagem compreensível;
-- confirmação em ações destrutivas;
-- formulários preservam dados em erro;
-- acessibilidade: foco, teclado, modal com role/focus trap/ESC, labels, contraste e mensagens associadas.
+Para uma tela chamada `novo-agendamento`:
 
-## Segurança
-- nenhuma autorização confiada à UI;
-- dados do DOM externos sempre escapados ou renderizados por APIs seguras;
-- token não logado;
-- estratégia de sessão alinhada ao backend;
-- CSP e headers de produção documentados;
-- 401 encerra sessão; 403 preserva sessão e informa negação.
+```text
+frontend/novo-agendamento/
+  novo-agendamento.html
+  novo-agendamento.css
+  novo-agendamento.js
+```
 
-## Testes
-- validação sintática não é suficiente;
-- testes unitários para helpers/roteamento;
-- smoke/E2E dos fluxos por perfil: login, agenda, paciente, prontuário, atendimento, exame, follow-up, financeiro, admin;
-- teste que garante que tela MEDICO não oferece/obtém dados fora do escopo;
-- CI deve executar os testes, não apenas `node --check`.
+Os três arquivos são obrigatórios e pertencem somente àquela tela.
 
-## Gate anti-regressão de stack
-O CI deve falhar se detectar framework/bundler, JSX/TSX, `package.json` no frontend, `fetch` fora de `services/` ou ausência dos principais contratos `/api/v1/**`.
+Não implementar uma nova tela como:
+- modal dentro de outra tela;
+- rota/hash de um `app.js` central;
+- função gigantesca dentro de um JS compartilhado;
+- seção escondida da mesma página.
+
+## Compartilhamento permitido
+Pode existir infraestrutura comum:
+- `shared/global.css`;
+- `shared/screen.js`;
+- `services/api.js`;
+- `state/session.js`;
+- `components/`;
+- `utils/`.
+
+Mesmo usando CSS geral, **cada tela continua obrigada a possuir seu CSS próprio**.
+
+## HTTP
+Somente `services/api.js` executa `fetch`. O JS de cada tela importa o cliente de domínio e consome endpoints reais `/api/v1/**`.
+
+## Navegação
+Usar páginas HTML reais e links/redirects entre pastas. Não usar hash routing ou SPA.
+
+## Cobertura
+O inventário de telas é vinculante. Cadastro, detalhe, edição e ações operacionais são telas quando aparecem como tela/fluxo no inventário.
+
+## Gate
+O CI falha se:
+- uma pasta de tela não tiver HTML/CSS/JS homônimos;
+- o HTML não referenciar seu CSS e JS;
+- surgir `frontend/app.js` como SPA;
+- surgir framework/bundler;
+- houver `fetch` fora de services;
+- um grupo principal de endpoints do backend não tiver cliente frontend.
 
 ## Definition of Done
-Nenhuma tela pode ser marcada completa apenas por existir HTML/botão. O inventário deve apontar evidência objetiva (arquivo, endpoint e teste).
+Uma tela só está estruturalmente pronta quando existe fisicamente como pasta própria com os três arquivos e usa os services para falar com o backend.

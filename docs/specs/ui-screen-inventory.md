@@ -61,10 +61,23 @@ Este arquivo é o checklist funcional do Prompt 04. O frontend só é considerad
 - Waitlist deve permitir repescagem.
 - Todas as telas devem respeitar roles e usar exclusivamente a camada `services/`.
 
-
 ## Revisão corretiva após feedback
-A primeira execução do Prompt 04 integrou os fluxos principais, porém agrupou capacidades demais em poucas páginas. Após revisão, o frontend passou a possuir telas/rotas próprias para fila de espera, atendimento, exames, retornos, indicadores, especialidades, usuários e auditoria, além de fichas completas de paciente e médico e ações de configuração/financeiro.
-
+A primeira execução agrupou capacidades demais em poucas páginas. A estrutura oficial passa a ser multipágina física: uma pasta por tela/fluxo.
 
 ## Reclassificação da revisão rigorosa — 06/10/2026
-O status anterior "Implementada" indicava existência de código/rota, mas não havia teste E2E por tela. Pela nova régua do Prompt 04, todas as telas permanecem **PARCIAL** até existir evidência automatizada de fluxo ponta a ponta. O Frontend CI atual valida sintaxe/arquivos, não comportamento.
+Todas as telas permanecem **PARCIAL** até existir evidência automatizada E2E, embora a estrutura física agora seja validada pelo CI.
+
+
+## Estrutura física obrigatória — revisão multipágina
+
+Cada linha acima corresponde a uma pasta física em `frontend/`. O nome da pasta usa kebab-case e contém HTML, CSS e JS homônimos.
+
+Exemplos:
+- UI-020 → `frontend/agenda/agenda.html|css|js`
+- UI-021 → `frontend/novo-agendamento/novo-agendamento.html|css|js`
+- UI-031 → `frontend/cadastro-paciente/cadastro-paciente.html|css|js`
+- UI-042 → `frontend/detalhe-medico/detalhe-medico.html|css|js`
+- UI-072 → `frontend/receber-resultado/receber-resultado.html|css|js`
+- UI-092 → `frontend/registrar-pagamento/registrar-pagamento.html|css|js`
+
+O Frontend CI valida automaticamente todas as 47 pastas.

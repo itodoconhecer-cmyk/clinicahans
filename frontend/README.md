@@ -1,92 +1,83 @@
 # Frontend — Clínica Hans
 
-Frontend oficial em **HTML5 + CSS3 + JavaScript ES2022+ puro**, usando ES Modules e Fetch API.
+Frontend **multipágina** em HTML5, CSS3 e JavaScript ES2022+ puro.
 
-**Não usa e não deve usar React, Vue, Angular, Svelte, Vite, TypeScript, npm ou qualquer framework/bundler.** Não existe etapa de build: os arquivos são servidos diretamente ao navegador.
+## Regra estrutural
 
-## Executar localmente
+Cada tela possui sua própria pasta e, obrigatoriamente, três arquivos com o mesmo nome da pasta:
 
-1. Inicie PostgreSQL e backend conforme `backend/README.md`.
-2. Na raiz do repositório, sirva a pasta `frontend/`:
+```text
+frontend/
+  agenda/
+    agenda.html
+    agenda.css
+    agenda.js
+
+  novo-agendamento/
+    novo-agendamento.html
+    novo-agendamento.css
+    novo-agendamento.js
+
+  pacientes/
+    pacientes.html
+    pacientes.css
+    pacientes.js
+```
+
+Essa regra vale para **todas as telas e sub-telas funcionais**. Ações como cadastro, edição, receber resultado, registrar pagamento e criar usuário não ficam escondidas em um `app.js` central ou em uma SPA.
+
+## Compartilhamento permitido
+
+Somente infraestrutura comum fica fora das pastas de tela:
+
+- `shared/global.css`: CSS geral;
+- `shared/screen.js`: shell/navegação/sessão comum;
+- `services/api.js`: único ponto de HTTP/fetch;
+- `state/session.js`: sessão JWT;
+- `components/`: componentes auxiliares comuns;
+- `utils/`: formatação e helpers.
+
+Cada tela continua possuindo seu próprio CSS, mesmo quando apenas importa o CSS geral.
+
+## Stack fixa
+
+- HTML5
+- CSS3
+- JavaScript ES2022+
+- ES Modules
+- Fetch API nativa, exclusivamente em `services/api.js`
+
+Não usar React, Vue, Angular, Svelte, Vite, TypeScript, JSX/TSX ou etapa de build.
+
+## Integração
+
+Todas as telas funcionais consomem os endpoints REST reais do backend Spring Boot em `/api/v1/**` por meio dos clientes exportados por `frontend/services/api.js`.
+
+Não existe mock como fonte funcional de dados.
+
+## Executar
+
+Inicie PostgreSQL e backend conforme `backend/README.md` e sirva os arquivos estáticos:
 
 ```bash
 python -m http.server 5500 -d frontend
 ```
 
-3. Acesse:
+Acesse `http://localhost:5500`; o arquivo raiz redireciona para `login/login.html`.
 
-```text
-http://localhost:5500
-```
-
-A API padrão é `http://localhost:8080`. Para alterar antes de carregar `app.js`, defina `window.CLN_API_BASE_URL` em uma página de hospedagem/customização ou ajuste `frontend/config.js`.
-
-## CORS
-
-O backend permite por padrão `http://localhost:5500`. Em outros ambientes, configure:
-
-```bash
-export CORS_ALLOWED_ORIGINS='https://app.exemplo.com'
-```
-
-Para mais de uma origem, separe por vírgula.
-
-## Sessão
-
-O JWT é armazenado em `sessionStorage` no MVP e removido no logout ou em resposta HTTP 401.
-
-## Perfis
-
-- RECEPCAO: pacientes, agenda, fila, continuidade operacional e financeiro.
-- MEDICO: pacientes, agenda, prontuário, atendimento, exames e follow-ups.
-- GESTAO: médicos, financeiro e indicadores.
-- ADMIN: acesso amplo, usuários e auditoria.
-
-A navegação é apenas UX; o backend continua sendo a autoridade de autorização.
-
-## Regra de integração com o backend
-
-Toda operação funcional consome a API Spring Boot real em `/api/v1/**`.
-Somente `frontend/services/api.js` pode executar `fetch`. Views, componentes e roteamento chamam os clientes de domínio exportados por esse arquivo.
-
-Não existem mocks como fonte de dados do sistema funcional. Loading, erro, vazio e sucesso são derivados das respostas reais do backend.
-
-## Principais integrações
-
-- `/api/v1/auth/login`
-- `/api/v1/patients`
-- `/api/v1/doctors`
-- `/api/v1/appointments`
-- `/api/v1/waitlist`
-- `/api/v1/clinical`
-- `/api/v1/continuity`
-- `/api/v1/finance`
-- `/api/v1/management`
-- `/api/v1/admin/users`
-- `/api/v1/audit`
-
-## Limitações deliberadas do Prompt 04
-
-- anexos usam `storageKey`; upload binário real exige storage/adaptador futuro;
-- envio real de e-mail/WhatsApp depende de consumidor da notification outbox;
-- portal do paciente, TISS/TUSS, prescrição digital e telemedicina completa permanecem evolução;
-- a SPA não duplica regras críticas como conflito de agenda ou autorização clínica.
+A API padrão é `http://localhost:8080`. Para outro ambiente, ajuste `frontend/config.js` ou `window.CLN_API_BASE_URL`.
 
 ## CI
-Alterações no frontend são validadas automaticamente pelo workflow Frontend CI.
 
-## Cobertura de telas
-A cobertura completa é controlada por `docs/specs/ui-screen-inventory.md`.
+`frontend/verify-architecture.mjs` valida automaticamente:
+- as 47 telas do inventário;
+- pasta própria por tela;
+- HTML, CSS e JS próprios por tela;
+- referência do HTML aos seus arquivos CSS/JS;
+- importação do CSS geral pelo CSS específico;
+- ausência da antiga SPA `app.js`;
+- ausência de frameworks/bundlers;
+- ausência de `fetch` fora da camada de services;
+- presença dos grupos principais de endpoints REST.
 
-## Revisão rigorosa
-A cobertura funcional permanece parcial até existirem testes E2E por perfil, conforme `docs/reviews/rigorous-review.md`.
-
-
-## Gate arquitetural
-
-O arquivo `frontend/verify-architecture.mjs` é executado no Frontend CI e falha quando:
-- aparece React/Vite/TypeScript ou outro framework/bundler;
-- surge `package.json`, JSX ou TSX;
-- algum arquivo fora de `services/api.js` usa `fetch`;
-- um dos grupos principais de endpoints do backend deixa de possuir cliente no frontend;
-- `index.html` deixa de usar ES Modules nativos.
+A cobertura funcional/E2E continua sendo tratada separadamente em `docs/specs/ui-screen-inventory.md`.
