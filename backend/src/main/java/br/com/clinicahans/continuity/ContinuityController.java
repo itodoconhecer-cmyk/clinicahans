@@ -22,6 +22,9 @@ public class ContinuityController {
     @PostMapping("/exams/{id}/result") @PreAuthorize("hasAnyRole('MEDICO','ADMIN')")
     public ContinuityRepository.ExamResult result(@PathVariable UUID id,@Valid @RequestBody ResultRequest r){return service.receiveResult(id,r.storageKey(),r.mimeType());}
 
+    @GetMapping("/exams/{id}/result") @PreAuthorize("hasAnyRole('MEDICO','ADMIN')")
+    public ContinuityRepository.ExamResult examResult(@PathVariable UUID id){return service.resultForOrder(id);}
+
     @PostMapping("/results/{id}/review") @PreAuthorize("hasAnyRole('MEDICO','ADMIN')")
     public void review(@PathVariable UUID id,@RequestBody(required=false) ReviewRequest r){service.reviewResult(id,r==null?null:r.note());}
 
