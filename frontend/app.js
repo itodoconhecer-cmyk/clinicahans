@@ -15,16 +15,16 @@ const routes = {
   dashboard: { label: 'Visão geral', roles: ['RECEPCAO','MEDICO','GESTAO','ADMIN'], render: renderDashboard },
   agenda: { label: 'Agenda', roles: ['RECEPCAO','MEDICO','GESTAO','ADMIN'], render: renderAgenda },
   waitlist: { label: 'Fila de espera', roles: ['RECEPCAO','ADMIN'], render: renderWaitlist },
-  patients: { label: 'Pacientes', roles: ['RECEPCAO','MEDICO','ADMIN'], render: renderPatients },
-  doctors: { label: 'Médicos', roles: ['RECEPCAO','MEDICO','GESTAO','ADMIN'], render: renderDoctors },
+  patients: { label: 'Pacientes', roles: ['RECEPCAO','MEDICO','ADMIN'], render: renderPatientsFull },
+  doctors: { label: 'Médicos', roles: ['RECEPCAO','MEDICO','GESTAO','ADMIN'], render: renderDoctorsFull },
   specialties: { label: 'Especialidades', roles: ['GESTAO','ADMIN'], render: renderSpecialties },
-  clinical: { label: 'Prontuário', roles: ['MEDICO','ADMIN'], render: renderClinical },
+  clinical: { label: 'Prontuário', roles: ['MEDICO','ADMIN'], render: renderClinicalFull },
   encounter: { label: 'Atendimento', roles: ['MEDICO','ADMIN'], render: renderEncounter },
   exams: { label: 'Exames', roles: ['MEDICO','ADMIN'], render: renderExams },
   followups: { label: 'Retornos', roles: ['RECEPCAO','MEDICO','ADMIN'], render: renderFollowUps },
-  finance: { label: 'Faturamento', roles: ['RECEPCAO','GESTAO','ADMIN'], render: renderFinance },
+  finance: { label: 'Faturamento', roles: ['RECEPCAO','GESTAO','ADMIN'], render: renderFinanceFull },
   indicators: { label: 'Indicadores', roles: ['GESTAO','ADMIN'], render: renderIndicators },
-  admin: { label: 'Usuários', roles: ['ADMIN'], render: renderAdmin },
+  admin: { label: 'Usuários', roles: ['ADMIN'], render: renderAdminFull },
   audit: { label: 'Auditoria', roles: ['ADMIN'], render: renderAudit }
 };
 
