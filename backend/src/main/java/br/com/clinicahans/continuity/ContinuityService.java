@@ -29,6 +29,8 @@ public class ContinuityService {
         var result=repository.receiveResult(orderId,storageKey,mimeType);
         audit.record("EXAM_RESULT_RECEIVED","EXAM_ORDER",orderId); return result;
     }
+    public ContinuityRepository.ExamResult resultForOrder(UUID orderId){return repository.findResultByOrder(orderId);}
+
     public void reviewResult(UUID resultId,String note){
         repository.reviewResult(resultId,users.currentUserId(),note); audit.record("EXAM_RESULT_REVIEWED","EXAM_RESULT",resultId);
     }
