@@ -68,3 +68,6 @@ Alterações no frontend são validadas automaticamente pelo workflow Frontend C
 
 ## Cobertura de telas
 A cobertura completa é controlada por `docs/specs/ui-screen-inventory.md`.
+
+## Revisão rigorosa
+A cobertura funcional permanece parcial até existirem testes E2E por perfil, conforme `docs/reviews/rigorous-review.md`.
