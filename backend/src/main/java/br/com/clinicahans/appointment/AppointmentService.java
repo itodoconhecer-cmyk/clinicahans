@@ -5,11 +5,13 @@ import br.com.clinicahans.doctor.DoctorRepository;
 import br.com.clinicahans.exception.BusinessRuleException;
 import br.com.clinicahans.patient.PatientRepository;
 import br.com.clinicahans.security.UserIdentityService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
@@ -18,7 +20,7 @@ import java.util.UUID;
 @Service
 public class AppointmentService {
     private final AppointmentRepository repository; private final PatientRepository patients; private final DoctorRepository doctors;
-    private final UserIdentityService users; private final AuditService audit;
+    private final UserIdentityService users; private final AuditService audit; private final ZoneId businessZone;
     private static final Map<AppointmentStatus, EnumSet<AppointmentStatus>> TRANSITIONS=Map.of(
       AppointmentStatus.SCHEDULED,EnumSet.of(AppointmentStatus.CONFIRMED,AppointmentStatus.CHECKED_IN,AppointmentStatus.CANCELLED,AppointmentStatus.NO_SHOW),
       AppointmentStatus.CONFIRMED,EnumSet.of(AppointmentStatus.CHECKED_IN,AppointmentStatus.CANCELLED,AppointmentStatus.NO_SHOW),
@@ -28,8 +30,11 @@ public class AppointmentService {
       AppointmentStatus.CANCELLED,EnumSet.noneOf(AppointmentStatus.class),
       AppointmentStatus.NO_SHOW,EnumSet.noneOf(AppointmentStatus.class));
 
-    public AppointmentService(AppointmentRepository repository,PatientRepository patients,DoctorRepository doctors,UserIdentityService users,AuditService audit){
+    public AppointmentService(AppointmentRepository repository,PatientRepository patients,DoctorRepository doctors,
+                              UserIdentityService users,AuditService audit,
+                              @Value("${clinicahans.business-zone:America/Sao_Paulo}") String businessZone){
         this.repository=repository;this.patients=patients;this.doctors=doctors;this.users=users;this.audit=audit;
+        this.businessZone=ZoneId.of(businessZone);
     }
 
     @Transactional
@@ -40,9 +45,12 @@ public class AppointmentService {
         int minutes=durationMinutes==null?doctor.defaultAppointmentMinutes():durationMinutes;
         if(minutes<5 || minutes>480) throw new BusinessRuleException("Duração do agendamento inválida.");
         OffsetDateTime end=start.plusMinutes(minutes);
-        boolean insideAvailability=doctors.availability(doctorId).stream().anyMatch(v ->
-            v.active() && v.weekday()==start.getDayOfWeek().getValue()
-            && !start.toLocalTime().isBefore(v.startsAt()) && !end.toLocalTime().isAfter(v.endsAt()));
+        var localStart=start.atZoneSameInstant(businessZone);
+        var localEnd=end.atZoneSameInstant(businessZone);
+        boolean sameBusinessDay=localStart.toLocalDate().equals(localEnd.toLocalDate());
+        boolean insideAvailability=sameBusinessDay && doctors.availability(doctorId).stream().anyMatch(v ->
+            v.active() && v.weekday()==localStart.getDayOfWeek().getValue()
+            && !localStart.toLocalTime().isBefore(v.startsAt()) && !localEnd.toLocalTime().isAfter(v.endsAt()));
         if(!insideAvailability) throw new BusinessRuleException("Horário está fora da disponibilidade configurada do médico.");
         if(repository.hasScheduleBlock(doctorId,start,end)) throw new BusinessRuleException("Horário está bloqueado na agenda do médico.");
         if(repository.hasConflict(doctorId,start,end)) throw new BusinessRuleException("Horário conflita com outro agendamento do médico.");
