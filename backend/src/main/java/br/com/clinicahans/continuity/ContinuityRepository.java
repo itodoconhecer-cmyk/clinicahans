@@ -52,6 +52,17 @@ public class ContinuityRepository {
           .stream().findFirst().orElseThrow(()->new NotFoundException("Resultado do exame não encontrado."));
     }
 
+    public ExamOrder getExamByResult(UUID resultId){
+        return jdbc.query("""
+          select o.id,o.patient_id,o.encounter_id,o.exam_name,o.priority,o.status,o.expected_by,o.created_at
+          from exam_order o join exam_result r on r.exam_order_id=o.id
+          where r.id=?
+          """,(rs,n)->new ExamOrder(rs.getObject("id",UUID.class),rs.getObject("patient_id",UUID.class),
+            rs.getObject("encounter_id",UUID.class),rs.getString("exam_name"),rs.getString("priority"),
+            rs.getString("status"),rs.getObject("expected_by",LocalDate.class),rs.getObject("created_at",OffsetDateTime.class)),resultId)
+          .stream().findFirst().orElseThrow(()->new NotFoundException("Resultado não encontrado."));
+    }
+
     public void reviewResult(UUID resultId,UUID reviewedBy,String note){
         Integer count=jdbc.queryForObject("select count(*) from result_review where exam_result_id=?",Integer.class,resultId);
         if(count!=null && count>0) throw new BusinessRuleException("Resultado já foi revisado.");
@@ -105,6 +116,18 @@ public class ContinuityRepository {
             rs.getString("full_name"),rs.getString("priority"),
             effectiveStatus(rs.getString("status"),rs.getObject("due_at",OffsetDateTime.class)),
             rs.getObject("due_at",OffsetDateTime.class)),Math.min(Math.max(limit,1),100));
+    }
+
+    public List<ExamOrder> pendingExamsForDoctor(UUID doctorId,int limit){
+        return jdbc.query("""
+          select o.id,o.patient_id,o.encounter_id,o.exam_name,o.priority,o.status,o.expected_by,o.created_at
+          from exam_order o join encounter e on e.id=o.encounter_id
+          where e.doctor_id=? and o.status not in ('REVIEWED','CANCELLED')
+          order by o.expected_by nulls last,o.created_at limit ?
+          """,(rs,n)->new ExamOrder(rs.getObject("id",UUID.class),rs.getObject("patient_id",UUID.class),
+            rs.getObject("encounter_id",UUID.class),rs.getString("exam_name"),rs.getString("priority"),
+            rs.getString("status"),rs.getObject("expected_by",LocalDate.class),rs.getObject("created_at",OffsetDateTime.class)),
+            doctorId,Math.min(Math.max(limit,1),100));
     }
 
     public List<ExamOrder> pendingExams(int limit){
