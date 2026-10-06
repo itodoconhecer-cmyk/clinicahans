@@ -61,6 +61,7 @@ public class ClinicalService {
         audit.record("ENCOUNTER_FINALIZED","ENCOUNTER",id); return result;
     }
 
+    @Transactional
     public ClinicalRepository.Addendum addAddendum(UUID id,String reason,String content){
         assertEncounterOwnership(repository.getEncounter(id));
         var result=repository.addAddendum(id,users.currentUserId(),reason,content);
@@ -77,30 +78,35 @@ public class ClinicalService {
             throw new BusinessRuleException("Médico não possui relação assistencial registrada com este paciente.");
     }
 
+    @Transactional
     public ClinicalRepository.Medication addMedication(UUID patientId,String name,String dosage,String frequency,java.time.LocalDate startedOn){
         assertPatientAccess(patientId);
         var result=repository.createMedication(patientId,name,dosage,frequency,startedOn);
         audit.record("MEDICATION_CREATED","PATIENT",patientId); return result;
     }
 
+    @Transactional
     public ClinicalRepository.Condition addCondition(UUID patientId,String description,String status,java.time.LocalDate onsetDate){
         assertPatientAccess(patientId);
         var result=repository.createCondition(patientId,description,status,onsetDate);
         audit.record("CLINICAL_CONDITION_CREATED","PATIENT",patientId); return result;
     }
 
+    @Transactional
     public ClinicalRepository.Alert addAlert(UUID patientId,String type,String severity,String message){
         assertPatientAccess(patientId);
         var result=repository.createManualAlert(patientId,type,severity,message);
         audit.record("CLINICAL_ALERT_CREATED","PATIENT",patientId); return result;
     }
 
+    @Transactional
     public void deactivateAlert(UUID patientId,UUID alertId){
         assertPatientAccess(patientId);
         repository.deactivateAlert(patientId,alertId);
         audit.record("CLINICAL_ALERT_DEACTIVATED","PATIENT",patientId);
     }
 
+    @Transactional
     public ClinicalRepository.ClinicalDocument addDocument(UUID patientId,UUID encounterId,String type,String storageKey,String mimeType,String checksum){
         assertPatientAccess(patientId);
         if(encounterId!=null && !repository.getEncounter(encounterId).patientId().equals(patientId))
@@ -115,6 +121,7 @@ public class ClinicalService {
         return repository.documents(patientId);
     }
 
+    @Transactional
     public ClinicalRepository.Allergy addAllergy(UUID patientId,String substance,String reaction,String severity){
         assertPatientAccess(patientId);
         var result=repository.createAllergy(patientId,substance,reaction,severity,users.currentUserId());
