@@ -20,12 +20,14 @@ public class ContinuityService {
         this.repository=repository;this.clinical=clinical;this.patients=patients;this.users=users;this.audit=audit;
     }
 
+    @Transactional
     public ContinuityRepository.ExamOrder createExam(UUID encounterId,String name,String priority,LocalDate expectedBy){
         var e=clinical.getEncounter(encounterId);
         assertDoctorOwnsEncounter(e);
         var result=repository.createExam(e.patientId(),encounterId,users.currentUserId(),name,priority,expectedBy);
         audit.record("EXAM_ORDER_CREATED","EXAM_ORDER",result.id()); return result;
     }
+    @Transactional
     public ContinuityRepository.ExamResult receiveResult(UUID orderId,String storageKey,String mimeType){
         assertExamAccess(repository.getExam(orderId));
         var result=repository.receiveResult(orderId,storageKey,mimeType);
@@ -36,11 +38,13 @@ public class ContinuityService {
         return repository.findResultByOrder(orderId);
     }
 
+    @Transactional
     public void reviewResult(UUID resultId,String note){
         assertExamAccess(repository.getExamByResult(resultId));
         repository.reviewResult(resultId,users.currentUserId(),note); audit.record("EXAM_RESULT_REVIEWED","EXAM_RESULT",resultId);
     }
 
+    @Transactional
     public ContinuityRepository.FollowUp createFollowUp(UUID patientId,UUID encounterId,String reason,String priority,OffsetDateTime dueAt){
         patients.get(patientId);
         if(encounterId!=null && !clinical.getEncounter(encounterId).patientId().equals(patientId))
