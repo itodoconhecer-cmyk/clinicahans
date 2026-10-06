@@ -6,7 +6,6 @@ import br.com.clinicahans.UseCase.WaitlistUseCase;
 import br.com.clinicahans.repository.AppointmentRepository;
 import br.com.clinicahans.repository.WaitlistRepository;
 
-import br.com.clinicahans.appointment.AppointmentRepository;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import org.springframework.security.access.prepost.PreAuthorize;
