@@ -107,6 +107,7 @@ export const continuityApi = {
   pendingExams: () => api.get('/api/v1/continuity/exams/pending'),
   createExam: body => api.post('/api/v1/continuity/exams', body),
   receiveResult: (id, body) => api.post(`/api/v1/continuity/exams/${id}/result`, body),
+  resultForExam: id => api.get(`/api/v1/continuity/exams/${id}/result`),
   reviewResult: (id, note) => api.post(`/api/v1/continuity/results/${id}/review`, { note }),
   followUps: () => api.get('/api/v1/continuity/follow-ups/operational'),
   createFollowUp: body => api.post('/api/v1/continuity/follow-ups', body),
