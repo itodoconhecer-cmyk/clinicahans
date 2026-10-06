@@ -1,6 +1,6 @@
 package br.com.clinicahans.config;
 
-import br.com.clinicahans.auth.UserAccountRepository;
+import br.com.clinicahans.repository.UserAccountRepository;
 import jakarta.servlet.FilterChain;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;

@@ -1,7 +1,7 @@
 package br.com.clinicahans.integration;
 
-import br.com.clinicahans.exception.BusinessRuleException;
-import br.com.clinicahans.finance.FinanceService;
+import br.com.clinicahans.utilities.exception.BusinessRuleException;
+import br.com.clinicahans.UseCase.FinanceUseCase;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @EnabledIfEnvironmentVariable(named="CI_POSTGRES", matches="true")
 class CriticalDatabaseIntegrationTest {
     @Autowired JdbcTemplate jdbc;
-    @Autowired FinanceService finance;
+    @Autowired FinanceUseCase finance;
 
     @Test
     void migrationsCriticasEConstraintsDevemExistir() {

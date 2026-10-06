@@ -46,5 +46,7 @@ jobs:
           java-version: '21'
           cache: maven
           cache-dependency-path: backend/pom.xml
+      - name: Enforce UMC backend architecture
+        run: bash verify-architecture.sh
       - name: Compile, unit and integration tests
         run: mvn -B -ntp clean verify
