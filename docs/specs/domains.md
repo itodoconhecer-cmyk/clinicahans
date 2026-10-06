@@ -121,7 +121,7 @@ Append-only para usuários funcionais.
 ### ClinicalAccessPolicy
 - MEDICO vinculado a Doctor ativo;
 - relação assistencial com Patient;
-- ADMIN excepcional com auditoria;
+- ADMIN não recebe conteúdo clínico diretamente no MVP; exceção futura exige break-glass formal e auditado;
 - RECEPCAO/GESTAO sem conteúdo clínico detalhado.
 
 ### AppointmentCapacityPolicy
