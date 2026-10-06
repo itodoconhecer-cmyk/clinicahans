@@ -1,6 +1,6 @@
 ---
 agent: agent
-description: Gera frontend funcional de nível sênior em HTML/CSS/JavaScript puro, integrado à API real da Clínica Hans.
+description: Implementa frontend clínico task-oriented, completo por tela, sem IDs técnicos como UX e com testes de fluxo.
 tools:
   - search/codebase
   - read/readFile
@@ -8,96 +8,64 @@ tools:
   - execute/runInTerminal
 ---
 
-# Prompt 04 — Frontend Funcional da Clínica Hans
+# Prompt 04 — Frontend Completo e Verificável
 
-## Fontes obrigatórias
-1. `input/application-story.md`
-2. `docs/specs/functional-specification.md`
-3. `docs/specs/domains.md`
-4. `docs/specs/functional-requirements.md`
-5. `docs/specs/business-rules.md`
-6. `docs/diagrams/`
-7. `prototypes/`
-8. `backend/`
+## Fontes
+- história;
+- `docs/specs/functional-specification.md`;
+- `docs/specs/traceability-matrix.md`;
+- `docs/specs/ui-screen-inventory.md`;
+- domínios/regras;
+- diagramas;
+- protótipos;
+- OpenAPI/backend real.
 
-## Objetivo
-Transformar o protótipo em uma SPA leve, sem framework, integrada aos endpoints REST reais do backend e respeitando perfis, estados e regras de domínio.
+## Stack
+HTML5 + CSS3 + JavaScript ES2022+ ES Modules; zero framework; zero TypeScript.
 
-## Stack obrigatória
-- HTML5
-- CSS3
-- JavaScript ES2022+
-- ES Modules
-- Fetch API
-- zero frameworks de UI
-- zero TypeScript
+## Estrutura obrigatória
+- `services/`: HTTP;
+- `state/`: sessão/estado mínimo;
+- `views/`: **uma view por tarefa/tela principal**;
+- `components/`: reutilizáveis;
+- `utils/`;
+- `app.js` apenas bootstrap/roteamento, sem virar monólito de todas as telas.
 
-## Arquitetura frontend
-- `services/`: cliente HTTP centralizado e APIs por domínio;
-- `state/`: sessão e estado global mínimo;
-- `views/`: telas orientadas a tarefas;
-- `components/`: UI reutilizável;
-- `utils/`: formatação e helpers;
-- hash routing simples;
-- configuração de API centralizada.
+## Regra de cobertura
+`ui-screen-inventory.md` é checklist vinculante.
+Uma tela só recebe `IMPLEMENTADO_E_VERIFICADO` se:
+1. possui rota/view real;
+2. ações principais funcionam;
+3. usa API real via services;
+4. trata loading/vazio/erro/sucesso;
+5. respeita role;
+6. possui teste de fluxo;
+7. não exige que usuário comum digite/copiei UUID técnico para operar.
 
-## Perfis
-A navegação deve derivar das roles retornadas no login:
-- RECEPCAO: pacientes, agenda, fila de espera, continuidade operacional, financeiro;
-- MEDICO: pacientes, agenda, prontuário, atendimento, exames/follow-ups;
-- GESTAO: médicos, financeiro, indicadores;
-- ADMIN: acesso amplo, usuários e auditoria.
-
-A UI pode ocultar capacidades, mas autorização continua sendo responsabilidade do backend.
-
-## UX obrigatória
-- login real;
-- sessão JWT;
-- loading;
-- erro com mensagem do backend;
-- estado vazio;
-- feedback de sucesso;
-- logout;
-- telas responsivas;
-- foco e labels;
-- identidade visual Clínica Hans e paleta vigente.
-
-## Fluxos prioritários
-1. Login.
-2. Pesquisar/cadastrar paciente.
-3. Pesquisar/cadastrar médico e visualizar disponibilidade.
-4. Listar/criar agenda e executar transições válidas.
-5. Fila de espera e conversão em agendamento.
-6. Abrir safety snapshot e timeline.
-7. Iniciar atendimento, salvar rascunho e finalizar.
-8. Registrar alergia, medicamento, condição e documento.
-9. Exames pendentes, recebimento e revisão.
-10. Follow-ups operacionais.
-11. Financeiro.
-12. Indicadores.
-13. Admin: usuários e auditoria.
-
-## Integração
-- nenhuma view deve usar `fetch` diretamente;
-- respostas 401 encerram sessão;
-- 403 devem ser apresentadas como acesso negado;
-- correlationId deve ser mostrado em erros quando fornecido;
-- API base configurável, default `http://localhost:8080`;
-- frontend local previsto em `http://localhost:5500`.
+## UX clínica
+- nomes e contexto humano, não UUIDs como coluna principal;
+- seleção de paciente/médico/agendamento por busca;
+- prontuário e atendimento separados;
+- alerta crítico visível antes de ação clínica;
+- estados e transições com linguagem compreensível;
+- confirmação em ações destrutivas;
+- formulários preservam dados em erro;
+- acessibilidade: foco, teclado, modal com role/focus trap/ESC, labels, contraste e mensagens associadas.
 
 ## Segurança
-- token somente em sessionStorage no MVP;
-- não registrar token ou conteúdo clínico em console;
-- evitar innerHTML com dados externos sem escape;
-- jamais confiar em role apenas da interface.
+- nenhuma autorização confiada à UI;
+- dados do DOM externos sempre escapados ou renderizados por APIs seguras;
+- token não logado;
+- estratégia de sessão alinhada ao backend;
+- CSP e headers de produção documentados;
+- 401 encerra sessão; 403 preserva sessão e informa negação.
+
+## Testes
+- validação sintática não é suficiente;
+- testes unitários para helpers/roteamento;
+- smoke/E2E dos fluxos por perfil: login, agenda, paciente, prontuário, atendimento, exame, follow-up, financeiro, admin;
+- teste que garante que tela MEDICO não oferece/obtém dados fora do escopo;
+- CI deve executar os testes, não apenas `node --check`.
 
 ## Definition of Done
-- frontend abre como site estático;
-- login chama backend real;
-- navegação reflete roles;
-- principais APIs estão integradas;
-- nenhuma chamada HTTP espalhada fora da camada de serviços;
-- estados de UI tratados;
-- backend CORS permite apenas origens configuradas;
-- documentação de execução disponível;
-- validação sintática/CI do frontend configurada.
+Nenhuma tela pode ser marcada completa apenas por existir HTML/botão. O inventário deve apontar evidência objetiva (arquivo, endpoint e teste).
