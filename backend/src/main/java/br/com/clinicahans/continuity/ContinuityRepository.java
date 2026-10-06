@@ -104,6 +104,31 @@ public class ContinuityRepository {
         if(close) jdbc.update("update follow_up set status='CLOSED',closed_at=now() where id=? and status<>'CLOSED'",followUpId);
     }
 
+    public boolean followUpAccessibleByDoctor(UUID followUpId,UUID userId,UUID doctorId){
+        Integer count=jdbc.queryForObject("""
+          select count(*) from follow_up f
+          left join encounter e on e.id=f.encounter_id
+          where f.id=? and (f.owner_user_id=? or e.doctor_id=?)
+          """,Integer.class,followUpId,userId,doctorId);
+        return count!=null && count>0;
+    }
+
+    public List<OperationalFollowUp> operationalQueueForDoctor(UUID userId,UUID doctorId,int limit){
+        return jdbc.query("""
+          select f.id,f.patient_id,p.full_name,f.priority,f.status,f.due_at
+          from follow_up f
+          join patient p on p.id=f.patient_id
+          left join encounter e on e.id=f.encounter_id
+          where f.status='OPEN' and (f.owner_user_id=? or e.doctor_id=?)
+          order by case f.priority when 'CRITICAL' then 1 when 'HIGH' then 2 when 'MEDIUM' then 3 else 4 end,
+                   f.due_at nulls last
+          limit ?
+          """,(rs,n)->new OperationalFollowUp(rs.getObject("id",UUID.class),rs.getObject("patient_id",UUID.class),
+            rs.getString("full_name"),rs.getString("priority"),
+            effectiveStatus(rs.getString("status"),rs.getObject("due_at",OffsetDateTime.class)),
+            rs.getObject("due_at",OffsetDateTime.class)),userId,doctorId,Math.min(Math.max(limit,1),100));
+    }
+
     public List<OperationalFollowUp> operationalQueue(int limit){
         return jdbc.query("""
           select f.id,f.patient_id,p.full_name,f.priority,f.status,f.due_at
