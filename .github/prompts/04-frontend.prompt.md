@@ -20,11 +20,13 @@ tools:
 - protótipos;
 - OpenAPI/backend real.
 
-## Stack
-HTML5 + CSS3 + JavaScript ES2022+ ES Modules; zero framework; zero TypeScript.
+## Stack — decisão arquitetural fixa
+HTML5 + CSS3 + JavaScript ES2022+ ES Modules + Fetch API nativa.
+
+**Proibido:** React, React DOM, Vue, Angular, Svelte, Vite, TypeScript, JSX/TSX, npm como requisito de runtime/build ou qualquer framework/bundler. O frontend deve ser publicável como arquivos estáticos sem etapa de compilação.
 
 ## Estrutura obrigatória
-- `services/`: HTTP;
+- `services/`: único ponto autorizado para HTTP/fetch; clientes por domínio devem mapear os endpoints REST reais do backend;
 - `state/`: sessão/estado mínimo;
 - `views/`: **uma view por tarefa/tela principal**;
 - `components/`: reutilizáveis;
@@ -66,6 +68,9 @@ Uma tela só recebe `IMPLEMENTADO_E_VERIFICADO` se:
 - smoke/E2E dos fluxos por perfil: login, agenda, paciente, prontuário, atendimento, exame, follow-up, financeiro, admin;
 - teste que garante que tela MEDICO não oferece/obtém dados fora do escopo;
 - CI deve executar os testes, não apenas `node --check`.
+
+## Gate anti-regressão de stack
+O CI deve falhar se detectar framework/bundler, JSX/TSX, `package.json` no frontend, `fetch` fora de `services/` ou ausência dos principais contratos `/api/v1/**`.
 
 ## Definition of Done
 Nenhuma tela pode ser marcada completa apenas por existir HTML/botão. O inventário deve apontar evidência objetiva (arquivo, endpoint e teste).
