@@ -10,7 +10,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/clinical")
-@PreAuthorize("hasAnyRole('MEDICO','ADMIN')")
+@PreAuthorize("hasRole('MEDICO')")
 public class ClinicalController {
     private final ClinicalService service;
     public ClinicalController(ClinicalService service){this.service=service;}
