@@ -20,9 +20,9 @@ public class AppointmentController {
     public AppointmentRepository.Appointment create(@Valid @RequestBody CreateAppointmentRequest r){
         return service.create(r.patientId(),r.doctorId(),r.startsAt(),r.durationMinutes(),r.modality(),r.notes());
     }
-    @GetMapping("/{id}") @PreAuthorize("hasAnyRole('RECEPCAO','MEDICO','GESTAO','ADMIN')")
+    @GetMapping("/{id}") @PreAuthorize("hasAnyRole('RECEPCAO','MEDICO','ADMIN')")
     public AppointmentRepository.Appointment get(@PathVariable UUID id){return service.get(id);}
-    @GetMapping @PreAuthorize("hasAnyRole('RECEPCAO','MEDICO','GESTAO','ADMIN')")
+    @GetMapping @PreAuthorize("hasAnyRole('RECEPCAO','MEDICO','ADMIN')")
     public List<AppointmentRepository.Appointment> list(@RequestParam OffsetDateTime from,@RequestParam OffsetDateTime to,@RequestParam(required=false) UUID doctorId){
         return service.list(from,to,doctorId);
     }
