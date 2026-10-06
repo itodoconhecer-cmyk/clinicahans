@@ -36,8 +36,18 @@ public class FinanceRepository {
           .stream().findFirst().orElseThrow(()->new NotFoundException("Lançamento financeiro não encontrado."));
     }
 
+    public Receivable getForUpdate(UUID id){
+        return jdbc.query("""
+          select id,encounter_id,payer_type,payer_reference,amount,due_date,status,created_at
+          from receivable where id=? for update
+          """,(rs,n)->new Receivable(rs.getObject("id",UUID.class),rs.getObject("encounter_id",UUID.class),
+            rs.getString("payer_type"),rs.getString("payer_reference"),rs.getBigDecimal("amount"),
+            rs.getObject("due_date",LocalDate.class),rs.getString("status"),rs.getObject("created_at",OffsetDateTime.class)),id)
+          .stream().findFirst().orElseThrow(()->new NotFoundException("Lançamento financeiro não encontrado."));
+    }
+
     public Payment pay(UUID receivableId,BigDecimal amount,String method){
-        var r=get(receivableId);
+        var r=getForUpdate(receivableId);
         BigDecimal paid=jdbc.queryForObject("select coalesce(sum(amount),0) from payment where receivable_id=?",BigDecimal.class,receivableId);
         if(paid==null) paid=BigDecimal.ZERO;
         if(amount.signum()<=0 || paid.add(amount).compareTo(r.amount())>0) throw new BusinessRuleException("Valor de pagamento inválido.");
