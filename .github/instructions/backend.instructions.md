@@ -5,45 +5,38 @@ applyTo: "backend/**"
 # Instruções para Backend
 
 ## Stack obrigatória
-- Java 17+
-- Spring Boot
-- Spring Web
-- Spring Security
+- Java 21 + Spring Boot
+- Spring Web / Security / JDBC
 - JWT
 - PostgreSQL
 - OpenAPI / Swagger
 - SQL explícito, sem JPA/Hibernate
 
-## Referência arquitetural
-Seguir a organização e os padrões aplicáveis do repositório de referência definido em `docs/memory-bank/architecture.md`.
+## Referência arquitetural normativa
+O backend DEVE seguir a organização de:
+https://github.com/itodoconhecer-cmyk/aulas_umc_2026_1_spring_boot/tree/master/src/main/java/aulas/umc/oo
 
-## Diretrizes
-- Usar arquitetura em camadas, mantendo HTTP, negócio e persistência separados.
-- Preferir DTOs para entrada e saída.
-- Validar entradas.
-- Criar tratamento global de exceções.
-- Usar logs estruturados com contexto e trilha de auditoria quando aplicável.
-- Manter controllers finos e services claros.
-- A camada de persistência deve usar SQL explícito e mapeamento controlado.
-- Preparar código para testes unitários e de integração.
+Estrutura obrigatória sob `br/com/clinicahans`:
+- `DTO/`
+- `UseCase/`
+- `command/`
+- `controller/`
+- `mapper/`
+- `model/` e `model/valueObjects/`
+- `repository/`
+- `utilities/`
+- `DatabaseInitializer.java`
+- `ClinicHansApplication.java`
 
-## Convenções
-- `controller` para endpoints
-- `service` para orquestração e regras
-- `repository` ou `dao` para persistência SQL
-- `domain` para objetos de domínio e enums
-- `dto` para contratos
-- `config` para configuração
-- `exception` para erros
-- `security` para autenticação e autorização
-
-## Segurança
-- Autenticação baseada em JWT.
-- Perfis e permissões explícitos.
-- Endpoints privados protegidos.
-- Dados sensíveis não devem ser expostos em logs ou respostas indevidas.
-
-## Banco
-- Mudanças estruturais devem ser versionadas em scripts SQL próprios.
-- Não usar JPA/Hibernate.
-- Não depender de Flyway como requisito da fábrica, salvo decisão posterior registrada.
+## Regras rigorosas
+- É proibida organização raiz por feature como `patient/`, `appointment/`, `clinical/`, `doctor/`, `finance/` etc.
+- Controllers tratam HTTP e delegam.
+- DTOs de API ficam em `DTO/`, não aninhados em controllers.
+- Regras/orquestração de negócio ficam em `UseCase/`; não criar camada de negócio `service/`.
+- Commands representam intenção de negócio e ficam em `command/`.
+- Mappers convertem DTO ↔ command/model/response e ficam em `mapper/`.
+- Objetos de domínio e value objects ficam em `model/`.
+- Persistência SQL fica em `repository/`.
+- Infraestrutura transversal fica em `utilities/` ou `config/` quando estritamente configuração Spring.
+- Não copiar cegamente defeitos do exemplo: usar DI do Spring, SQL parametrizado, transações e testes.
+- `backend/verify-architecture.sh` é gate obrigatório de CI.

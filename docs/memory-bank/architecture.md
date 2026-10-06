@@ -37,3 +37,10 @@ Para qualquer nova tela, criar um novo diretório seguindo exatamente o mesmo pa
 - somente `services/api.js` usa `fetch`;
 - telas nunca usam mock como fonte funcional;
 - nenhuma etapa de build ou framework.
+
+
+## Estrutura obrigatória do backend
+A referência normativa é:
+https://github.com/itodoconhecer-cmyk/aulas_umc_2026_1_spring_boot/tree/master/src/main/java/aulas/umc/oo
+
+A Clínica Hans usa `DTO/UseCase/command/controller/mapper/model/repository/utilities`, com `DatabaseInitializer.java` no pacote raiz. Organização raiz por feature é considerada divergência arquitetural e deve falhar no CI.

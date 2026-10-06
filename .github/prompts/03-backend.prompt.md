@@ -24,9 +24,10 @@ Código não pode inventar regra silenciosamente. Lacuna encontrada deve primeir
 Java 21; Spring Boot 3.x; Spring Web/Security/JDBC; PostgreSQL 16; Bean Validation; OpenAPI; SLF4J; SQL parametrizado; sem JPA/Hibernate.
 
 ## Arquitetura obrigatória
-- módulos por capacidade;
-- DTO de API separado de record de persistência;
-- controller fino → use-case/service → repository;
+- organização por responsabilidade técnica, conforme o projeto UMC, e não por feature;
+- pacotes obrigatórios: `DTO`, `UseCase`, `command`, `controller`, `mapper`, `model`, `repository`, `utilities`;
+- DTO de API separado de record de persistência e proibido dentro de controller;
+- controller fino → DTO/mapper → command → UseCase → model/repository;
 - enums/constraints para estados críticos;
 - timestamps em UTC + `business-zone` configurável;
 - UUID;
@@ -78,7 +79,7 @@ Implementar apenas requisitos rastreados. Cada endpoint crítico deve:
 11. audit trail mínimo para login, prontuário e mutações críticas.
 
 ## CI obrigatório
-`mvn clean verify`, PostgreSQL real para testes de integração, relatório de testes e falha do pipeline para P0.
+`bash verify-architecture.sh` + `mvn clean verify`, PostgreSQL real para testes de integração, relatório de testes e falha do pipeline para P0.
 
 ## Definition of Done
 “Compila” não é pronto. Só considerar concluído quando requisito→API→SQL→teste estiver rastreado e não houver P0 aberto em `docs/reviews/`.
