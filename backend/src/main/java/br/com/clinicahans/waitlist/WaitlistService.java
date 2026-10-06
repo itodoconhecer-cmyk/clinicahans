@@ -21,6 +21,7 @@ public class WaitlistService {
         this.repository=repository;this.appointments=appointments;this.patients=patients;this.users=users;this.audit=audit;
     }
 
+    @Transactional
     public WaitlistRepository.Entry create(UUID patientId,UUID doctorId,UUID specialtyId,OffsetDateTime from,OffsetDateTime to,int priority){
         patients.get(patientId);
         if(doctorId==null&&specialtyId==null) throw new BusinessRuleException("Fila de espera exige médico ou especialidade.");
