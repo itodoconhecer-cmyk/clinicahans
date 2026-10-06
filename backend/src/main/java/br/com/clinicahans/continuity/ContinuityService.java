@@ -55,13 +55,24 @@ public class ContinuityService {
 
     @Transactional
     public void addAction(UUID id,String actionType,String note,boolean close){
+        assertFollowUpAccess(id);
         repository.addAction(id,users.currentUserId(),actionType,note,close);
         audit.record(close?"FOLLOW_UP_CLOSED":"FOLLOW_UP_ACTION_ADDED","FOLLOW_UP",id);
     }
 
-    public List<ContinuityRepository.OperationalFollowUp> operationalQueue(int limit){return repository.operationalQueue(limit);}
+    public List<ContinuityRepository.OperationalFollowUp> operationalQueue(int limit){
+        if(users.currentUserHasRole("MEDICO") && !users.currentUserHasRole("RECEPCAO") && !users.currentUserHasRole("ADMIN"))
+            return repository.operationalQueueForDoctor(users.currentUserId(),users.currentDoctorId(),limit);
+        return repository.operationalQueue(limit);
+    }
     public List<ContinuityRepository.ExamOrder> pendingExams(int limit){
         return users.currentUserHasRole("ADMIN") ? repository.pendingExams(limit) : repository.pendingExamsForDoctor(users.currentDoctorId(),limit);
+    }
+
+    private void assertFollowUpAccess(UUID followUpId){
+        if(users.currentUserHasRole("MEDICO") && !users.currentUserHasRole("RECEPCAO") && !users.currentUserHasRole("ADMIN")
+            && !repository.followUpAccessibleByDoctor(followUpId,users.currentUserId(),users.currentDoctorId()))
+            throw new br.com.clinicahans.exception.BusinessRuleException("Médico não possui acesso a este acompanhamento.");
     }
 
     private void assertExamAccess(ContinuityRepository.ExamOrder order){
