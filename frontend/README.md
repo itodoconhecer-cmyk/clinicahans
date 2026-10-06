@@ -65,3 +65,6 @@ A navegação é apenas UX; o backend continua sendo a autoridade de autorizaç�
 
 ## CI
 Alterações no frontend são validadas automaticamente pelo workflow Frontend CI.
+
+## Cobertura de telas
+A cobertura completa é controlada por `docs/specs/ui-screen-inventory.md`.
