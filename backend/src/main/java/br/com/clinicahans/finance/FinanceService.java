@@ -16,6 +16,7 @@ public class FinanceService {
     private final FinanceRepository repository; private final ClinicalRepository clinical; private final AuditService audit;
     public FinanceService(FinanceRepository repository,ClinicalRepository clinical,AuditService audit){this.repository=repository;this.clinical=clinical;this.audit=audit;}
 
+    @Transactional
     public FinanceRepository.Receivable create(UUID encounterId,String payerType,String payerReference,BigDecimal amount,LocalDate dueDate){
         var encounter=clinical.getEncounter(encounterId);
         if(!"FINAL".equals(encounter.status())) throw new BusinessRuleException("Faturamento exige atendimento finalizado.");
