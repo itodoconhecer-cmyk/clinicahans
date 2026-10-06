@@ -70,7 +70,9 @@ export const doctorApi = {
   availability: id => api.get(`/api/v1/doctors/${id}/availability`),
   addAvailability: (id, body) => api.post(`/api/v1/doctors/${id}/availability`, body),
   blocks: (id, from, to) => api.get(`/api/v1/doctors/${id}/blocks?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`),
-  addBlock: (id, body) => api.post(`/api/v1/doctors/${id}/blocks`, body)
+  addBlock: (id, body) => api.post(`/api/v1/doctors/${id}/blocks`, body),
+  linkSpecialty: (id, specialtyId, primary = false) => api.post(`/api/v1/doctors/${id}/specialties/${specialtyId}?primary=${primary}`),
+  linkUser: (id, userId) => api.post(`/api/v1/doctors/${id}/user-link`, { userId })
 };
 
 export const appointmentApi = {
@@ -96,7 +98,9 @@ export const clinicalApi = {
   addAllergy: (patientId, body) => api.post(`/api/v1/clinical/patients/${patientId}/allergies`, body),
   addMedication: (patientId, body) => api.post(`/api/v1/clinical/patients/${patientId}/medications`, body),
   addCondition: (patientId, body) => api.post(`/api/v1/clinical/patients/${patientId}/conditions`, body),
-  addAlert: (patientId, body) => api.post(`/api/v1/clinical/patients/${patientId}/alerts`, body)
+  addAlert: (patientId, body) => api.post(`/api/v1/clinical/patients/${patientId}/alerts`, body),
+  deactivateAlert: (patientId, alertId) => api.delete(`/api/v1/clinical/patients/${patientId}/alerts/${alertId}`),
+  addDocument: (patientId, body) => api.post(`/api/v1/clinical/patients/${patientId}/documents`, body)
 };
 
 export const continuityApi = {
@@ -120,6 +124,7 @@ export const managementApi = {
 };
 
 export const adminApi = {
+  users: () => api.get('/api/v1/admin/users'),
   createUser: body => api.post('/api/v1/admin/users', body),
   deactivateUser: id => api.post(`/api/v1/admin/users/${id}/deactivate`),
   audit: (entityType = '', entityId = '') => api.get(`/api/v1/audit?entityType=${encodeURIComponent(entityType)}&entityId=${encodeURIComponent(entityId)}`)
