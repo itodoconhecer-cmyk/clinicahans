@@ -1,6 +1,5 @@
 package br.com.clinicahans.DTO;
 
-import br.com.clinicahans.appointment.AppointmentRepository;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import org.springframework.security.access.prepost.PreAuthorize;
