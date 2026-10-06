@@ -16,6 +16,9 @@ public class UserAdminController {
     private final UserAdminService service;
     public UserAdminController(UserAdminService service){this.service=service;}
 
+    @GetMapping
+    public List<UserAdminService.UserView> list(){return service.list();}
+
     @PostMapping
     public UserAdminService.UserView create(@Valid @RequestBody CreateUserRequest r){return service.create(r.username(),r.password(),r.roles());}
 
