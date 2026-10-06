@@ -16,22 +16,22 @@ public class ContinuityController {
     private final ContinuityService service;
     public ContinuityController(ContinuityService service){this.service=service;}
 
-    @PostMapping("/exams") @PreAuthorize("hasAnyRole('MEDICO','ADMIN')")
+    @PostMapping("/exams") @PreAuthorize("hasRole('MEDICO')")
     public ContinuityRepository.ExamOrder exam(@Valid @RequestBody CreateExamRequest r){return service.createExam(r.encounterId(),r.examName(),r.priority(),r.expectedBy());}
 
-    @PostMapping("/exams/{id}/result") @PreAuthorize("hasAnyRole('MEDICO','ADMIN')")
+    @PostMapping("/exams/{id}/result") @PreAuthorize("hasRole('MEDICO')")
     public ContinuityRepository.ExamResult result(@PathVariable UUID id,@Valid @RequestBody ResultRequest r){return service.receiveResult(id,r.storageKey(),r.mimeType());}
 
-    @GetMapping("/exams/{id}/result") @PreAuthorize("hasAnyRole('MEDICO','ADMIN')")
+    @GetMapping("/exams/{id}/result") @PreAuthorize("hasRole('MEDICO')")
     public ContinuityRepository.ExamResult examResult(@PathVariable UUID id){return service.resultForOrder(id);}
 
-    @PostMapping("/results/{id}/review") @PreAuthorize("hasAnyRole('MEDICO','ADMIN')")
+    @PostMapping("/results/{id}/review") @PreAuthorize("hasRole('MEDICO')")
     public void review(@PathVariable UUID id,@RequestBody(required=false) ReviewRequest r){service.reviewResult(id,r==null?null:r.note());}
 
-    @GetMapping("/exams/pending") @PreAuthorize("hasAnyRole('MEDICO','ADMIN')")
+    @GetMapping("/exams/pending") @PreAuthorize("hasRole('MEDICO')")
     public List<ContinuityRepository.ExamOrder> pending(@RequestParam(defaultValue="50") int limit){return service.pendingExams(limit);}
 
-    @PostMapping("/follow-ups") @PreAuthorize("hasAnyRole('MEDICO','ADMIN')")
+    @PostMapping("/follow-ups") @PreAuthorize("hasRole('MEDICO')")
     public ContinuityRepository.FollowUp followUp(@Valid @RequestBody FollowUpRequest r){return service.createFollowUp(r.patientId(),r.encounterId(),r.reason(),r.priority(),r.dueAt());}
 
     @GetMapping("/follow-ups/operational") @PreAuthorize("hasAnyRole('RECEPCAO','MEDICO','ADMIN')")
