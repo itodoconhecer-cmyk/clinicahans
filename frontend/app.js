@@ -13,7 +13,7 @@ let activeEncounter = null;
 
 const routes = {
   dashboard: { label: 'Visão geral', roles: ['RECEPCAO','MEDICO','GESTAO','ADMIN'], render: renderDashboard },
-  agenda: { label: 'Agenda', roles: ['RECEPCAO','MEDICO','GESTAO','ADMIN'], render: renderAgenda },
+  agenda: { label: 'Agenda', roles: ['RECEPCAO','MEDICO','ADMIN'], render: renderAgenda },
   waitlist: { label: 'Fila de espera', roles: ['RECEPCAO','ADMIN'], render: renderWaitlist },
   patients: { label: 'Pacientes', roles: ['RECEPCAO','MEDICO','ADMIN'], render: renderPatientsFull },
   doctors: { label: 'Médicos', roles: ['RECEPCAO','MEDICO','GESTAO','ADMIN'], render: renderDoctorsFull },
