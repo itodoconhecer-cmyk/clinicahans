@@ -40,6 +40,21 @@ public class PatientRepository {
             """, mapper(), q, q, q, Math.min(Math.max(limit, 1), 100));
     }
 
+    public List<Patient> searchForDoctor(String term, int limit, UUID doctorId) {
+        String q = "%" + (term == null ? "" : term.trim().toLowerCase()) + "%";
+        return jdbc.query("""
+            select distinct p.id,p.full_name,p.cpf,p.birth_date,p.phone,p.email,p.status,p.created_at,p.updated_at,p.version
+            from patient p
+            where (lower(p.full_name) like ? or coalesce(p.cpf,'') like ? or coalesce(p.phone,'') like ?)
+              and (
+                exists(select 1 from encounter e where e.patient_id=p.id and e.doctor_id=?)
+                or exists(select 1 from appointment a where a.patient_id=p.id and a.doctor_id=?
+                  and a.status in ('SCHEDULED','CONFIRMED','CHECKED_IN','IN_CARE','COMPLETED'))
+              )
+            order by p.full_name limit ?
+            """, mapper(), q,q,q,doctorId,doctorId,Math.min(Math.max(limit,1),100));
+    }
+
     public Patient update(UUID id, String fullName, String phone, String email, int version) {
         int changed = jdbc.update("""
             update patient set full_name=?, phone=?, email=?, updated_at=now(), version=version+1
