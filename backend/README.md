@@ -22,6 +22,42 @@ mvn spring-boot:run
 Swagger: `/swagger-ui.html`.
 Health: `/actuator/health`.
 
+### Windows (PowerShell)
+
+Requisitos: Java 21 ou superior, Maven e Docker Desktop iniciado. Na raiz do repositório:
+
+```powershell
+# Use 5433 quando outro PostgreSQL já ocupar a porta 5432.
+$env:POSTGRES_PORT = '5433'
+docker compose up -d --wait db
+$env:DB_URL = "jdbc:postgresql://localhost:$($env:POSTGRES_PORT)/clinicahans"
+# Se definir POSTGRES_PASSWORD para um volume novo, use o mesmo valor em DB_PASSWORD.
+$bytes = New-Object byte[] 48
+$rng = [System.Security.Cryptography.RandomNumberGenerator]::Create()
+$rng.GetBytes($bytes)
+$env:JWT_SECRET = [Convert]::ToBase64String($bytes)
+$rng.Dispose()
+$env:BOOTSTRAP_ADMIN_USERNAME = 'admin'
+$password = Read-Host 'Senha inicial do administrador' -AsSecureString
+$env:BOOTSTRAP_ADMIN_PASSWORD = [System.Net.NetworkCredential]::new('', $password).Password
+Set-Location backend
+mvn spring-boot:run
+```
+
+Abra <http://localhost:8080/swagger-ui/index.html>. O contrato JSON está em
+<http://localhost:8080/v3/api-docs> e a saúde em <http://localhost:8080/actuator/health>.
+Para testar rotas protegidas, faça login em `POST /api/v1/auth/login` com `username`
+e `password`, copie o token retornado e use **Authorize** no Swagger.
+
+O bootstrap só cria o usuário quando ele ainda não existe; não redefine sua senha.
+Guarde as credenciais fora do Git. O segredo JWT acima é temporário: ao gerar outro,
+os tokens anteriores deixam de funcionar. Para parar, use `Ctrl+C` no backend e
+`docker compose stop db` na raiz. O volume preserva os dados entre reinicializações.
+
+Em outra máquina, faça `git clone`/`git pull` e repita a configuração local.
+O Git transporta código e instruções; banco, credenciais e processos em execução
+são locais. O endereço `localhost` é acessível apenas na própria máquina.
+
 ## Segurança
 - Usuários são individuais e possuem roles.
 - Médico autenticado deve estar vinculado ao cadastro de médico.
