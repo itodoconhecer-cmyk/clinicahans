@@ -58,6 +58,7 @@ Este arquivo é o checklist funcional do Prompt 04. O frontend só é considerad
 - Exames e Follow-ups devem possuir criação e ações, não apenas listagem.
 - Financeiro deve permitir lançamento e pagamento.
 - Corpo clínico deve possuir UI para especialidades, disponibilidade e bloqueios.
+- Cadastro de usuário deve buscar os perfis disponíveis na API e permitir selecionar um ou mais por checkbox.
 - Waitlist deve permitir repescagem.
 - Todas as telas devem respeitar roles e usar exclusivamente a camada `services/`.
 

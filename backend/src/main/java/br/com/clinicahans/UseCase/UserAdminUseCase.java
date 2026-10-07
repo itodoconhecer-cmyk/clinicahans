@@ -6,6 +6,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
 
@@ -17,6 +18,8 @@ public class UserAdminUseCase {
     @Transactional
     public UserView create(String username,String password,List<String> roles){
         if(roles==null||roles.isEmpty()) throw new BusinessRuleException("Usuário deve possuir ao menos um perfil.");
+        if(roles.stream().anyMatch(role->role==null||role.isBlank())) throw new BusinessRuleException("Os perfis informados são inválidos.");
+        if(new HashSet<>(roles).size()!=roles.size()) throw new BusinessRuleException("Não é permitido repetir perfis.");
         Integer existing=jdbc.queryForObject("select count(*) from app_user where username=?",Integer.class,username);
         if(existing!=null&&existing>0) throw new BusinessRuleException("Nome de usuário já existe.");
         UUID id=UUID.randomUUID();
@@ -30,6 +33,10 @@ public class UserAdminUseCase {
         }
         auditUseCase.record("USER_CREATED","USER",id);
         return new UserView(id,username,true,roles);
+    }
+
+    public List<String> availableRoles(){
+        return jdbc.query("select code from role order by code",(rs,n)->rs.getString("code"));
     }
 
     public List<UserView> list(){

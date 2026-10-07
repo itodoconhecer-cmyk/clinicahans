@@ -23,6 +23,9 @@ public class UserAdminController {
     @GetMapping
     public List<UserAdminUseCase.UserView> list(){return userAdminUseCase.list();}
 
+    @GetMapping("/roles")
+    public List<String> roles(){return userAdminUseCase.availableRoles();}
+
     @PostMapping
     public UserAdminUseCase.UserView create(@Valid @RequestBody CreateUserRequest r){return userAdminUseCase.create(r.username(),r.password(),r.roles());}
 

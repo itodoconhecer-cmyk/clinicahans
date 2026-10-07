@@ -133,6 +133,7 @@ export const managementApi = {
 
 export const adminApi = {
   users: () => api.get('/api/v1/admin/users'),
+  roles: () => api.get('/api/v1/admin/users/roles'),
   createUser: body => api.post('/api/v1/admin/users', body),
   deactivateUser: id => api.post(`/api/v1/admin/users/${id}/deactivate`),
   audit: (entityType = '', entityId = '', limit = 100) => {
