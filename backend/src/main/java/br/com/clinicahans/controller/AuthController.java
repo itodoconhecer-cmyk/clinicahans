@@ -13,13 +13,13 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/auth")
 public class AuthController {
-    private final AuthUseCase service;
-    public AuthController(AuthUseCase service) { this.service = service; }
+    private final AuthUseCase authUseCase;
+    public AuthController(AuthUseCase authUseCase) { this.authUseCase = authUseCase; }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request) {
         try {
-            return ResponseEntity.ok(service.login(request.username(), request.password()));
+            return ResponseEntity.ok(authUseCase.login(request.username(), request.password()));
         } catch (BadCredentialsException ex) {
             return ResponseEntity.status(401).body(new LoginError("INVALID_CREDENTIALS", "Credenciais inválidas."));
         }

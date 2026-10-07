@@ -44,3 +44,5 @@ A referência normativa é:
 https://github.com/itodoconhecer-cmyk/aulas_umc_2026_1_spring_boot/tree/master/src/main/java/aulas/umc/oo
 
 A Clínica Hans usa `DTO/UseCase/command/controller/mapper/model/repository/utilities`, com `DatabaseInitializer.java` no pacote raiz. Organização raiz por feature é considerada divergência arquitetural e deve falhar no CI.
+
+Dentro de `model`, os tipos de domínio ficam em arquivos independentes sob subpacotes de domínio (como `patient`, `workforce`, `scheduling`, `clinical`, `continuity`, `billing` e `identity`). Os objetos de valor compartilhados permanecem em `model/valueObjects`. Projeções de leitura e apresentação não devem ser tratadas como agregados; DTOs seguem em `DTO/`.

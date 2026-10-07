@@ -1,9 +1,9 @@
 package br.com.clinicahans.UseCase;
 
-import br.com.clinicahans.model.AppointmentStatus;
+import br.com.clinicahans.model.scheduling.Appointment;
+import br.com.clinicahans.model.scheduling.AppointmentStatus;
 import br.com.clinicahans.repository.AppointmentRepository;
 
-import br.com.clinicahans.UseCase.AuditUseCase;
 import br.com.clinicahans.repository.DoctorRepository;
 import br.com.clinicahans.utilities.exception.BusinessRuleException;
 import br.com.clinicahans.repository.PatientRepository;
@@ -23,7 +23,7 @@ import java.util.UUID;
 @Service
 public class AppointmentUseCase {
     private final AppointmentRepository repository; private final PatientRepository patients; private final DoctorRepository doctors;
-    private final UserIdentityService users; private final AuditUseCase audit; private final ZoneId businessZone;
+    private final UserIdentityService users; private final AuditUseCase auditUseCase; private final ZoneId businessZone;
     private static final Map<AppointmentStatus, EnumSet<AppointmentStatus>> TRANSITIONS=Map.of(
       AppointmentStatus.SCHEDULED,EnumSet.of(AppointmentStatus.CONFIRMED,AppointmentStatus.CHECKED_IN,AppointmentStatus.CANCELLED,AppointmentStatus.NO_SHOW),
       AppointmentStatus.CONFIRMED,EnumSet.of(AppointmentStatus.CHECKED_IN,AppointmentStatus.CANCELLED,AppointmentStatus.NO_SHOW),
@@ -34,14 +34,14 @@ public class AppointmentUseCase {
       AppointmentStatus.NO_SHOW,EnumSet.noneOf(AppointmentStatus.class));
 
     public AppointmentUseCase(AppointmentRepository repository,PatientRepository patients,DoctorRepository doctors,
-                              UserIdentityService users,AuditUseCase audit,
+                              UserIdentityService users,AuditUseCase auditUseCase,
                               @Value("${clinicahans.business-zone:America/Sao_Paulo}") String businessZone){
-        this.repository=repository;this.patients=patients;this.doctors=doctors;this.users=users;this.audit=audit;
+        this.repository=repository;this.patients=patients;this.doctors=doctors;this.users=users;this.auditUseCase=auditUseCase;
         this.businessZone=ZoneId.of(businessZone);
     }
 
     @Transactional
-    public AppointmentRepository.Appointment create(UUID patientId,UUID doctorId,OffsetDateTime start,Integer durationMinutes,String modality,String notes){
+    public Appointment create(UUID patientId,UUID doctorId,OffsetDateTime start,Integer durationMinutes,String modality,String notes){
         patients.get(patientId); var doctor=doctors.get(doctorId);
         if(start.isBefore(OffsetDateTime.now())) throw new BusinessRuleException("Não é permitido criar novo agendamento no passado.");
         if(!"ACTIVE".equals(doctor.status())) throw new BusinessRuleException("Médico não está ativo para novos agendamentos.");
@@ -58,17 +58,17 @@ public class AppointmentUseCase {
         if(repository.hasScheduleBlock(doctorId,start,end)) throw new BusinessRuleException("Horário está bloqueado na agenda do médico.");
         if(repository.hasConflict(doctorId,start,end)) throw new BusinessRuleException("Horário conflita com outro agendamento do médico.");
         var a=repository.create(patientId,doctorId,start,end,modality,notes,users.currentUserId());
-        audit.record("APPOINTMENT_CREATED","APPOINTMENT",a.id());
+        auditUseCase.record("APPOINTMENT_CREATED","APPOINTMENT",a.id());
         return repository.get(a.id());
     }
 
-    public AppointmentRepository.Appointment get(UUID id){
+    public Appointment get(UUID id){
         var appointment=repository.get(id);
         if(isDoctorOnly() && !users.currentDoctorId().equals(appointment.doctorId()))
             throw new BusinessRuleException("Médico não possui acesso a este agendamento.");
         return appointment;
     }
-    public List<AppointmentRepository.Appointment> list(OffsetDateTime from,OffsetDateTime to,UUID doctorId){
+    public List<Appointment> list(OffsetDateTime from,OffsetDateTime to,UUID doctorId){
         if(!to.isAfter(from) || Duration.between(from,to).toDays()>93) throw new BusinessRuleException("Intervalo de consulta inválido.");
         UUID effectiveDoctorId=isDoctorOnly()?users.currentDoctorId():doctorId;
         return repository.list(from,to,effectiveDoctorId);
@@ -82,12 +82,12 @@ public class AppointmentUseCase {
     }
 
     @Transactional
-    public AppointmentRepository.Appointment transition(UUID id,AppointmentStatus target,String reason){
+    public Appointment transition(UUID id,AppointmentStatus target,String reason){
         var current=repository.get(id);
         if(!TRANSITIONS.get(current.status()).contains(target)) throw new BusinessRuleException("Transição de agenda inválida: "+current.status()+" -> "+target);
         if(target==AppointmentStatus.CANCELLED && (reason==null||reason.isBlank())) throw new BusinessRuleException("Cancelamento exige motivo.");
         repository.changeStatus(id,target,reason,users.currentUserId());
-        audit.record("APPOINTMENT_"+target.name(),"APPOINTMENT",id);
+        auditUseCase.record("APPOINTMENT_"+target.name(),"APPOINTMENT",id);
         return repository.get(id);
     }
 }

@@ -45,7 +45,7 @@ Metas abaixo são alvos de engenharia para o projeto e devem ser validadas em pr
 - **RNF-054 [P1] Auditoria x log:** trilha de auditoria é domínio persistente; log técnico não substitui auditoria.
 
 ## Arquitetura e qualidade
-- **RNF-060 [P0] Stack:** Java 21 preferencial (mínimo 17), Spring Boot, Spring Web, Spring Security, PostgreSQL.
+- **RNF-060 [P0] Stack:** Java 25 LTS preferencial (mínimo 17), Spring Boot, Spring Web, Spring Security, PostgreSQL.
 - **RNF-061 [P0] Persistência:** SQL explícito com JDBC/JdbcTemplate/NamedParameterJdbcTemplate; proibido JPA/Hibernate.
 - **RNF-062 [P0] SQL parametrizado:** nenhuma concatenação de entrada do usuário em SQL.
 - **RNF-063 [P1] Camadas:** controller → service/use-case → repository; DTO não vaza diretamente para domínio/persistência.

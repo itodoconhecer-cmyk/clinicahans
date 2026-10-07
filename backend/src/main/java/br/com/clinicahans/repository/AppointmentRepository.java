@@ -1,6 +1,7 @@
 package br.com.clinicahans.repository;
 
-import br.com.clinicahans.model.AppointmentStatus;
+import br.com.clinicahans.model.scheduling.Appointment;
+import br.com.clinicahans.model.scheduling.AppointmentStatus;
 
 import br.com.clinicahans.utilities.exception.NotFoundException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -95,7 +96,4 @@ public class AppointmentRepository {
           rs.getObject("created_at",OffsetDateTime.class),rs.getObject("updated_at",OffsetDateTime.class));
     }
 
-    public record Appointment(UUID id,UUID patientId,UUID doctorId,OffsetDateTime startsAt,OffsetDateTime endsAt,
-      String modality,AppointmentStatus status,String notes,String cancellationReason,OffsetDateTime confirmedAt,
-      OffsetDateTime checkedInAt,OffsetDateTime createdAt,OffsetDateTime updatedAt){}
 }

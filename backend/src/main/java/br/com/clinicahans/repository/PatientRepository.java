@@ -1,5 +1,6 @@
 package br.com.clinicahans.repository;
 
+import br.com.clinicahans.model.patient.Patient;
 import br.com.clinicahans.utilities.exception.BusinessRuleException;
 
 import br.com.clinicahans.utilities.exception.NotFoundException;
@@ -76,6 +77,4 @@ public class PatientRepository {
 
     private static String blankToNull(String value) { return value == null || value.isBlank() ? null : value.trim(); }
 
-    public record Patient(UUID id, String fullName, String cpf, LocalDate birthDate, String phone, String email,
-                          String status, OffsetDateTime createdAt, OffsetDateTime updatedAt, int version) {}
 }

@@ -1,5 +1,7 @@
 package br.com.clinicahans.repository;
 
+import br.com.clinicahans.model.billing.Payment;
+import br.com.clinicahans.model.billing.Receivable;
 import br.com.clinicahans.utilities.exception.BusinessRuleException;
 import br.com.clinicahans.utilities.exception.NotFoundException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -70,6 +72,4 @@ public class FinanceRepository {
             from,to,Math.min(Math.max(limit,1),200));
     }
 
-    public record Receivable(UUID id,UUID encounterId,String payerType,String payerReference,BigDecimal amount,LocalDate dueDate,String status,OffsetDateTime createdAt){}
-    public record Payment(UUID id,UUID receivableId,BigDecimal amount,String method,OffsetDateTime paidAt){}
 }

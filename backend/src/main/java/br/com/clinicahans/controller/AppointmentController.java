@@ -3,8 +3,8 @@ package br.com.clinicahans.controller;
 import br.com.clinicahans.DTO.*;
 
 import br.com.clinicahans.UseCase.AppointmentUseCase;
-import br.com.clinicahans.model.AppointmentStatus;
-import br.com.clinicahans.repository.AppointmentRepository;
+import br.com.clinicahans.model.scheduling.Appointment;
+import br.com.clinicahans.model.scheduling.AppointmentStatus;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -19,22 +19,22 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/appointments")
 public class AppointmentController {
-    private final AppointmentUseCase service;
-    public AppointmentController(AppointmentUseCase service){this.service=service;}
+    private final AppointmentUseCase appointmentUseCase;
+    public AppointmentController(AppointmentUseCase appointmentUseCase){this.appointmentUseCase=appointmentUseCase;}
 
     @PostMapping @PreAuthorize("hasAnyRole('RECEPCAO','ADMIN')")
-    public AppointmentRepository.Appointment create(@Valid @RequestBody CreateAppointmentRequest r){
-        return service.create(r.patientId(),r.doctorId(),r.startsAt(),r.durationMinutes(),r.modality(),r.notes());
+    public Appointment create(@Valid @RequestBody CreateAppointmentRequest r){
+        return appointmentUseCase.create(r.patientId(),r.doctorId(),r.startsAt(),r.durationMinutes(),r.modality(),r.notes());
     }
     @GetMapping("/{id}") @PreAuthorize("hasAnyRole('RECEPCAO','MEDICO','ADMIN')")
-    public AppointmentRepository.Appointment get(@PathVariable UUID id){return service.get(id);}
+    public Appointment get(@PathVariable UUID id){return appointmentUseCase.get(id);}
     @GetMapping @PreAuthorize("hasAnyRole('RECEPCAO','MEDICO','ADMIN')")
-    public List<AppointmentRepository.Appointment> list(@RequestParam OffsetDateTime from,@RequestParam OffsetDateTime to,@RequestParam(required=false) UUID doctorId){
-        return service.list(from,to,doctorId);
+    public List<Appointment> list(@RequestParam OffsetDateTime from,@RequestParam OffsetDateTime to,@RequestParam(required=false) UUID doctorId){
+        return appointmentUseCase.list(from,to,doctorId);
     }
     @PostMapping("/{id}/transition") @PreAuthorize("hasAnyRole('RECEPCAO','ADMIN')")
-    public AppointmentRepository.Appointment transition(@PathVariable UUID id,@Valid @RequestBody TransitionRequest r){
-        return service.transition(id,r.target(),r.reason());
+    public Appointment transition(@PathVariable UUID id,@Valid @RequestBody TransitionRequest r){
+        return appointmentUseCase.transition(id,r.target(),r.reason());
     }
 
     

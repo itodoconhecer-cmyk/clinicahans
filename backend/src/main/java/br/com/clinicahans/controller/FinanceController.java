@@ -3,7 +3,8 @@ package br.com.clinicahans.controller;
 import br.com.clinicahans.DTO.*;
 
 import br.com.clinicahans.UseCase.FinanceUseCase;
-import br.com.clinicahans.repository.FinanceRepository;
+import br.com.clinicahans.model.billing.Payment;
+import br.com.clinicahans.model.billing.Receivable;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
@@ -19,17 +20,17 @@ import java.util.UUID;
 @RequestMapping("/api/v1/finance")
 @PreAuthorize("hasAnyRole('RECEPCAO','GESTAO','ADMIN')")
 public class FinanceController {
-    private final FinanceUseCase service;
-    public FinanceController(FinanceUseCase service){this.service=service;}
+    private final FinanceUseCase financeUseCase;
+    public FinanceController(FinanceUseCase financeUseCase){this.financeUseCase=financeUseCase;}
 
     @PostMapping("/receivables")
-    public FinanceRepository.Receivable create(@Valid @RequestBody ReceivableRequest r){return service.create(r.encounterId(),r.payerType(),r.payerReference(),r.amount(),r.dueDate());}
+    public Receivable create(@Valid @RequestBody ReceivableRequest r){return financeUseCase.create(r.encounterId(),r.payerType(),r.payerReference(),r.amount(),r.dueDate());}
 
     @PostMapping("/receivables/{id}/payments")
-    public FinanceRepository.Payment pay(@PathVariable UUID id,@Valid @RequestBody PaymentRequest r){return service.pay(id,r.amount(),r.method());}
+    public Payment pay(@PathVariable UUID id,@Valid @RequestBody PaymentRequest r){return financeUseCase.pay(id,r.amount(),r.method());}
 
     @GetMapping("/receivables")
-    public List<FinanceRepository.Receivable> list(@RequestParam LocalDate from,@RequestParam LocalDate to,@RequestParam(defaultValue="100") int limit){return service.list(from,to,limit);}
+    public List<Receivable> list(@RequestParam LocalDate from,@RequestParam LocalDate to,@RequestParam(defaultValue="100") int limit){return financeUseCase.list(from,to,limit);}
 
     
     

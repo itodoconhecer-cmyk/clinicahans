@@ -11,11 +11,11 @@ import java.time.LocalDate;
 @RequestMapping("/api/v1/management")
 @PreAuthorize("hasAnyRole('GESTAO','ADMIN')")
 public class ManagementController {
-    private final ManagementQueryUseCase service;
-    public ManagementController(ManagementQueryUseCase service){this.service=service;}
+    private final ManagementQueryUseCase managementQueryUseCase;
+    public ManagementController(ManagementQueryUseCase managementQueryUseCase){this.managementQueryUseCase=managementQueryUseCase;}
 
     @GetMapping("/dashboard")
     public ManagementQueryUseCase.Dashboard dashboard(@RequestParam LocalDate from,@RequestParam LocalDate to){
-        return service.dashboard(from,to);
+        return managementQueryUseCase.dashboard(from,to);
     }
 }
