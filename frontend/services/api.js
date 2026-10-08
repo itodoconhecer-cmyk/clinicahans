@@ -54,6 +54,26 @@ export const authApi = {
   login: (username, password) => api.post('/api/v1/auth/login', { username, password })
 };
 
+export const publicOperationsApi = {
+  async recent(limit = 50) {
+    const response = await fetch(`${config.apiBaseUrl}/api/v1/public/operations?limit=${limit}`);
+    const text = await response.text();
+    let body = null;
+    if (text) {
+      try { body = JSON.parse(text); } catch { body = text; }
+    }
+    if (!response.ok) {
+      throw new ApiError(
+        body?.message || 'Não foi possível consultar os registros públicos.',
+        response.status,
+        body?.code,
+        body?.correlationId || response.headers.get('X-Correlation-Id')
+      );
+    }
+    return body;
+  }
+};
+
 export const patientApi = {
   search: (q = '', limit = 30) => api.get(`/api/v1/patients?q=${encodeURIComponent(q)}&limit=${limit}`),
   get: id => api.get(`/api/v1/patients/${id}`),

@@ -16,7 +16,9 @@ public class CorrelationIdFilter implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         var req = (HttpServletRequest) request;
         var res = (HttpServletResponse) response;
-        String correlationId = Optional.ofNullable(req.getHeader(HEADER)).filter(v -> !v.isBlank()).orElse(UUID.randomUUID().toString());
+        String correlationId = Optional.ofNullable(req.getHeader(HEADER))
+            .filter(v -> v.matches("[A-Za-z0-9._-]{1,64}"))
+            .orElseGet(() -> UUID.randomUUID().toString());
         try {
             MDC.put("correlationId", correlationId);
             res.setHeader(HEADER, correlationId);

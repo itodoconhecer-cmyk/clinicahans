@@ -87,6 +87,7 @@ public class AppointmentUseCase {
         if(!TRANSITIONS.get(current.status()).contains(target)) throw new BusinessRuleException("Transição de agenda inválida: "+current.status()+" -> "+target);
         if(target==AppointmentStatus.CANCELLED && (reason==null||reason.isBlank())) throw new BusinessRuleException("Cancelamento exige motivo.");
         repository.changeStatus(id,target,reason,users.currentUserId());
+        auditUseCase.recordPreviousValues(Map.of("appointment.status", current.status().name()));
         auditUseCase.record("APPOINTMENT_"+target.name(),"APPOINTMENT",id);
         return repository.get(id);
     }

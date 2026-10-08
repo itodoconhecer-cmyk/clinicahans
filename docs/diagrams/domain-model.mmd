@@ -274,6 +274,13 @@ erDiagram
     string entity_id
     string correlation_id
     inet source_ip
+    string request_method
+    string request_path
+    jsonb resource_identifiers
+    int http_status
+    bigint duration_ms
+    string outcome
+    jsonb previous_values
     timestamptz occurred_at
   }
   NOTIFICATION_OUTBOX {

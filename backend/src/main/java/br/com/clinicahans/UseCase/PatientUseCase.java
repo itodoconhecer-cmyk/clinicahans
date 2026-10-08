@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -43,9 +45,23 @@ public class PatientUseCase {
 
     @Transactional
     public Patient update(UUID id, UpdatePatientCommand command) {
+        var current = repository.get(id);
+        var previousValues = new LinkedHashMap<String, Object>();
+        String name = command.fullName().trim();
+        String phone = normalizeOptional(command.phone());
+        String email = normalizeOptional(command.email());
+        if (!Objects.equals(current.fullName(), name)) previousValues.put("patient.fullName", current.fullName());
+        if (!Objects.equals(current.phone(), phone)) previousValues.put("patient.phone", current.phone());
+        if (!Objects.equals(current.email(), email)) previousValues.put("patient.email", current.email());
+        previousValues.put("patient.version", current.version());
         var patient = repository.update(id, command.fullName().trim(), command.phone(), command.email(), command.version());
+        auditUseCase.recordPreviousValues(previousValues);
         auditUseCase.record("PATIENT_UPDATED", "PATIENT", id);
         return patient;
+    }
+
+    private static String normalizeOptional(String value) {
+        return value == null || value.isBlank() ? null : value.trim();
     }
 
     private boolean isDoctorOnly() {

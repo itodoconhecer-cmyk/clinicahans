@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -53,8 +54,13 @@ public class ClinicalUseCase {
 
     @Transactional
     public Encounter saveDraft(UUID id,String chief,String assessment,String plan,int version){
-        assertEncounterOwnership(repository.getEncounter(id));
+        var current = repository.getEncounter(id);
+        assertEncounterOwnership(current);
         var result=repository.saveDraft(id,chief,assessment,plan,version);
+        auditUseCase.recordPreviousValues(Map.of(
+            "encounter.clinicalContent", "[REDACTED]",
+            "encounter.version", current.version(),
+            "encounter.status", current.status()));
         auditUseCase.record("ENCOUNTER_DRAFT_SAVED","ENCOUNTER",id); return result;
     }
 
@@ -64,6 +70,7 @@ public class ClinicalUseCase {
         assertEncounterOwnership(current);
         if(current.assessment()==null||current.assessment().isBlank()) throw new BusinessRuleException("Avaliação clínica é obrigatória para finalizar.");
         var result=repository.finalizeEncounter(id,version);
+        auditUseCase.recordPreviousValues(Map.of("encounter.status", current.status(), "encounter.version", current.version()));
         appointmentUseCase.transition(current.appointmentId(),AppointmentStatus.COMPLETED,"Atendimento finalizado");
         auditUseCase.record("ENCOUNTER_FINALIZED","ENCOUNTER",id); return result;
     }
@@ -110,6 +117,7 @@ public class ClinicalUseCase {
     public void deactivateAlert(UUID patientId,UUID alertId){
         assertPatientAccess(patientId);
         repository.deactivateAlert(patientId,alertId);
+        auditUseCase.recordPreviousValues(Map.of("clinicalAlert.active", true));
         auditUseCase.record("CLINICAL_ALERT_DEACTIVATED","PATIENT",patientId);
     }
 

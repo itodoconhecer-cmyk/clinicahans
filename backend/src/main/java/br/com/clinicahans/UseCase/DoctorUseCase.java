@@ -12,6 +12,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalTime;
 import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -37,7 +39,14 @@ public class DoctorUseCase {
     public List<Specialty> specialties(){return repository.listSpecialties();}
     @Transactional
     public void linkSpecialty(UUID doctorId,UUID specialtyId,boolean primary){
+        var previous = new LinkedHashMap<String, Object>();
+        previous.put("doctor.specialty." + specialtyId, repository.specialtyLinkState(doctorId, specialtyId));
+        if (primary) {
+            repository.primarySpecialties(doctorId).forEach(id ->
+                previous.put("doctor.specialty." + id, "PRIMARY"));
+        }
         repository.linkSpecialty(doctorId,specialtyId,primary);
+        auditUseCase.recordPreviousValues(previous);
         auditUseCase.record("DOCTOR_SPECIALTY_LINKED","DOCTOR",doctorId);
     }
     @Transactional
@@ -52,7 +61,10 @@ public class DoctorUseCase {
 
     @Transactional
     public void linkUser(UUID doctorId, UUID userId) {
+        var current = repository.get(doctorId);
         repository.linkUser(doctorId,userId);
+        auditUseCase.recordPreviousValues(Map.of("doctor.userId",
+            current.userId() == null ? "NOT_LINKED" : current.userId().toString()));
         auditUseCase.record("DOCTOR_USER_LINKED","DOCTOR",doctorId);
     }
     public List<Availability> availability(UUID id){repository.get(id);return repository.availability(id);}

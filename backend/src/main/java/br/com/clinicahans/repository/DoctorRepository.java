@@ -59,6 +59,17 @@ public class DoctorRepository {
             (rs,n)->new Specialty(rs.getObject("id",UUID.class),rs.getString("name"),rs.getString("external_system"),rs.getString("external_code")));
     }
 
+    public String specialtyLinkState(UUID doctorId, UUID specialtyId) {
+        return jdbc.query("select primary_specialty from doctor_specialty where doctor_id=? and specialty_id=?",
+            (rs,n)->rs.getBoolean("primary_specialty"),doctorId,specialtyId).stream()
+            .findFirst().map(primary -> primary ? "PRIMARY" : "SECONDARY").orElse("NOT_LINKED");
+    }
+
+    public List<UUID> primarySpecialties(UUID doctorId) {
+        return jdbc.query("select specialty_id from doctor_specialty where doctor_id=? and primary_specialty=true",
+            (rs,n)->rs.getObject("specialty_id",UUID.class),doctorId);
+    }
+
     public void linkSpecialty(UUID doctorId, UUID specialtyId, boolean primary) {
         get(doctorId);
         if(primary) jdbc.update("update doctor_specialty set primary_specialty=false where doctor_id=?",doctorId);

@@ -13,7 +13,9 @@ import java.util.List;
 
 @Component
 public class DatabaseMigrationRunner implements ApplicationRunner {
-    private static final List<String> MIGRATIONS = List.of("V001__initial_schema.sql", "V002__doctor_user_link.sql", "V003__waitlist_and_notification_outbox.sql", "V004__critical_integrity_constraints.sql");
+    private static final List<String> MIGRATIONS = List.of(
+        "V001__initial_schema.sql", "V002__doctor_user_link.sql", "V003__waitlist_and_notification_outbox.sql",
+        "V004__critical_integrity_constraints.sql", "V005__operation_audit_details.sql");
     private final DataSource dataSource;
     private final JdbcTemplate jdbc;
 

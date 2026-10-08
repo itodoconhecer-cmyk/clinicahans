@@ -1,6 +1,8 @@
 package br.com.clinicahans.utilities.exception;
 
 import org.slf4j.MDC;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +16,8 @@ import java.util.List;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+    private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
     @ExceptionHandler(NotFoundException.class)
     ResponseEntity<ApiError> notFound(NotFoundException ex) {
         return response(HttpStatus.NOT_FOUND, "NOT_FOUND", ex.getMessage(), List.of());
@@ -44,6 +48,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     ResponseEntity<ApiError> unexpected(Exception ex) {
+        logger.atError()
+            .addKeyValue("event", "api.unexpected_error")
+            .addKeyValue("exceptionType", ex.getClass().getSimpleName())
+            .addKeyValue("correlationId", MDC.get("correlationId"))
+            .log("Unexpected API error");
         return response(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_ERROR", "Erro interno inesperado.", List.of());
     }
 

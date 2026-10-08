@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -29,7 +30,11 @@ public class FinanceUseCase {
 
     @Transactional
     public Payment pay(UUID id,BigDecimal amount,String method){
-        var p=repository.pay(id,amount,method); auditUseCase.record("PAYMENT_RECORDED","RECEIVABLE",id); return p;
+        var current = repository.getForUpdate(id);
+        var p=repository.pay(id,amount,method);
+        auditUseCase.recordPreviousValues(Map.of("receivable.status", current.status()));
+        auditUseCase.record("PAYMENT_RECORDED","RECEIVABLE",id);
+        return p;
     }
     public List<Receivable> list(LocalDate from,LocalDate to,int limit){return repository.list(from,to,limit);}
 }

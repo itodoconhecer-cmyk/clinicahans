@@ -27,7 +27,7 @@ Legenda:
 | Estorno/cancelamento financeiro | RF-073, RN-051 | Billing | não implementado | Faturamento | — | PLANEJADO |
 | Indicadores essenciais | RF-080–087 | Management | dashboard parcial | Indicadores | sem testes de definição | PARCIAL |
 | Auditoria de leitura clínica | RF-037/RF-090 | Audit | AuditService | Prontuário | sem integração específica | PARCIAL |
-| Auditoria de login/negação/before-after | RF-090–092 | Audit | incompleta | Auditoria | — | PLANEJADO |
+| Auditoria de requisições, negação e before-after | RF-090–092 | Audit | eventos persistidos; conteúdo clínico redigido | Auditoria | interceptor/API + consulta ADMIN e consulta pública sanitizada | IMPLEMENTADO |
 | Documentos clínicos | RF-036/053 | Clinical Record | metadata/storageKey apenas | Prontuário | sem storage real/E2E | PARCIAL |
 | Notificação de confirmação | RF-029 | Integration | outbox criada | Agenda | consumer ausente | PARCIAL |
 | TISS/TUSS | RF-074/094 | Integration/Billing | arquitetura preparada | — | — | FORA_DO_MVP |

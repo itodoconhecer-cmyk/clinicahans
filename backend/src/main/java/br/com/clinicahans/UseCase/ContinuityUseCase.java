@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -36,8 +37,10 @@ public class ContinuityUseCase {
     }
     @Transactional
     public ExamResult receiveResult(UUID orderId,String storageKey,String mimeType){
-        assertExamAccess(repository.getExam(orderId));
+        var current = repository.getExam(orderId);
+        assertExamAccess(current);
         var result=repository.receiveResult(orderId,storageKey,mimeType);
+        auditUseCase.recordPreviousValues(Map.of("examOrder.status", current.status()));
         auditUseCase.record("EXAM_RESULT_RECEIVED","EXAM_ORDER",orderId); return result;
     }
     public ExamResult resultForOrder(UUID orderId){
@@ -47,8 +50,11 @@ public class ContinuityUseCase {
 
     @Transactional
     public void reviewResult(UUID resultId,String note){
-        assertExamAccess(repository.getExamByResult(resultId));
-        repository.reviewResult(resultId,users.currentUserId(),note); auditUseCase.record("EXAM_RESULT_REVIEWED","EXAM_RESULT",resultId);
+        var current = repository.getExamByResult(resultId);
+        assertExamAccess(current);
+        repository.reviewResult(resultId,users.currentUserId(),note);
+        auditUseCase.recordPreviousValues(Map.of("examOrder.status", current.status()));
+        auditUseCase.record("EXAM_RESULT_REVIEWED","EXAM_RESULT",resultId);
     }
 
     @Transactional
@@ -63,7 +69,9 @@ public class ContinuityUseCase {
     @Transactional
     public void addAction(UUID id,String actionType,String note,boolean close){
         assertFollowUpAccess(id);
+        var previous = close ? repository.getFollowUp(id).status() : null;
         repository.addAction(id,users.currentUserId(),actionType,note,close);
+        if (close) auditUseCase.recordPreviousValues(Map.of("followUp.status", previous));
         auditUseCase.record(close?"FOLLOW_UP_CLOSED":"FOLLOW_UP_ACTION_ADDED","FOLLOW_UP",id);
     }
 

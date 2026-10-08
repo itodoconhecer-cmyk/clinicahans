@@ -21,6 +21,9 @@ mvn spring-boot:run
 
 Swagger: `/swagger-ui.html`.
 Health: `/actuator/health`.
+Consulta pública sanitizada de operações: `/api/v1/public/operations` ou
+`frontend/logs-publicos/logs-publicos.html`. A trilha detalhada permanece disponível
+somente para ADMIN em `/api/v1/audit`.
 
 ### Windows (PowerShell)
 
@@ -65,6 +68,10 @@ são locais. O endereço `localhost` é acessível apenas na própria máquina.
 - Leitura de prontuário gera auditoria.
 - Atendimento finalizado não é editável pelo fluxo comum; correção usa adendo.
 - Logs técnicos não devem receber texto clínico sensível.
+- Arquivos técnicos JSON rotacionam diariamente em `logs/` (30 dias; `LOG_DIR` altera o destino).
+- `WARN`/`ERROR` ficam ativos em todos os ambientes; `INFO` exige perfil `dev` ou `homolog`.
+- A tela pública omite identidade, IP, identificadores e valores anteriores; conteúdo clínico anterior é redigido na trilha ADMIN.
+- A trilha de auditoria no banco não expira automaticamente; a retenção formal deve ser definida antes da produção.
 - SQL é parametrizado.
 
 ## Fluxo inicial

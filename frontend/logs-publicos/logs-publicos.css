@@ -1,0 +1,10 @@
+@import url('../shared/global.css');
+
+.public-shell{width:min(1100px,100%);margin:0 auto;padding:24px clamp(14px,4vw,40px) 56px}
+.public-header{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:32px}
+.public-header .brand strong{display:block}
+.public-header .brand small{display:block;color:var(--muted)}
+.public-shell h1{margin:0}
+.privacy-note{padding:13px 15px;border:1px solid var(--border);border-radius:12px;background:var(--surface-soft);color:var(--muted);line-height:1.5}
+.route-cell{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-word}
+@media(max-width:620px){.public-header{align-items:flex-start;flex-direction:column}.public-shell .panel{padding:15px}}

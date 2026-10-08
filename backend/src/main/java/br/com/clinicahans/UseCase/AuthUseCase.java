@@ -13,9 +13,10 @@ public class AuthUseCase {
     private final UserAccountRepository users;
     private final PasswordEncoder encoder;
     private final JwtService jwt;
+    private final AuditUseCase auditUseCase;
 
-    public AuthUseCase(UserAccountRepository users, PasswordEncoder encoder, JwtService jwt) {
-        this.users = users; this.encoder = encoder; this.jwt = jwt;
+    public AuthUseCase(UserAccountRepository users, PasswordEncoder encoder, JwtService jwt, AuditUseCase auditUseCase) {
+        this.users = users; this.encoder = encoder; this.jwt = jwt; this.auditUseCase = auditUseCase;
     }
 
     public LoginResult login(String username, String password) {
@@ -23,6 +24,7 @@ public class AuthUseCase {
         if (!user.active() || !encoder.matches(password, user.passwordHash())) {
             throw new BadCredentialsException("Credenciais inválidas");
         }
+        auditUseCase.identifyCurrentRequest(user.id(), user.username());
         return new LoginResult(jwt.issue(user.username(), user.roles()), "Bearer", user.roles());
     }
 }

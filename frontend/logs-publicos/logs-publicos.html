@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Registros técnicos | Clínica Hans</title>
+  <link rel="stylesheet" href="./logs-publicos.css">
+</head>
+<body>
+  <main class="public-shell">
+    <header class="public-header">
+      <div class="brand">
+        <div class="brand-mark">H+</div>
+        <div><span class="brand-kicker">CLÍNICA</span><strong>HANS</strong><small>Saúde com tecnologia e cuidado</small></div>
+      </div>
+      <a class="secondary-button" href="../login/login.html">Acessar sistema</a>
+    </header>
+    <section class="panel">
+      <div class="panel-header">
+        <div><p class="eyebrow">Consulta pública</p><h1>Registros técnicos recentes</h1></div>
+        <button class="primary-button" id="refresh-logs" type="button">Atualizar</button>
+      </div>
+      <p class="privacy-note">Esta consulta apresenta somente horário, rota técnica, método HTTP, resultado e duração. Identidade de usuários, endereços de origem, identificadores e dados clínicos não são exibidos.</p>
+      <div id="logs-state" class="state-card" role="status" aria-live="polite">Carregando registros...</div>
+      <div id="logs-table" class="table-wrap" hidden></div>
+    </section>
+  </main>
+  <script type="module" src="./logs-publicos.js"></script>
+</body>
+</html>

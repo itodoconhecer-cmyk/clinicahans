@@ -40,6 +40,7 @@ public class WaitlistUseCase {
         if(entry.preferredTo()!=null&&startsAt.isAfter(entry.preferredTo())) throw new BusinessRuleException("Horário posterior à preferência registrada.");
         var appointment=appointmentUseCase.create(entry.patientId(),selectedDoctor,startsAt,duration,modality,"Originado da fila de espera "+waitlistId);
         repository.resolve(waitlistId);
+        auditUseCase.recordPreviousValues(java.util.Map.of("waitlist.status", entry.status()));
         auditUseCase.record("WAITLIST_RESOLVED","WAITLIST",waitlistId);
         return appointment;
     }

@@ -1,3 +1,4 @@
 @import url('../shared/global.css');
 
 /* Estilos específicos da tela Auditoria. */
+pre{max-width:320px;white-space:pre-wrap;overflow-wrap:anywhere;margin:0;font-size:12px;color:var(--muted)}

@@ -58,8 +58,12 @@ public class UserAdminUseCase {
 
     @Transactional
     public void deactivate(UUID id){
+        Boolean wasActive = jdbc.query("select active from app_user where id=?",
+            (rs, row) -> rs.getBoolean("active"), id).stream().findFirst()
+            .orElseThrow(() -> new BusinessRuleException("Usuário não encontrado."));
         int changed=jdbc.update("update app_user set active=false where id=?",id);
         if(changed==0) throw new BusinessRuleException("Usuário não encontrado.");
+        auditUseCase.recordPreviousValues(java.util.Map.of("user.active", wasActive));
         auditUseCase.record("USER_DEACTIVATED","USER",id);
     }
 
