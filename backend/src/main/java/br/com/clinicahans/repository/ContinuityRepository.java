@@ -1,5 +1,8 @@
 package br.com.clinicahans.repository;
 
+import br.com.clinicahans.model.continuity.ExamOrder;
+import br.com.clinicahans.model.continuity.ExamResult;
+import br.com.clinicahans.model.continuity.FollowUp;
 import br.com.clinicahans.utilities.exception.BusinessRuleException;
 import br.com.clinicahans.utilities.exception.NotFoundException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -171,8 +174,5 @@ public class ContinuityRepository {
         return status;
     }
 
-    public record ExamOrder(UUID id,UUID patientId,UUID encounterId,String examName,String priority,String status,LocalDate expectedBy,OffsetDateTime createdAt){}
-    public record ExamResult(UUID id,UUID examOrderId,String storageKey,String mimeType,OffsetDateTime receivedAt){}
-    public record FollowUp(UUID id,UUID patientId,UUID encounterId,UUID ownerUserId,String reason,String priority,String status,OffsetDateTime dueAt,OffsetDateTime createdAt,OffsetDateTime closedAt){}
     public record OperationalFollowUp(UUID id,UUID patientId,String patientName,String priority,String status,OffsetDateTime dueAt){}
 }

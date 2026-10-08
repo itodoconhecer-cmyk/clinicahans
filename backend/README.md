@@ -3,7 +3,7 @@
 Backend gerado pelo Prompt 03 com foco em segurança clínica, rastreabilidade e SQL explícito.
 
 ## Stack
-Java 21, Spring Boot 3.5.6, Spring Web/Security/JDBC, PostgreSQL 16, JWT, OpenAPI e migrations próprias. Não usa JPA/Hibernate.
+Java 25 LTS, Spring Boot 3.5.6, Spring Web/Security/JDBC, PostgreSQL 16, JWT, OpenAPI e migrations próprias. Não usa JPA/Hibernate.
 
 ## Subir localmente
 1. Suba o PostgreSQL da raiz: `docker compose up -d db`.
@@ -24,7 +24,7 @@ Health: `/actuator/health`.
 
 ### Windows (PowerShell)
 
-Requisitos: Java 21 ou superior, Maven e Docker Desktop iniciado. Na raiz do repositório:
+Requisitos: Java 25 LTS ou superior, Maven e Docker Desktop iniciado. Na raiz do repositório:
 
 ```powershell
 # Use 5433 quando outro PostgreSQL já ocupar a porta 5432.
@@ -81,11 +81,14 @@ são locais. O endereço `localhost` é acessível apenas na própria máquina.
 ## Migrations
 O runner próprio mantém `schema_migration` e executa os scripts em ordem. A inclusão de nova migration exige acrescentá-la à lista em `DatabaseMigrationRunner`.
 
+## Organização de domínio
+Os modelos de domínio são tipos de nível superior em arquivos próprios nos subpacotes de `model` (por exemplo, `patient`, `workforce`, `scheduling`, `clinical`, `continuity`, `billing` e `identity`). Objetos de valor compartilhados permanecem em `model/valueObjects`; projeções de consulta/apresentação não são agregados. `LoginResult` permanece como DTO em `DTO/`.
+
 ## Observação de produção
 As metas de disponibilidade/RPO/RTO e integrações TISS/TUSS são requisitos planejados e precisam de validação operacional antes de produção real.
 
 ## Validação contínua
-O workflow `Backend CI` compila o projeto com Java 21 e executa `mvn clean test` em alterações do backend.
+O workflow `Backend CI` compila o projeto com Java 25 e executa `mvn clean verify` em alterações do backend.
 
 ## Integração com frontend
 O CORS é configurável por `CORS_ALLOWED_ORIGINS`; alterações em backend continuam protegidas pelo Backend CI.

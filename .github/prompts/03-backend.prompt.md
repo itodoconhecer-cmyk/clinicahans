@@ -21,7 +21,7 @@ tools:
 Código não pode inventar regra silenciosamente. Lacuna encontrada deve primeiro retroalimentar especificação/diagrama e depois ser implementada.
 
 ## Stack
-Java 21; Spring Boot 3.x; Spring Web/Security/JDBC; PostgreSQL 16; Bean Validation; OpenAPI; SLF4J; SQL parametrizado; sem JPA/Hibernate.
+Java 25 LTS; Spring Boot 3.x; Spring Web/Security/JDBC; PostgreSQL 16; Bean Validation; OpenAPI; SLF4J; SQL parametrizado; sem JPA/Hibernate.
 
 ## Arquitetura obrigatória
 - organização por responsabilidade técnica, conforme o projeto UMC, e não por feature;

@@ -5,7 +5,7 @@ applyTo: "backend/**"
 # Instruções para Backend
 
 ## Stack obrigatória
-- Java 21 + Spring Boot
+- Java 25 LTS + Spring Boot
 - Spring Web / Security / JDBC
 - JWT
 - PostgreSQL

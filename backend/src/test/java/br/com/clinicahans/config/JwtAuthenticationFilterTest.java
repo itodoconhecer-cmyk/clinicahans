@@ -1,5 +1,6 @@
 package br.com.clinicahans.config;
 
+import br.com.clinicahans.model.identity.UserAccount;
 import br.com.clinicahans.repository.UserAccountRepository;
 import jakarta.servlet.FilterChain;
 import org.junit.jupiter.api.Test;
@@ -26,7 +27,7 @@ class JwtAuthenticationFilterTest {
         var response=new MockHttpServletResponse();
         var chain=mock(FilterChain.class);
         when(jwt.parse("token")).thenReturn(new JwtService.TokenData("doctor",List.of("MEDICO")));
-        when(users.findByUsername("doctor")).thenReturn(Optional.of(new UserAccountRepository.UserAccount(
+        when(users.findByUsername("doctor")).thenReturn(Optional.of(new UserAccount(
             UUID.randomUUID(),"doctor","hash",false,List.of("MEDICO"))));
 
         SecurityContextHolder.clearContext();
@@ -43,7 +44,7 @@ class JwtAuthenticationFilterTest {
         var response=new MockHttpServletResponse();
         var chain=mock(FilterChain.class);
         when(jwt.parse("token")).thenReturn(new JwtService.TokenData("user",List.of("ADMIN")));
-        when(users.findByUsername("user")).thenReturn(Optional.of(new UserAccountRepository.UserAccount(
+        when(users.findByUsername("user")).thenReturn(Optional.of(new UserAccount(
             UUID.randomUUID(),"user","hash",true,List.of("RECEPCAO"))));
 
         SecurityContextHolder.clearContext();

@@ -26,7 +26,7 @@ O resultado: uma aplicação full-stack coerente, rastreável e pronta para revi
 
 | Camada | Tecnologia |
 |--------|-----------|
-| Backend | Java 17+, Spring Boot, Spring Security + JWT, SQL explícito (sem JPA/Hibernate), OpenAPI/Swagger |
+| Backend | Java 25 LTS, Spring Boot, Spring Security + JWT, SQL explícito (sem JPA/Hibernate), OpenAPI/Swagger |
 | Frontend | HTML5, CSS3, JavaScript moderno puro (ES Modules, Fetch API) |
 | Banco de dados | PostgreSQL 15+ |
 | Diagramas | Mermaid, draw.io, BPMN 2.0 (Camunda) |
@@ -134,7 +134,7 @@ História de negócio
 - História da Clínica Dr. Hans Chucrute carregada
 - Prompt 01 executado e protótipo funcional disponível em `prototypes/`
 - Prompt 02 refeito em nível sênior com benchmark de mercado, especificações e diagramas
-- Prompt 03 executado: backend Java 21/Spring Boot + JDBC/SQL explícito + PostgreSQL + JWT + OpenAPI
+- Backend atualizado para Java 25 LTS + Spring Boot + JDBC/SQL explícito + PostgreSQL + JWT + OpenAPI
 - Backend validado pelo GitHub Actions (Backend CI)
 - Especificação funcional consolidada e catálogo de domínios publicados em `docs/specs/`
 - Diagramas revisados: modelo de domínio, máquinas de estado, context map, BPMN e draw.io

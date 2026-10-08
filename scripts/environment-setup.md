@@ -6,7 +6,7 @@ Antes de rodar os prompts, garanta que estas ferramentas estão instaladas:
 - VS Code atualizado
 - GitHub Copilot Pro ativo (extensão no VS Code)
 - Docker Desktop (para o PostgreSQL)
-- JDK 21
+- JDK 25 LTS
 - Maven 3.9+
 - Node.js 20+
 

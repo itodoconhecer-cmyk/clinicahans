@@ -1,5 +1,6 @@
 package br.com.clinicahans.UseCase;
 
+import br.com.clinicahans.DTO.LoginResult;
 import br.com.clinicahans.repository.UserAccountRepository;
 
 import br.com.clinicahans.config.JwtService;
@@ -24,6 +25,4 @@ public class AuthUseCase {
         }
         return new LoginResult(jwt.issue(user.username(), user.roles()), "Bearer", user.roles());
     }
-
-    public record LoginResult(String accessToken, String tokenType, java.util.List<String> roles) {}
 }

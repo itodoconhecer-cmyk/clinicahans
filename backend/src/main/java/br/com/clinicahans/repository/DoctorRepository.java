@@ -1,5 +1,9 @@
 package br.com.clinicahans.repository;
 
+import br.com.clinicahans.model.scheduling.Availability;
+import br.com.clinicahans.model.scheduling.ScheduleBlock;
+import br.com.clinicahans.model.workforce.Doctor;
+import br.com.clinicahans.model.workforce.Specialty;
 import br.com.clinicahans.utilities.exception.NotFoundException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -108,9 +112,4 @@ public class DoctorRepository {
         jdbc.update("update doctor set user_id=?, updated_at=now() where id=?", userId, doctorId);
     }
 
-    public record Doctor(UUID id,String fullName,String cpf,String crm,String crmState,String rqe,String phone,String email,
-                         String status,int defaultAppointmentMinutes,String modality,UUID userId){}
-    public record Specialty(UUID id,String name,String externalSystem,String externalCode){}
-    public record ScheduleBlock(UUID id,java.time.OffsetDateTime startsAt,java.time.OffsetDateTime endsAt,String reason){}
-    public record Availability(UUID id,int weekday,java.time.LocalTime startsAt,java.time.LocalTime endsAt,int slotMinutes,boolean active){}
 }

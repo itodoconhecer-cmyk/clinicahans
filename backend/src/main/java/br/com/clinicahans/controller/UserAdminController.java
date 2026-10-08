@@ -17,17 +17,20 @@ import java.util.UUID;
 @RequestMapping("/api/v1/admin/users")
 @PreAuthorize("hasRole('ADMIN')")
 public class UserAdminController {
-    private final UserAdminUseCase service;
-    public UserAdminController(UserAdminUseCase service){this.service=service;}
+    private final UserAdminUseCase userAdminUseCase;
+    public UserAdminController(UserAdminUseCase userAdminUseCase){this.userAdminUseCase=userAdminUseCase;}
 
     @GetMapping
-    public List<UserAdminUseCase.UserView> list(){return service.list();}
+    public List<UserAdminUseCase.UserView> list(){return userAdminUseCase.list();}
+
+    @GetMapping("/roles")
+    public List<String> roles(){return userAdminUseCase.availableRoles();}
 
     @PostMapping
-    public UserAdminUseCase.UserView create(@Valid @RequestBody CreateUserRequest r){return service.create(r.username(),r.password(),r.roles());}
+    public UserAdminUseCase.UserView create(@Valid @RequestBody CreateUserRequest r){return userAdminUseCase.create(r.username(),r.password(),r.roles());}
 
     @PostMapping("/{id}/deactivate")
-    public void deactivate(@PathVariable UUID id){service.deactivate(id);}
+    public void deactivate(@PathVariable UUID id){userAdminUseCase.deactivate(id);}
 
     
 }

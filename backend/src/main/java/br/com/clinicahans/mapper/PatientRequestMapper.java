@@ -5,7 +5,7 @@ import br.com.clinicahans.DTO.PatientResponse;
 import br.com.clinicahans.DTO.UpdatePatientRequest;
 import br.com.clinicahans.command.CreatePatientCommand;
 import br.com.clinicahans.command.UpdatePatientCommand;
-import br.com.clinicahans.repository.PatientRepository;
+import br.com.clinicahans.model.patient.Patient;
 
 public final class PatientRequestMapper {
     private PatientRequestMapper() {}
@@ -18,7 +18,7 @@ public final class PatientRequestMapper {
         return new UpdatePatientCommand(r.fullName(), r.phone(), r.email(), r.version());
     }
 
-    public static PatientResponse toResponse(PatientRepository.Patient p) {
+    public static PatientResponse toResponse(Patient p) {
         return new PatientResponse(p.id(), p.fullName(), p.cpf(), p.birthDate(), p.phone(), p.email(),
             p.status(), p.createdAt(), p.updatedAt(), p.version());
     }

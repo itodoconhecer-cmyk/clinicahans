@@ -1,5 +1,12 @@
 package br.com.clinicahans.repository;
 
+import br.com.clinicahans.model.clinical.Addendum;
+import br.com.clinicahans.model.clinical.Alert;
+import br.com.clinicahans.model.clinical.Allergy;
+import br.com.clinicahans.model.clinical.ClinicalDocument;
+import br.com.clinicahans.model.clinical.Condition;
+import br.com.clinicahans.model.clinical.Encounter;
+import br.com.clinicahans.model.clinical.Medication;
 import br.com.clinicahans.utilities.exception.BusinessRuleException;
 import br.com.clinicahans.utilities.exception.NotFoundException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -169,12 +176,5 @@ public class ClinicalRepository {
     }
 
     public record SafetySnapshot(UUID patientId,String patientName,List<Alert> alerts,List<Allergy> allergies,List<Medication> medications,List<Condition> conditions){}
-    public record Alert(UUID id,String type,String severity,String message,OffsetDateTime createdAt){}
-    public record Allergy(UUID id,String substance,String reaction,String severity){}
-    public record Medication(UUID id,String name,String dosage,String frequency){}
-    public record Condition(UUID id,String description,String status){}
-    public record Encounter(UUID id,UUID patientId,UUID doctorId,UUID appointmentId,String chiefComplaint,String assessment,String plan,String status,int version,OffsetDateTime startedAt,OffsetDateTime completedAt){}
-    public record Addendum(UUID id,UUID encounterId,String reason,String content,OffsetDateTime createdAt){}
-    public record ClinicalDocument(UUID id,UUID patientId,UUID encounterId,String documentType,String storageKey,String mimeType,String checksum,OffsetDateTime createdAt){}
     public record TimelineEvent(String type,UUID id,String title,OffsetDateTime occurredAt){}
 }

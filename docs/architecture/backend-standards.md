@@ -13,7 +13,14 @@ br/com/clinicahans/
 ├── controller/
 ├── mapper/
 ├── model/
-│   └── valueObjects/
+│       ├── patient/
+│       ├── workforce/
+│       ├── scheduling/
+│       ├── clinical/
+│       ├── continuity/
+│       ├── billing/
+│       ├── identity/
+│       └── valueObjects/
 ├── repository/
 ├── utilities/
 ├── config/
@@ -21,7 +28,9 @@ br/com/clinicahans/
 └── ClinicHansApplication.java
 ```
 
-A organização raiz por domínio/feature é proibida. Pacotes como `patient`, `appointment`, `clinical`, `doctor`, `finance` e equivalentes não devem voltar a existir.
+A organização raiz por domínio/feature é proibida: os pacotes diretamente sob `br.com.clinicahans` continuam sendo as camadas acima. O pacote `model` é a exceção intencional e contém subpacotes por domínio (por exemplo, `patient`, `workforce`, `scheduling`, `clinical`, `continuity`, `billing` e `identity`). Modelos de domínio são tipos de nível superior em arquivos próprios, nunca records aninhados em repositórios.
+
+Objetos de valor compartilhados permanecem em `model/valueObjects`; não devem ser movidos para pastas de entidades. Projeções de leitura (`SafetySnapshot`, `TimelineEvent`, `OperationalFollowUp`) e projeções de apresentação (`Dashboard`, `UserView`) não são agregados e permanecem identificadas como projeções, sem serem relocadas para pastas de entidades. DTOs como `LoginResult` permanecem em `DTO/`.
 
 ## Fluxo de responsabilidade
 Controller → DTO/Mapper → Command → UseCase → Model → Repository → PostgreSQL.

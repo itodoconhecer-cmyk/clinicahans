@@ -1,5 +1,6 @@
 package br.com.clinicahans.repository;
 
+import br.com.clinicahans.model.identity.UserAccount;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -30,5 +31,4 @@ public class UserAccountRepository {
     }
 
     private record BaseUser(UUID id, String username, String passwordHash, boolean active) {}
-    public record UserAccount(UUID id, String username, String passwordHash, boolean active, List<String> roles) {}
 }
