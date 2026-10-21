@@ -114,8 +114,10 @@ test('slot bloqueado não aparece como disponível para reserva', async ({ page,
   recorder.mark('pré-condição: bloqueio de agenda criado via API de teste');
 
   await openScheduling(page, scenario);
-  await expect(page.locator('[data-slot-index]')).toHaveCount(0);
-  await expect(page.locator('#schedule-results')).toContainText('Não foram encontrados horários disponíveis');
+  const blockedSlot = new RegExp(`Selecionar horário de ${scenario.doctorName} em ${scenario.dateLabel}, 13:00`);
+  await expect(page.getByRole('button', { name: blockedSlot })).toHaveCount(0);
+  await expect(page.locator('[data-slot-index]')).toHaveCount(5);
+  await expect(page.locator('#schedule-results')).toContainText('5 disponíveis');
   await recorder.screenshot('slot-bloqueado-sem-disponibilidade');
 });
 
@@ -146,7 +148,7 @@ test('conflito criado após a busca é recusado na tela e não duplica a reserva
   await page.getByRole('button', { name: 'Confirmar agendamento' }).click();
   const response = await responsePromise;
   expect(response.status()).toBe(409);
-  await expect(page.locator('.appointment-confirmation .state-card.error')).toContainText(/conflit|integridade/i);
+  await expect(page.locator('#appointment-confirmation .state-card.error')).toContainText(/conflit|integridade/i);
   await recorder.mark('backend recusou o conflito com HTTP 409', {
     status: response.status(), correlationId: response.headers()['x-correlation-id']
   });
@@ -187,7 +189,7 @@ test('falha simulada do backend permanece visível na tela e permite repetir no 
     });
   });
   await page.getByRole('button', { name: 'Confirmar agendamento' }).click();
-  await expect(page.locator('.appointment-confirmation .state-card.error')).toContainText('Falha temporária simulada no servidor.');
+  await expect(page.locator('#appointment-confirmation .state-card.error')).toContainText('Falha temporária simulada no servidor.');
   expect(intercepted).toBe(true);
   recorder.mark('resposta 503 simulada no navegador; nenhum dado foi enviado ao endpoint real');
   await recorder.screenshot('erro-de-servidor-simulado');
