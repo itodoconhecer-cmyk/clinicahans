@@ -1,0 +1,13 @@
+{
+  "name": "clinicahans-testes",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test:e2e": "playwright test",
+    "report:e2e": "playwright show-report artifacts/playwright/report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.55.0",
+    "pg": "^8.16.3"
+  }
+}

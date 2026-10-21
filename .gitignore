@@ -7,6 +7,12 @@ backend/logs/
 frontend/node_modules/
 frontend/dist/
 
+# Playwright
+node_modules/
+artifacts/playwright/
+playwright-report/
+test-results/
+
 # IDE
 .vscode/
 .idea/

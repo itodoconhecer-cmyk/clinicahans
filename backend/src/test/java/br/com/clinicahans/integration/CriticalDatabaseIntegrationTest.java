@@ -7,9 +7,11 @@ import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.dao.DataIntegrityViolationException;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 
@@ -37,6 +39,39 @@ class CriticalDatabaseIntegrationTest {
         assertEquals(1,migration);
         assertEquals(1,uniqueReview);
         assertEquals(1,appointmentStatus);
+    }
+
+    @Test
+    void constraintDoBancoImpedeSobreposicaoEPermiteSlotAposCancelamento() {
+        UUID patientId=UUID.randomUUID(),doctorId=UUID.randomUUID();
+        UUID firstAppointmentId=UUID.randomUUID(),secondAppointmentId=UUID.randomUUID();
+        OffsetDateTime startsAt=OffsetDateTime.now().plusDays(2).withSecond(0).withNano(0);
+        OffsetDateTime endsAt=startsAt.plusMinutes(30);
+        jdbc.update("insert into patient(id,full_name,birth_date) values (?,?,?)",
+            patientId,"Paciente E2E de Integridade",LocalDate.of(1990,1,1));
+        jdbc.update("""
+            insert into doctor(id,full_name,crm,crm_state,status,default_appointment_minutes,modality)
+            values (?,?,?,?,?,?,?)
+            """,doctorId,"Medico E2E de Integridade",UUID.randomUUID().toString().substring(0,8),"SP","ACTIVE",30,"PRESENCIAL");
+
+        try {
+            insertAppointment(firstAppointmentId,patientId,doctorId,startsAt,endsAt);
+            assertThrows(DataIntegrityViolationException.class,
+                ()->insertAppointment(secondAppointmentId,patientId,doctorId,startsAt,endsAt));
+
+            jdbc.update("update appointment set status='CANCELLED' where id=?",firstAppointmentId);
+            insertAppointment(secondAppointmentId,patientId,doctorId,startsAt,endsAt);
+
+            Integer active=jdbc.queryForObject("""
+                select count(*) from appointment
+                where doctor_id=? and starts_at=? and status in ('SCHEDULED','CONFIRMED','CHECKED_IN','IN_CARE')
+                """,Integer.class,doctorId,startsAt);
+            assertEquals(1,active);
+        } finally {
+            jdbc.update("delete from appointment where id in (?,?)",firstAppointmentId,secondAppointmentId);
+            jdbc.update("delete from doctor where id=?",doctorId);
+            jdbc.update("delete from patient where id=?",patientId);
+        }
     }
 
     @Test
@@ -81,5 +116,12 @@ class CriticalDatabaseIntegrationTest {
         }catch(BusinessRuleException ex){
             return false;
         }
+    }
+
+    private void insertAppointment(UUID id,UUID patientId,UUID doctorId,OffsetDateTime startsAt,OffsetDateTime endsAt){
+        jdbc.update("""
+            insert into appointment(id,patient_id,doctor_id,starts_at,ends_at,modality,status)
+            values (?,?,?,?,?,'PRESENCIAL','SCHEDULED')
+            """,id,patientId,doctorId,startsAt,endsAt);
     }
 }
