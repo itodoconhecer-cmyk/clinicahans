@@ -1,4 +1,4 @@
-import { appointmentApi, patientApi } from '../services/api.js?v=uc-ag-01';
+import { appointmentApi, patientApi } from '../services/api.js?v=uc-ag-02-auth-redirect';
 import { mountScreen, renderError, showToast, openModal, closeModal } from '../shared/screen.js';
 import { escapeHtml, formatDateTime } from '../utils/html.js';
 import { empty, loading } from '../components/ui.js';

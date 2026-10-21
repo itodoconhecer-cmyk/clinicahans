@@ -27,7 +27,8 @@ async function request(path, options = {}) {
 
   if (response.status === 401) {
     session.clear();
-    window.location.hash = '#/login';
+    const loginUrl = new URL('../login/login.html', window.location.href);
+    if (window.location.pathname !== loginUrl.pathname) window.location.replace(loginUrl.href);
     throw new ApiError('Sessão expirada ou credenciais inválidas.', 401, 'UNAUTHORIZED', correlationId);
   }
 
