@@ -2,7 +2,8 @@ import { appointmentApi, patientApi } from '../services/api.js?v=uc-ag-01';
 import { mountScreen, renderError, showToast, openModal, closeModal } from '../shared/screen.js';
 import { escapeHtml, formatDateTime } from '../utils/html.js';
 import { empty, loading } from '../components/ui.js';
-import { bindScheduleGrid, gridScheduleMarkup, renderScheduleViews, verticalScheduleMarkup } from '../components/schedule-views.js';
+import { renderScheduleViews, verticalScheduleMarkup } from '../components/schedule-views.js';
+import { bindWeeklyCalendar, weeklyCalendarMarkup } from '../components/calendar-grid.js';
 
 const root = mountScreen({ key: 'novo-agendamento', title: 'Novo agendamento', roles: ['RECEPCAO', 'ADMIN'] });
 if (root) void init();
@@ -60,7 +61,7 @@ function renderSlots(slots, appointments, target) {
   const entries = scheduleEntries(slots, appointments);
   const availableCount = entries.filter(entry => entry.kind === 'available').length;
   const appointmentCount = entries.filter(entry => entry.kind === 'appointment' || entry.kind === 'occupied').length;
-  let selectedGridDay = '';
+  let selectedGridWeek = '';
   target.innerHTML = `
     <div class="panel-header schedule-heading"><div><h2>Horários e ocupação da agenda</h2><p>${availableCount} disponíveis · ${appointmentCount} agendamentos ocupados</p></div><span>${entries.length} itens</span></div>
     <div class="schedule-legend" aria-label="Legenda">
@@ -76,12 +77,12 @@ function renderSlots(slots, appointments, target) {
       ...entry,
       title: entry.kind === 'available' ? 'Horário disponível' : 'Agendamento ocupado'
     })), 'Nenhum horário ou agendamento encontrado para o período.'),
-    grid: () => gridScheduleMarkup(entries.map(entry => ({
+    grid: () => weeklyCalendarMarkup(entries.map(entry => ({
       ...entry,
       title: entry.kind === 'available' ? 'Disponível' : 'Agendamento'
-    })), selectedGridDay, 'Nenhum horário ou agendamento encontrado para o período.'),
+    })), selectedGridWeek, 'Nenhum horário ou agendamento encontrado para o período.'),
     onRender: (view, content, refresh) => {
-      if (view === 'grid') bindScheduleGrid(content, entries, day => { selectedGridDay = day; refresh(); });
+      if (view === 'grid') bindWeeklyCalendar(content, entries, week => { selectedGridWeek = week; refresh(); });
       content.querySelectorAll('[data-slot-index]').forEach(button => {
         button.addEventListener('click', () => openPatientPicker(slots[Number(button.dataset.slotIndex)]));
       });

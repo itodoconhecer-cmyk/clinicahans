@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
+import java.time.DayOfWeek;
 import java.util.List;
 
 @Service
@@ -57,8 +58,10 @@ public class SmartAppointmentSearchUseCase {
 
         var slots = repository.search(from, to, zone.getId(), criteria.doctor(), criteria.specialty(),
             parsed.generalTerm(), criteria.weekday(), fromTime, toTime, criteria.time());
-        var appointments = repository.searchAppointments(from, to, zone.getId(), criteria.doctor(),
-            criteria.specialty(), parsed.generalTerm(), criteria.weekday());
+        LocalDate calendarFrom = criteria.date() == null ? from : from.with(DayOfWeek.MONDAY);
+        LocalDate calendarTo = criteria.date() == null ? to : calendarFrom.plusDays(6);
+        var appointments = repository.searchAppointments(calendarFrom, calendarTo, zone.getId(), criteria.doctor(),
+            criteria.specialty(), parsed.generalTerm());
         String message = null;
         if (slots.isEmpty()) {
             if (criteria.doctor() != null && !repository.doctorExists(criteria.doctor())) {

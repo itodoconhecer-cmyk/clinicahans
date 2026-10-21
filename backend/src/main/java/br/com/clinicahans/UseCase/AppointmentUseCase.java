@@ -1,5 +1,6 @@
 package br.com.clinicahans.UseCase;
 
+import br.com.clinicahans.DTO.AppointmentCalendarEventResponse;
 import br.com.clinicahans.model.scheduling.Appointment;
 import br.com.clinicahans.model.scheduling.AppointmentStatus;
 import br.com.clinicahans.repository.AppointmentRepository;
@@ -74,6 +75,12 @@ public class AppointmentUseCase {
         if(!to.isAfter(from) || Duration.between(from,to).toDays()>93) throw new BusinessRuleException("Intervalo de consulta inválido.");
         UUID effectiveDoctorId=isDoctorOnly()?users.currentDoctorId():doctorId;
         return repository.list(from,to,effectiveDoctorId);
+    }
+
+    public List<AppointmentCalendarEventResponse> calendarEvents(OffsetDateTime from,OffsetDateTime to,UUID doctorId){
+        if(!to.isAfter(from) || Duration.between(from,to).toDays()>93) throw new BusinessRuleException("Intervalo de consulta invalido.");
+        UUID effectiveDoctorId=isDoctorOnly()?users.currentDoctorId():doctorId;
+        return repository.calendarEvents(from,to,effectiveDoctorId);
     }
 
     private boolean isDoctorOnly(){

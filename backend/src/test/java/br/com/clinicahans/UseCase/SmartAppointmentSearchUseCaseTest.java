@@ -26,11 +26,11 @@ class SmartAppointmentSearchUseCaseTest {
     void returnsBookingsForTheWholeMatchingDayEvenWhenSearchRequestsMorningOnly() {
         when(vocabulary.specialties()).thenReturn(List.of("Cardiologia"));
         when(vocabulary.aliases()).thenReturn(Map.of("coracao", "Cardiologia"));
-        var booking = new AppointmentCalendarEventResponse(UUID.randomUUID(), "Dra Judite",
-            UUID.randomUUID(), "Cardiologia", java.time.OffsetDateTime.now().plusDays(3),
-            java.time.OffsetDateTime.now().plusDays(3).plusMinutes(30), "CONFIRMED");
+        var startsAt = java.time.OffsetDateTime.now().plusDays(3);
+        var booking = new AppointmentCalendarEventResponse(UUID.randomUUID(), UUID.randomUUID(), "Dra Judite",
+            UUID.randomUUID(), "Cardiologia", "masked", startsAt, startsAt.plusMinutes(30), "CONFIRMED");
         when(repository.searchAppointments(any(LocalDate.class), any(LocalDate.class), anyString(),
-            nullable(String.class), nullable(String.class), nullable(String.class), nullable(Integer.class)))
+            nullable(String.class), nullable(String.class), nullable(String.class)))
             .thenReturn(List.of(booking));
 
         var result = useCase.search("coração às sextas pela manhã");
@@ -39,6 +39,6 @@ class SmartAppointmentSearchUseCaseTest {
         assertEquals(5, result.criteria().weekday());
         assertEquals(List.of(booking), result.appointments());
         verify(repository).searchAppointments(any(LocalDate.class), any(LocalDate.class),
-            eq("America/Sao_Paulo"), eq(null), eq("cardiologia"), eq(null), eq(5));
+            eq("America/Sao_Paulo"), eq(null), eq("cardiologia"), eq(null));
     }
 }

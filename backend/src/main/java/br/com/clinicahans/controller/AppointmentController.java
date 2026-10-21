@@ -28,6 +28,12 @@ public class AppointmentController {
     @GetMapping("/smart-search") @PreAuthorize("hasAnyRole('RECEPCAO','ADMIN')")
     public SmartAppointmentSearchResponse smartSearch(@RequestParam String q){return smartSearch.search(q);}
 
+    @GetMapping("/calendar") @PreAuthorize("hasAnyRole('RECEPCAO','MEDICO','ADMIN')")
+    public List<AppointmentCalendarEventResponse> calendar(@RequestParam OffsetDateTime from,
+            @RequestParam OffsetDateTime to,@RequestParam(required=false) UUID doctorId){
+        return appointmentUseCase.calendarEvents(from,to,doctorId);
+    }
+
     @PostMapping @PreAuthorize("hasAnyRole('RECEPCAO','ADMIN')")
     public Appointment create(@Valid @RequestBody CreateAppointmentRequest r){
         return appointmentUseCase.create(r.patientId(),r.doctorId(),r.startsAt(),r.durationMinutes(),r.modality(),r.notes());

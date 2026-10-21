@@ -76,6 +76,13 @@ export function localDayRange(){
   return [start.toISOString(),end.toISOString()];
 }
 
+export function localWeekRange(){
+  const now=new Date(); const start=new Date(now); start.setHours(0,0,0,0);
+  start.setDate(start.getDate()-(start.getDay()+6)%7);
+  const end=new Date(start); end.setDate(end.getDate()+7);
+  return [start.toISOString(),end.toISOString()];
+}
+
 export function monthRange(){
   const now=new Date();
   const from=new Date(now.getFullYear(),now.getMonth(),1);

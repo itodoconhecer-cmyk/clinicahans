@@ -1,3 +1,4 @@
-@import url('../shared/global.css?v=schedule-grid-01');
+@import url('../shared/global.css?v=schedule-calendar-02');
+@import url('../components/calendar-grid.css?v=schedule-calendar-02');
 
 /* Estilos específicos da tela Agenda. */

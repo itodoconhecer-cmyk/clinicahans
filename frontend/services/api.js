@@ -99,6 +99,7 @@ export const doctorApi = {
 export const appointmentApi = {
   get: id => api.get(`/api/v1/appointments/${id}`),
   list: (from, to, doctorId) => api.get(`/api/v1/appointments?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}${doctorId ? `&doctorId=${encodeURIComponent(doctorId)}` : ''}`),
+  calendar: (from, to, doctorId) => api.get(`/api/v1/appointments/calendar?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}${doctorId ? `&doctorId=${encodeURIComponent(doctorId)}` : ''}`),
   create: body => api.post('/api/v1/appointments', body),
   smartSearch: q => api.get(`/api/v1/appointments/smart-search?q=${encodeURIComponent(q)}`),
   transition: (id, target, reason) => api.post(`/api/v1/appointments/${id}/transition`, { target, reason })

@@ -1,7 +1,9 @@
 package br.com.clinicahans.repository;
 
+import br.com.clinicahans.DTO.AppointmentCalendarEventResponse;
 import br.com.clinicahans.model.scheduling.Appointment;
 import br.com.clinicahans.model.scheduling.AppointmentStatus;
+import br.com.clinicahans.utilities.security.PatientNameMasker;
 
 import br.com.clinicahans.utilities.exception.NotFoundException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -54,6 +56,32 @@ public class AppointmentRepository {
                  confirmed_at,checked_in_at,created_at,updated_at
           from appointment where starts_at>=? and starts_at<? and doctor_id=? order by starts_at
           """,mapper(),from,to,doctorId);
+    }
+
+    public List<AppointmentCalendarEventResponse> calendarEvents(OffsetDateTime from,OffsetDateTime to,UUID doctorId){
+        return jdbc.query("""
+          select a.id appointment_id,d.id doctor_id,d.full_name doctor_name,
+                 s.id specialty_id,s.name specialty_name,p.full_name patient_name,
+                 a.starts_at,a.ends_at,a.status
+          from appointment a
+          join doctor d on d.id=a.doctor_id
+          join patient p on p.id=a.patient_id
+          left join lateral (
+            select sp.id,sp.name
+            from doctor_specialty ds join specialty sp on sp.id=ds.specialty_id
+            where ds.doctor_id=d.id
+            order by ds.primary_specialty desc,sp.name
+            limit 1
+          ) s on true
+          where a.starts_at>=? and a.starts_at<?
+            and (?::uuid is null or a.doctor_id=?)
+            and a.status in ('SCHEDULED','CONFIRMED','CHECKED_IN','IN_CARE','COMPLETED')
+          order by a.starts_at,d.full_name
+          """,(rs,n)->new AppointmentCalendarEventResponse(
+            rs.getObject("appointment_id",UUID.class),rs.getObject("doctor_id",UUID.class),
+            rs.getString("doctor_name"),rs.getObject("specialty_id",UUID.class),rs.getString("specialty_name"),
+            PatientNameMasker.mask(rs.getString("patient_name")),rs.getObject("starts_at",OffsetDateTime.class),
+            rs.getObject("ends_at",OffsetDateTime.class),rs.getString("status")),from,to,doctorId,doctorId);
     }
 
     public boolean hasScheduleBlock(UUID doctorId,OffsetDateTime start,OffsetDateTime end){
