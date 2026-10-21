@@ -9,7 +9,9 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Repository
 public class DoctorRepository {
@@ -57,6 +59,16 @@ public class DoctorRepository {
     public List<Specialty> listSpecialties() {
         return jdbc.query("select id,name,external_system,external_code from specialty order by name",
             (rs,n)->new Specialty(rs.getObject("id",UUID.class),rs.getString("name"),rs.getString("external_system"),rs.getString("external_code")));
+    }
+
+    public Map<String, String> listSpecialtySearchAliases() {
+        return jdbc.query("""
+            select a.normalized_alias, s.name
+            from specialty_search_alias a
+            join specialty s on s.id = a.specialty_id
+            order by length(a.normalized_alias) desc, a.normalized_alias
+            """, (rs, row) -> Map.entry(rs.getString("normalized_alias"), rs.getString("name")))
+            .stream().collect(Collectors.toUnmodifiableMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     public String specialtyLinkState(UUID doctorId, UUID specialtyId) {

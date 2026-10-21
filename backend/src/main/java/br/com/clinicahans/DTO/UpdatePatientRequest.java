@@ -9,4 +9,5 @@ import java.util.List;
 import java.util.UUID;
 
 public record UpdatePatientRequest(@NotBlank @Size(max=180) String fullName,
-        @Size(max=30) String phone, @Email @Size(max=180) String email, @PositiveOrZero int version) {}
+        @Size(max=30) String phone, @Email @Size(max=180) String email,
+        @Size(max=40) String insuranceCard, @PositiveOrZero int version) {}

@@ -10,4 +10,5 @@ import java.util.UUID;
 
 public record CreatePatientRequest(@NotBlank @Size(max=180) String fullName,
         @Pattern(regexp="^$|\\d{3}\\.?\\d{3}\\.?\\d{3}-?\\d{2}$") String cpf,
-        @NotNull @Past LocalDate birthDate, @Size(max=30) String phone, @Email @Size(max=180) String email) {}
+        @NotNull @Past LocalDate birthDate, @Size(max=30) String phone, @Email @Size(max=180) String email,
+        @Size(max=40) String insuranceCard) {}

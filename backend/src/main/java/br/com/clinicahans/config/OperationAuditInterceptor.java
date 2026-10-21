@@ -61,7 +61,6 @@ public class OperationAuditInterceptor implements HandlerInterceptor {
                 .addKeyValue("status", status)
                 .addKeyValue("durationMs", durationMillis)
                 .addKeyValue("exceptionType", exceptionType)
-                .addKeyValue("correlationId", correlationId)
                 .log("API operation failed");
         } else if (status >= 400) {
             logger.atWarn()
@@ -70,7 +69,6 @@ public class OperationAuditInterceptor implements HandlerInterceptor {
                 .addKeyValue("route", safeRoute(request))
                 .addKeyValue("status", status)
                 .addKeyValue("durationMs", durationMillis)
-                .addKeyValue("correlationId", correlationId)
                 .log("API operation returned a client error");
         } else {
             var auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
@@ -83,7 +81,6 @@ public class OperationAuditInterceptor implements HandlerInterceptor {
                 .addKeyValue("route", safeRoute(request))
                 .addKeyValue("status", status)
                 .addKeyValue("durationMs", durationMillis)
-                .addKeyValue("correlationId", correlationId)
                 .log("API operation completed");
         }
     }

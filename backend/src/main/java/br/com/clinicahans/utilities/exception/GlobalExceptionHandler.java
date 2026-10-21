@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -46,12 +47,19 @@ public class GlobalExceptionHandler {
         return response(HttpStatus.BAD_REQUEST, "VALIDATION_ERROR", "Dados de entrada inválidos.", fields);
     }
 
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    ResponseEntity<ApiError> unreadableBody(HttpMessageNotReadableException ex) {
+        logger.atWarn()
+            .addKeyValue("event", "api.invalid_request_body")
+            .log("Invalid API request body");
+        return response(HttpStatus.BAD_REQUEST, "INVALID_REQUEST_BODY", "Corpo da requisição inválido.", List.of());
+    }
+
     @ExceptionHandler(Exception.class)
     ResponseEntity<ApiError> unexpected(Exception ex) {
         logger.atError()
             .addKeyValue("event", "api.unexpected_error")
             .addKeyValue("exceptionType", ex.getClass().getSimpleName())
-            .addKeyValue("correlationId", MDC.get("correlationId"))
             .log("Unexpected API error");
         return response(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_ERROR", "Erro interno inesperado.", List.of());
     }

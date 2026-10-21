@@ -15,7 +15,7 @@ Exemplo:
 ```bash
 export JWT_SECRET='troque-por-um-segredo-forte-com-32-ou-mais-caracteres'
 export BOOTSTRAP_ADMIN_USERNAME='admin'
-export BOOTSTRAP_ADMIN_PASSWORD='troque-esta-senha'
+export BOOTSTRAP_ADMIN_PASSWORD='admin'
 mvn spring-boot:run
 ```
 
@@ -105,3 +105,15 @@ A revisão de telas adicionou listagem administrativa de usuários e consulta de
 
 ## Revisão rigorosa
 O backend é validado com PostgreSQL real no CI; pendências de produção estão em `docs/reviews/rigorous-review.md`.
+
+## Dados de demonstracao
+
+No perfil `dev`, cada inicializacao garante 10 medicos e 20 pacientes ficticios,
+11 especialidades e 1.000 agendamentos identificados como demonstracao. Os
+agendamentos ficam distribuidos por medico, paciente, modalidade e status, em
+dias uteis passados e futuros. Ha tambem disponibilidade de Pneumologia aos
+sabados para exercitar pesquisas por sinonimos. Cadastros existentes sao preservados e
+reinicializacoes nao duplicam os dados. A carga roda apos as migrations, em
+transacao. Nao cria logins para os medicos.
+Use `CLINICAHANS_DEMO_DATA_ENABLED=false` para desativar ou `true` para habilitar
+em outro perfil. Fora de `dev`, fica desativada por padrao.

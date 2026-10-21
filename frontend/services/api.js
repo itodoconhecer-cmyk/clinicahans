@@ -76,6 +76,7 @@ export const publicOperationsApi = {
 
 export const patientApi = {
   search: (q = '', limit = 30) => api.get(`/api/v1/patients?q=${encodeURIComponent(q)}&limit=${limit}`),
+  smartSearch: q => api.get(`/api/v1/patients/smart-search?q=${encodeURIComponent(q)}`),
   get: id => api.get(`/api/v1/patients/${id}`),
   create: body => api.post('/api/v1/patients', body),
   update: (id, body) => api.put(`/api/v1/patients/${id}`, body)
@@ -99,6 +100,7 @@ export const appointmentApi = {
   get: id => api.get(`/api/v1/appointments/${id}`),
   list: (from, to, doctorId) => api.get(`/api/v1/appointments?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}${doctorId ? `&doctorId=${encodeURIComponent(doctorId)}` : ''}`),
   create: body => api.post('/api/v1/appointments', body),
+  smartSearch: q => api.get(`/api/v1/appointments/smart-search?q=${encodeURIComponent(q)}`),
   transition: (id, target, reason) => api.post(`/api/v1/appointments/${id}/transition`, { target, reason })
 };
 

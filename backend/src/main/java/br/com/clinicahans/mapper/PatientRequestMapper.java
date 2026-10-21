@@ -11,15 +11,15 @@ public final class PatientRequestMapper {
     private PatientRequestMapper() {}
 
     public static CreatePatientCommand toCommand(CreatePatientRequest r) {
-        return new CreatePatientCommand(r.fullName(), r.cpf(), r.birthDate(), r.phone(), r.email());
+        return new CreatePatientCommand(r.fullName(), r.cpf(), r.birthDate(), r.phone(), r.email(), r.insuranceCard());
     }
 
     public static UpdatePatientCommand toCommand(UpdatePatientRequest r) {
-        return new UpdatePatientCommand(r.fullName(), r.phone(), r.email(), r.version());
+        return new UpdatePatientCommand(r.fullName(), r.phone(), r.email(), r.insuranceCard(), r.version());
     }
 
     public static PatientResponse toResponse(Patient p) {
-        return new PatientResponse(p.id(), p.fullName(), p.cpf(), p.birthDate(), p.phone(), p.email(),
+        return new PatientResponse(p.id(), p.fullName(), p.cpf(), p.insuranceCard(), p.birthDate(), p.phone(), p.email(),
             p.status(), p.createdAt(), p.updatedAt(), p.version());
     }
 }

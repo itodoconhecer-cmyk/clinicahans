@@ -3,6 +3,8 @@ package br.com.clinicahans.controller;
 import br.com.clinicahans.DTO.*;
 
 import br.com.clinicahans.UseCase.AppointmentUseCase;
+import br.com.clinicahans.UseCase.SmartAppointmentSearchUseCase;
+import br.com.clinicahans.DTO.SmartAppointmentSearchResponse;
 import br.com.clinicahans.model.scheduling.Appointment;
 import br.com.clinicahans.model.scheduling.AppointmentStatus;
 
@@ -20,7 +22,11 @@ import java.util.UUID;
 @RequestMapping("/api/v1/appointments")
 public class AppointmentController {
     private final AppointmentUseCase appointmentUseCase;
-    public AppointmentController(AppointmentUseCase appointmentUseCase){this.appointmentUseCase=appointmentUseCase;}
+    private final SmartAppointmentSearchUseCase smartSearch;
+    public AppointmentController(AppointmentUseCase appointmentUseCase, SmartAppointmentSearchUseCase smartSearch){this.appointmentUseCase=appointmentUseCase;this.smartSearch=smartSearch;}
+
+    @GetMapping("/smart-search") @PreAuthorize("hasAnyRole('RECEPCAO','ADMIN')")
+    public SmartAppointmentSearchResponse smartSearch(@RequestParam String q){return smartSearch.search(q);}
 
     @PostMapping @PreAuthorize("hasAnyRole('RECEPCAO','ADMIN')")
     public Appointment create(@Valid @RequestBody CreateAppointmentRequest r){

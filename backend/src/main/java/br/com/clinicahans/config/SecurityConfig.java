@@ -65,7 +65,6 @@ public class SecurityConfig {
                     logger.atWarn()
                         .addKeyValue("event", "security.authentication.denied")
                         .addKeyValue("method", request.getMethod())
-                        .addKeyValue("correlationId", MDC.get("correlationId"))
                         .log("Authentication denied");
                     response.sendError(401);
                 })
@@ -75,7 +74,6 @@ public class SecurityConfig {
                     logger.atWarn()
                         .addKeyValue("event", "security.authorization.denied")
                         .addKeyValue("method", request.getMethod())
-                        .addKeyValue("correlationId", MDC.get("correlationId"))
                         .log("Authorization denied");
                     response.sendError(403);
                 }))

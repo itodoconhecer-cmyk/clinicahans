@@ -1,3 +1,16 @@
 @import url('../shared/global.css');
 
-/* Estilos específicos da tela Novo agendamento. */
+.smart-search-form h2{margin:0}.smart-search-form .panel-header p{margin:8px 0 0;color:var(--muted)}
+.smart-search-form .toolbar{margin-top:9px}.smart-search-form .toolbar input{min-width:220px;flex:1}
+.search-examples,.muted-copy{margin:9px 0 0;color:var(--muted);font-size:13px}
+.criteria-list{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 16px}
+.criteria-chip{background:#e8edff;color:var(--primary-dark);border-radius:999px;padding:7px 11px;font-size:13px;font-weight:700}
+.schedule-heading{margin:0 0 12px}.schedule-heading h2{margin:0}.schedule-heading span{color:var(--muted);font-size:13px}
+.schedule-legend{display:flex;gap:16px;flex-wrap:wrap;margin:0 0 12px;color:var(--muted);font-size:13px}
+.schedule-legend>span{display:inline-flex;align-items:center;gap:7px}.legend-dot{width:12px;height:12px;border-radius:4px;display:inline-block}
+.legend-dot.available{background:#eaf7ef;border:1px solid #b9dec8}.legend-dot.pending{background:#fff0d9;border:1px solid #edc27d}.legend-dot.confirmed{background:#dce9ff;border:1px solid #9bbaf2}
+.schedule-table{min-width:720px}.schedule-table tr.slot-available td{background:#f4fbf6}.schedule-table tr.slot-pending td{background:#fff8ed;color:#75511a}.schedule-table tr.slot-confirmed td{background:#edf3ff;color:#596b8f}
+.target-button{width:38px;height:38px;border:1px solid #95c7a8;border-radius:50%;background:#fff;color:#247347;font-size:25px;line-height:1}.target-button:hover{background:#eaf7ef;transform:scale(1.06)}
+.patient-search-results{margin-top:14px}.patient-result-list{display:grid;gap:8px;margin-top:10px}.patient-result{display:grid;gap:5px;text-align:left;border:1px solid var(--border);border-radius:11px;background:white;padding:12px;color:var(--text)}.patient-result:hover,.patient-result:focus-visible{border-color:var(--primary);background:#f7f8ff}.patient-result span{font-size:13px;color:var(--muted)}
+.appointment-confirmation{border-top:1px solid var(--border);margin-top:18px;padding-top:16px}.appointment-confirmation h3,.appointment-confirmation p{margin:0}
+@media(max-width:820px){.smart-search-form .toolbar{align-items:stretch;flex-direction:column}.smart-search-form .toolbar button{width:100%}}

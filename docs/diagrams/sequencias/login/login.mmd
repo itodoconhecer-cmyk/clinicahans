@@ -1,0 +1,105 @@
+sequenceDiagram
+    autonumber
+    actor Usuario as Usuário
+    participant Tela as Tela de login (login.js)
+    participant Cliente as authApi (services/api.js)
+    participant Correlation as CorrelationIdFilter
+    participant Auditoria as OperationAuditInterceptor
+    participant Controller as AuthController
+    participant Caso as AuthUseCase
+    participant Repositorio as UserAccountRepository
+    participant Banco as PostgreSQL
+    participant BCrypt as BCryptPasswordEncoder
+    participant AuditoriaCaso as AuditUseCase
+    participant JWT as JwtService
+    participant Sessao as session / sessionStorage
+
+    Note over Usuario,Sessao: Caso de uso: autenticar uma conta individual da clínica
+    Usuario->>Tela: Informar usuário e senha
+    Usuario->>Tela: Clicar em Entrar
+    Tela->>Tela: Impedir submit padrão e desabilitar botão
+    Tela->>Cliente: authApi.login(username, password)
+    Cliente->>Correlation: POST /api/v1/auth/login
+    Correlation->>Correlation: Validar ou gerar X-Correlation-Id
+    Correlation->>Auditoria: Encaminhar requisição com MDC correlationId
+    Auditoria->>AuditoriaCaso: startRequestAudit(method, path, sourceIp, identifiers)
+    AuditoriaCaso->>Banco: INSERT da auditoria da requisição
+    Banco-->>AuditoriaCaso: auditId
+    AuditoriaCaso-->>Auditoria: auditId
+    Auditoria->>Controller: Executar endpoint
+
+    alt Corpo ausente, inválido ou campos em branco
+        Controller-->>Auditoria: Método não executado / erro de validação
+        Auditoria->>AuditoriaCaso: completeRequestAudit(auditId, 400, duration)
+        AuditoriaCaso->>Banco: UPDATE auditoria com CLIENT_ERROR
+        Auditoria-->>Cliente: 400 VALIDATION_ERROR ou INVALID_REQUEST_BODY
+        Cliente-->>Tela: ApiError com mensagem segura e correlationId
+        Tela-->>Usuario: Exibir erro e reabilitar botão
+    else Dados de entrada válidos
+        Controller->>Caso: login(username, password)
+        Caso->>Repositorio: findByUsername(username)
+        Repositorio->>Banco: SELECT app_user por username (SQL parametrizado)
+        Banco-->>Repositorio: Usuário ou resultado vazio
+
+        alt Usuário inexistente
+            Repositorio-->>Caso: Optional vazio
+            Caso-->>Controller: BadCredentialsException
+            Controller-->>Auditoria: 401 INVALID_CREDENTIALS
+            Auditoria->>AuditoriaCaso: completeRequestAudit(auditId, 401, duration)
+            AuditoriaCaso->>Banco: UPDATE auditoria com CLIENT_ERROR
+            Auditoria-->>Cliente: 401 credenciais inválidas
+            Cliente->>Sessao: clear() e definir #/login
+            Cliente-->>Tela: ApiError UNAUTHORIZED
+            Tela-->>Usuario: Exibir credenciais inválidas
+        else Usuário encontrado
+            Repositorio->>Banco: SELECT roles via user_role e role
+            Banco-->>Repositorio: Lista de roles
+            Repositorio-->>Caso: UserAccount(id, username, passwordHash, active, roles)
+
+            alt Usuário inativo
+                Caso-->>Controller: BadCredentialsException
+                Controller-->>Auditoria: 401 INVALID_CREDENTIALS
+                Auditoria->>AuditoriaCaso: completeRequestAudit(auditId, 401, duration)
+                AuditoriaCaso->>Banco: UPDATE auditoria com CLIENT_ERROR
+                Auditoria-->>Cliente: 401 credenciais inválidas
+                Cliente->>Sessao: clear() e definir #/login
+                Cliente-->>Tela: ApiError UNAUTHORIZED
+                Tela-->>Usuario: Exibir credenciais inválidas
+            else Usuário ativo
+                Caso->>BCrypt: matches(password, passwordHash)
+                Note over BCrypt: O hash contém algoritmo, custo e salt; custo configurado: 12
+                BCrypt-->>Caso: true ou false
+
+                alt Senha incorreta
+                    Caso-->>Controller: BadCredentialsException
+                    Controller-->>Auditoria: 401 INVALID_CREDENTIALS
+                    Auditoria->>AuditoriaCaso: completeRequestAudit(auditId, 401, duration)
+                    AuditoriaCaso->>Banco: UPDATE auditoria com CLIENT_ERROR
+                    Auditoria-->>Cliente: 401 credenciais inválidas
+                    Cliente->>Sessao: clear() e definir #/login
+                    Cliente-->>Tela: ApiError UNAUTHORIZED
+                    Tela-->>Usuario: Exibir credenciais inválidas
+                else Senha correta
+                    Caso->>AuditoriaCaso: identifyCurrentRequest(userId, username)
+                    AuditoriaCaso->>Banco: UPDATE auditoria com usuário autenticado
+                    Banco-->>AuditoriaCaso: 1 registro associado
+                    Caso->>JWT: issue(username, roles)
+                    JWT->>JWT: Montar claims e assinar com chave HMAC
+                    Note over JWT: issuer, subject, issuedAt, expiration e roles
+                    JWT-->>Caso: accessToken
+                    Caso-->>Controller: LoginResult(accessToken, Bearer, roles)
+                    Controller-->>Auditoria: 200 OK
+                    Auditoria->>AuditoriaCaso: completeRequestAudit(auditId, 200, duration)
+                    AuditoriaCaso->>Banco: UPDATE auditoria com SUCCESS
+                    Auditoria-->>Cliente: JSON com accessToken, tokenType e roles
+                    Cliente-->>Tela: Resultado do login
+                    Tela->>Sessao: set(accessToken, roles, username)
+                    Sessao->>Sessao: Salvar em memória e sessionStorage
+                    Tela->>Tela: location.replace(visao-geral.html)
+                    Tela-->>Usuario: Abrir visão geral
+                end
+            end
+        end
+    end
+
+    Note over Cliente,JWT: Em produção, o endpoint deve ser acessado somente por HTTPS; JWT_SECRET fica fora do código.

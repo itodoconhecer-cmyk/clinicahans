@@ -2,6 +2,7 @@ package br.com.clinicahans.controller;
 
 import br.com.clinicahans.DTO.CreatePatientRequest;
 import br.com.clinicahans.DTO.PatientResponse;
+import br.com.clinicahans.DTO.SmartPatientSearchResponse;
 import br.com.clinicahans.DTO.UpdatePatientRequest;
 import br.com.clinicahans.UseCase.PatientUseCase;
 import br.com.clinicahans.mapper.PatientRequestMapper;
@@ -35,6 +36,16 @@ public class PatientController {
     public List<PatientResponse> search(@RequestParam(defaultValue="") String q,
                                         @RequestParam(defaultValue="30") int limit) {
         return patientUseCase.search(q, limit).stream().map(PatientRequestMapper::toResponse).toList();
+    }
+
+    @GetMapping("/smart-search")
+    @PreAuthorize("hasAnyRole('RECEPCAO','ADMIN')")
+    public SmartPatientSearchResponse smartSearch(@RequestParam String q) {
+        var patients = patientUseCase.smartSearch(q);
+        boolean refine = patients.size() > 10;
+        return new SmartPatientSearchResponse(refine ? List.of() : patients.stream().map(PatientRequestMapper::toResponse).toList(),
+            refine, refine ? "Foram encontrados muitos pacientes. Continue digitando para refinar a pesquisa."
+                : patients.isEmpty() ? "Nenhum paciente encontrado para os critérios informados." : null);
     }
 
     @PutMapping("/{id}")

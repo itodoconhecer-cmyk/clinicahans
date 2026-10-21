@@ -12,10 +12,13 @@ import java.sql.Connection;
 import java.util.List;
 
 @Component
+@org.springframework.core.annotation.Order(0)
 public class DatabaseMigrationRunner implements ApplicationRunner {
     private static final List<String> MIGRATIONS = List.of(
         "V001__initial_schema.sql", "V002__doctor_user_link.sql", "V003__waitlist_and_notification_outbox.sql",
-        "V004__critical_integrity_constraints.sql", "V005__operation_audit_details.sql");
+        "V004__critical_integrity_constraints.sql", "V005__operation_audit_details.sql",
+        "V006__patient_insurance_card.sql", "V007__cme_medical_specialty_catalog.sql",
+        "V008__specialty_search_aliases.sql");
     private final DataSource dataSource;
     private final JdbcTemplate jdbc;
 

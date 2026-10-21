@@ -53,7 +53,9 @@ public class AppointmentUseCase {
         boolean sameBusinessDay=localStart.toLocalDate().equals(localEnd.toLocalDate());
         boolean insideAvailability=sameBusinessDay && doctors.availability(doctorId).stream().anyMatch(v ->
             v.active() && v.weekday()==localStart.getDayOfWeek().getValue()
-            && !localStart.toLocalTime().isBefore(v.startsAt()) && !localEnd.toLocalTime().isAfter(v.endsAt()));
+            && !localStart.toLocalTime().isBefore(v.startsAt()) && !localEnd.toLocalTime().isAfter(v.endsAt())
+            && localStart.getSecond() == 0 && localStart.getNano() == 0
+            && Duration.between(v.startsAt(), localStart.toLocalTime()).toMinutes() % v.slotMinutes() == 0);
         if(!insideAvailability) throw new BusinessRuleException("Horário está fora da disponibilidade configurada do médico.");
         if(repository.hasScheduleBlock(doctorId,start,end)) throw new BusinessRuleException("Horário está bloqueado na agenda do médico.");
         if(repository.hasConflict(doctorId,start,end)) throw new BusinessRuleException("Horário conflita com outro agendamento do médico.");
