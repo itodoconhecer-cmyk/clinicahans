@@ -1,8 +1,8 @@
-import { appointmentApi, managementApi } from '../services/api.js';
+import { appointmentApi, doctorApi, managementApi } from '../services/api.js';
 import { mountScreen, renderError, toneForStatus, localDayRange, monthRange } from '../shared/screen.js';
 import { escapeHtml, formatDateTime, formatMoney } from '../utils/html.js';
 import { loading, empty, badge } from '../components/ui.js';
-import { renderScheduleViews, verticalScheduleMarkup } from '../components/schedule-views.js';
+import { bindScheduleGrid, gridScheduleMarkup, renderScheduleViews, verticalScheduleMarkup } from '../components/schedule-views.js';
 import { session } from '../state/session.js';
 
 const root = mountScreen({ key: 'visao-geral', title: 'Visão geral', roles: ['RECEPCAO', 'MEDICO', 'GESTAO', 'ADMIN'] });
@@ -30,7 +30,8 @@ async function init() {
 
 async function renderTodayAgenda() {
   const [from, to] = localDayRange();
-  const rows = await appointmentApi.list(from, to);
+  const [rows, doctors] = await Promise.all([appointmentApi.list(from, to), doctorApi.search('', 100)]);
+  const doctorNames = new Map(doctors.map(doctor => [doctor.id, doctor.fullName]));
   const panel = document.createElement('section');
   panel.className = 'panel';
   panel.innerHTML = `<div class="panel-header"><div><h2>Agenda de hoje</h2><p class="muted-copy">${rows.length} ${rows.length === 1 ? 'agendamento' : 'agendamentos'}</p></div>
@@ -40,12 +41,19 @@ async function renderTodayAgenda() {
   const appointments = rows.map(appointment => ({
     startsAt: appointment.startsAt,
     endsAt: appointment.endsAt,
+    doctorId: appointment.doctorId,
+    doctorName: doctorNames.get(appointment.doctorId) || 'Médico',
     status: appointment.status,
     detail: 'Consulta na agenda'
   }));
+  let selectedGridDay = '';
   renderScheduleViews(panel.querySelector('[data-today-views]'), {
     horizontal: () => rows.length ? `<div class="table-wrap"><table><thead><tr><th>Horário</th><th>Status</th></tr></thead><tbody>${rows.map(appointment => `
       <tr><td>${escapeHtml(formatDateTime(appointment.startsAt))}</td><td>${badge(appointment.status, toneForStatus(appointment.status))}</td></tr>`).join('')}</tbody></table></div>` : empty('Nenhuma consulta hoje.'),
-    vertical: () => verticalScheduleMarkup(appointments, 'Nenhuma consulta hoje.')
+    vertical: () => verticalScheduleMarkup(appointments, 'Nenhuma consulta hoje.'),
+    grid: () => gridScheduleMarkup(appointments, selectedGridDay, 'Nenhuma consulta hoje.'),
+    onRender: (view, content, refresh) => {
+      if (view === 'grid') bindScheduleGrid(content, appointments, day => { selectedGridDay = day; refresh(); });
+    }
   });
 }
