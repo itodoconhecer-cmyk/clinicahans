@@ -2,6 +2,7 @@ import { appointmentApi, patientApi } from '../services/api.js?v=uc-ag-01';
 import { mountScreen, renderError, showToast, openModal, closeModal } from '../shared/screen.js';
 import { escapeHtml, formatDateTime } from '../utils/html.js';
 import { empty, loading } from '../components/ui.js';
+import { renderScheduleViews, verticalScheduleMarkup } from '../components/schedule-views.js';
 
 const root = mountScreen({ key: 'novo-agendamento', title: 'Novo agendamento', roles: ['RECEPCAO', 'ADMIN'] });
 if (root) void init();
@@ -40,45 +41,75 @@ async function searchSlots(event) {
     summary.innerHTML = filters.length
       ? `<div class="criteria-list" aria-label="Critérios identificados">${filters.map(item => `<span class="criteria-chip">${escapeHtml(item)}</span>`).join('')}</div>`
       : '';
-    if (response.message) {
+    if (response.message && !response.slots.length && !(response.appointments || []).length) {
       results.innerHTML = empty(response.message);
       return;
     }
-    if (!response.slots.length) {
+    if (!response.slots.length && !(response.appointments || []).length) {
       results.innerHTML = empty('Não foram encontrados horários para os critérios informados.');
       return;
     }
-    renderSlots(response.slots, results);
+    renderSlots(response.slots, response.appointments || [], results);
   } catch (error) {
     results.innerHTML = '';
     renderError(results, error);
   }
 }
 
-function renderSlots(slots, target) {
+function renderSlots(slots, appointments, target) {
+  const entries = scheduleEntries(slots, appointments);
+  const availableCount = entries.filter(entry => entry.kind === 'available').length;
+  const appointmentCount = entries.filter(entry => entry.kind === 'appointment' || entry.kind === 'occupied').length;
   target.innerHTML = `
-    <div class="panel-header schedule-heading"><h2>Horários compatíveis</h2><span>${slots.length} opções</span></div>
+    <div class="panel-header schedule-heading"><div><h2>Horários e ocupação da agenda</h2><p>${availableCount} disponíveis · ${appointmentCount} agendamentos ocupados</p></div><span>${entries.length} itens</span></div>
     <div class="schedule-legend" aria-label="Legenda">
-      <span><i class="legend-dot available"></i>Disponível</span>
-      <span><i class="legend-dot pending"></i>Agendada, aguardando confirmação</span>
-      <span><i class="legend-dot confirmed"></i>Confirmada ou em atendimento</span>
+      <span><i class="legend-dot available"></i>Horário disponível</span>
+      <span><i class="legend-dot confirmed"></i>Agendamento existente</span>
     </div>
-    <div class="table-wrap panel"><table class="schedule-table"><thead><tr><th>Data e hora</th><th>Médico</th><th>Especialidade</th><th>Situação</th><th>Ação</th></tr></thead>
-      <tbody>${slots.map((slot, index) => slotRow(slot, index)).join('')}</tbody></table></div>`;
-  target.querySelectorAll('[data-slot-index]').forEach(button => button.addEventListener('click', () => {
-    openPatientPicker(slots[Number(button.dataset.slotIndex)]);
-  }));
+    <section id="schedule-views" aria-label="Horários e outros agendamentos"></section>`;
+
+  renderScheduleViews(target.querySelector('#schedule-views'), {
+    horizontal: () => `<div class="table-wrap panel"><table class="schedule-table"><thead><tr><th>Data e hora</th><th>Médico</th><th>Especialidade</th><th>Situação</th><th>Ação</th></tr></thead>
+      <tbody>${entries.map(entry => scheduleRow(entry)).join('')}</tbody></table></div>`,
+    vertical: () => verticalScheduleMarkup(entries.map(entry => ({
+      ...entry,
+      title: entry.kind === 'available' ? 'Horário disponível' : 'Agendamento ocupado'
+    })), 'Nenhum horário ou agendamento encontrado para o período.'),
+    onRender: (_view, content) => content.querySelectorAll('[data-slot-index]').forEach(button => {
+      button.addEventListener('click', () => openPatientPicker(slots[Number(button.dataset.slotIndex)]));
+    })
+  });
 }
 
-function slotRow(slot, index) {
-  const status = slot.status;
-  const available = status === 'AVAILABLE';
-  const confirmed = ['CONFIRMED', 'CHECKED_IN', 'IN_CARE', 'COMPLETED'].includes(status);
-  const label = available ? 'Disponível' : confirmed ? 'Confirmada / em atendimento' : 'Aguardando confirmação';
-  const tone = available ? 'slot-available' : confirmed ? 'slot-confirmed' : 'slot-pending';
-  return `<tr class="${tone}"><td>${escapeHtml(formatDateTime(slot.startsAt))}</td><td>${escapeHtml(slot.doctorName)}</td>
-    <td>${escapeHtml(slot.specialtyName || 'Não informada')}</td><td>${escapeHtml(label)}</td>
-    <td>${available ? `<button class="target-button" type="button" data-slot-index="${index}" aria-label="Selecionar horário de ${escapeHtml(slot.doctorName)} em ${escapeHtml(formatDateTime(slot.startsAt))}" title="Selecionar horário">◎</button>` : '<span aria-hidden="true">—</span>'}</td></tr>`;
+function scheduleEntries(slots, appointments) {
+  const entries = appointments.map(appointment => ({ ...appointment, kind: 'appointment' }));
+  slots.forEach((slot, slotIndex) => {
+    if (slot.status === 'AVAILABLE') {
+      entries.push({ ...slot, kind: 'available', slotIndex });
+      return;
+    }
+    const alreadyShown = appointments.some(appointment => appointment.doctorId === slot.doctorId
+      && new Date(appointment.startsAt) < new Date(slot.endsAt)
+      && new Date(appointment.endsAt) > new Date(slot.startsAt));
+    if (!alreadyShown) entries.push({ ...slot, kind: 'occupied' });
+  });
+  return entries.sort((left, right) => new Date(left.startsAt) - new Date(right.startsAt)
+    || String(left.doctorName).localeCompare(String(right.doctorName), 'pt-BR'));
+}
+
+function scheduleRow(entry) {
+  const available = entry.kind === 'available';
+  const label = available ? 'Disponível' : appointmentStatus(entry.status);
+  const tone = available ? 'slot-available' : 'slot-confirmed';
+  const startsAtLabel = formatDateTime(entry.startsAt);
+  return `<tr class="${tone}"><td>${escapeHtml(startsAtLabel)}</td><td>${escapeHtml(entry.doctorName)}</td>
+    <td>${escapeHtml(entry.specialtyName || 'Não informada')}</td><td>${escapeHtml(label)}</td>
+    <td>${available ? `<button class="target-button" type="button" data-slot-index="${entry.slotIndex}" aria-label="Selecionar horário de ${escapeHtml(entry.doctorName)} em ${escapeHtml(startsAtLabel)}" title="Selecionar horário">◎</button>` : '<span aria-hidden="true">—</span>'}</td></tr>`;
+}
+
+function appointmentStatus(status) {
+  return ({ SCHEDULED: 'Agendada', CONFIRMED: 'Confirmada', CHECKED_IN: 'Aguardando atendimento',
+    IN_CARE: 'Em atendimento', COMPLETED: 'Concluída' })[status] || 'Ocupado';
 }
 
 function openPatientPicker(slot) {

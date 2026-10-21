@@ -50,7 +50,8 @@ const screens=[
   "desativar-usuario",
   "auditoria",
   "pesquisa-auditoria",
-  "detalhe-auditoria"
+  "detalhe-auditoria",
+  "logs-publicos"
 ];
 const sharedFolders=new Set(['services','state','components','utils','shared']);
 

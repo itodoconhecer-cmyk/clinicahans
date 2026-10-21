@@ -1,6 +1,7 @@
 package br.com.clinicahans.repository;
 
 import br.com.clinicahans.DTO.AppointmentSlotResponse;
+import br.com.clinicahans.DTO.AppointmentCalendarEventResponse;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -21,6 +22,48 @@ public class SmartAppointmentSearchRepository {
               translate(lower(full_name),chr(225)||chr(224)||chr(226)||chr(227)||chr(228)||chr(233)||chr(232)||chr(234)||chr(235)||chr(237)||chr(236)||chr(238)||chr(239)||chr(243)||chr(242)||chr(244)||chr(245)||chr(246)||chr(250)||chr(249)||chr(251)||chr(252)||chr(231),'aaaaaeeeeiiiiooooouuuuc') like '%'||?||'%'
             """, Integer.class, term);
         return count != null && count > 0;
+    }
+
+    /**
+     * Returns active bookings across the matching days, without restricting the
+     * requested period or exact time. They provide context around open slots.
+     */
+    public List<AppointmentCalendarEventResponse> searchAppointments(LocalDate from, LocalDate to, String zone,
+            String doctorTerm, String specialtyTerm, String generalTerm, Integer weekday) {
+        return jdbc.query("""
+            select d.id doctor_id,d.full_name doctor_name,s.id specialty_id,s.name specialty_name,
+              a.starts_at,a.ends_at,a.status
+            from appointment a
+            join doctor d on d.id=a.doctor_id
+            left join lateral (
+              select sp.id,sp.name
+              from doctor_specialty ds join specialty sp on sp.id=ds.specialty_id
+              where ds.doctor_id=d.id
+              order by (case when ?::text is not null and
+                translate(lower(sp.name),chr(225)||chr(224)||chr(226)||chr(227)||chr(228)||chr(233)||chr(232)||chr(234)||chr(235)||chr(237)||chr(236)||chr(238)||chr(239)||chr(243)||chr(242)||chr(244)||chr(245)||chr(246)||chr(250)||chr(249)||chr(251)||chr(252)||chr(231),'aaaaaeeeeiiiiooooouuuuc') like '%'||?||'%' then 1 else 0 end) desc,
+                ds.primary_specialty desc,sp.name
+              limit 1
+            ) s on true
+            where a.starts_at >= (?::date::timestamp at time zone ?)
+              and a.starts_at < ((?::date + 1)::timestamp at time zone ?)
+              and a.starts_at > now()
+              and a.status in ('SCHEDULED','CONFIRMED','CHECKED_IN','IN_CARE','COMPLETED')
+              and (?::text is null or translate(lower(d.full_name),chr(225)||chr(224)||chr(226)||chr(227)||chr(228)||chr(233)||chr(232)||chr(234)||chr(235)||chr(237)||chr(236)||chr(238)||chr(239)||chr(243)||chr(242)||chr(244)||chr(245)||chr(246)||chr(250)||chr(249)||chr(251)||chr(252)||chr(231),'aaaaaeeeeiiiiooooouuuuc') like '%'||?||'%')
+              and (?::text is null or exists (
+                select 1 from doctor_specialty ds join specialty sp on sp.id=ds.specialty_id
+                where ds.doctor_id=d.id and translate(lower(sp.name),chr(225)||chr(224)||chr(226)||chr(227)||chr(228)||chr(233)||chr(232)||chr(234)||chr(235)||chr(237)||chr(236)||chr(238)||chr(239)||chr(243)||chr(242)||chr(244)||chr(245)||chr(246)||chr(250)||chr(249)||chr(251)||chr(252)||chr(231),'aaaaaeeeeiiiiooooouuuuc') like '%'||?||'%'))
+              and (?::text is null or
+                translate(lower(d.full_name),chr(225)||chr(224)||chr(226)||chr(227)||chr(228)||chr(233)||chr(232)||chr(234)||chr(235)||chr(237)||chr(236)||chr(238)||chr(239)||chr(243)||chr(242)||chr(244)||chr(245)||chr(246)||chr(250)||chr(249)||chr(251)||chr(252)||chr(231),'aaaaaeeeeiiiiooooouuuuc') like '%'||?||'%' or
+                exists (select 1 from doctor_specialty ds join specialty sp on sp.id=ds.specialty_id
+                  where ds.doctor_id=d.id and translate(lower(sp.name),chr(225)||chr(224)||chr(226)||chr(227)||chr(228)||chr(233)||chr(232)||chr(234)||chr(235)||chr(237)||chr(236)||chr(238)||chr(239)||chr(243)||chr(242)||chr(244)||chr(245)||chr(246)||chr(250)||chr(249)||chr(251)||chr(252)||chr(231),'aaaaaeeeeiiiiooooouuuuc') like '%'||?||'%'))
+              and (?::int is null or extract(isodow from (a.starts_at at time zone ?))::int = ?)
+            order by a.starts_at,d.full_name limit 500
+            """, (rs, row) -> new AppointmentCalendarEventResponse(
+                rs.getObject("doctor_id", java.util.UUID.class),rs.getString("doctor_name"),
+                rs.getObject("specialty_id", java.util.UUID.class),rs.getString("specialty_name"),
+                rs.getObject("starts_at", OffsetDateTime.class),rs.getObject("ends_at", OffsetDateTime.class),rs.getString("status")),
+            specialtyTerm,specialtyTerm,from,zone,to,zone,doctorTerm,doctorTerm,
+            specialtyTerm,specialtyTerm,generalTerm,generalTerm,generalTerm,weekday,zone,weekday);
     }
 
     public List<AppointmentSlotResponse> search(LocalDate from, LocalDate to, String zone,

@@ -38,7 +38,7 @@ public class SmartAppointmentSearchUseCase {
         AppointmentSearchCriteria criteria = parsed.criteria();
         if (criteria.doctor() == null && criteria.specialty() == null && criteria.weekday() == null
                 && criteria.period() == null && criteria.date() == null && criteria.time() == null)
-            return new SmartAppointmentSearchResponse(criteria, List.of(), NO_CRITERIA);
+            return new SmartAppointmentSearchResponse(criteria, List.of(), List.of(), NO_CRITERIA);
 
         LocalDate today = LocalDate.now(zone);
         LocalDate from = criteria.date() == null ? today : criteria.date();
@@ -57,6 +57,8 @@ public class SmartAppointmentSearchUseCase {
 
         var slots = repository.search(from, to, zone.getId(), criteria.doctor(), criteria.specialty(),
             parsed.generalTerm(), criteria.weekday(), fromTime, toTime, criteria.time());
+        var appointments = repository.searchAppointments(from, to, zone.getId(), criteria.doctor(),
+            criteria.specialty(), parsed.generalTerm(), criteria.weekday());
         String message = null;
         if (slots.isEmpty()) {
             if (criteria.doctor() != null && !repository.doctorExists(criteria.doctor())) {
@@ -64,10 +66,12 @@ public class SmartAppointmentSearchUseCase {
             } else if (criteria.specialty() != null && specialtyAliases.specialties().stream()
                     .noneMatch(s -> s.equalsIgnoreCase(criteria.specialty()))) {
                 message = "Nenhuma especialidade encontrada para a pesquisa informada.";
+            } else if (!appointments.isEmpty()) {
+                message = "Não há horários livres compatíveis; os agendamentos existentes estão visíveis na agenda.";
             } else {
                 message = "Não foram encontrados horários disponíveis para os critérios informados.";
             }
         }
-        return new SmartAppointmentSearchResponse(criteria, slots, message);
+        return new SmartAppointmentSearchResponse(criteria, slots, appointments, message);
     }
 }
