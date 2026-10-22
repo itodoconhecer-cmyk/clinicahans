@@ -52,7 +52,7 @@ Ficam preparados para evolução: TISS/TUSS, convênios avançados, prescrição
 | Exame/revisão | — | ✓ | — | —* |
 | Follow-up operacional | ✓ | ✓ | — | ✓ |
 | Financeiro | ✓ | — | ✓ | ✓ |
-| Indicadores | — | — | ✓ | ✓ |
+| Indicadores e relatórios | — | — | ✓ | ✓ |
 | Auditoria | — | — | — | ✓ |
 
 \* Acesso clínico excepcional de ADMIN está **bloqueado no MVP** até existir fluxo break-glass com motivo, escopo, duração e auditoria.
@@ -249,18 +249,36 @@ Status financeiro não muda status clínico e vice-versa.
 
 ## 14. Gestão e Indicadores
 
-### F-GE-01 — Dashboard
-Período informado retorna:
-- total de agendamentos;
-- faltas;
-- cancelamentos;
-- taxa de no-show;
-- follow-ups abertos;
-- exames pendentes;
-- recebíveis brutos.
+### F-GE-01 — Relatório sintético
+Gestão seleciona um período e recebe totais, tendência em relação ao período equivalente anterior e sinais operacionais para:
+- agendamentos, faltas e cancelamentos;
+- taxa de ausência e cancelamento, com numerador, denominador e regra;
+- ocupação e capacidade ofertável;
+- pacientes novos e recorrentes;
+- tempo entre agendamento e consulta;
+- exames e acompanhamentos pendentes/vencidos, apenas como totais;
+- valores recebidos e pendentes.
 
-### F-GE-02 — Privacidade
-Indicadores não retornam texto de prontuário.
+Definições da versão `2026-10-v1`:
+- ausência = agendamentos `NO_SHOW` ÷ (`COMPLETED` + `NO_SHOW`); a tela mostra numerador e denominador;
+- cancelamento = agendamentos `CANCELLED` ÷ (`COMPLETED` + `NO_SHOW` + `CANCELLED`);
+- ocupação = minutos de agendamentos não cancelados ÷ minutos de disponibilidade recorrente atualmente ativa após bloqueios; como a agenda recorrente não possui histórico de vigência, períodos passados podem refletir a configuração atual;
+- paciente novo = paciente cuja primeira consulta `COMPLETED` registrada ocorreu no intervalo;
+- tempo até consulta = média de `starts_at - created_at` para consultas não canceladas que começam no intervalo;
+- recebíveis/recebido/pendente formam uma coorte de recebíveis criados no intervalo; recebido é o total pago até a geração e pendente é o saldo restante nessa data;
+- exames pendentes e acompanhamentos abertos são totais atuais na data de geração, não eventos criados no intervalo.
+
+### F-GE-02 — Relatório analítico
+Gestão filtra e agrupa os indicadores por período, status, médico ou especialidade. O detalhamento mostra registros administrativos/financeiros de origem, de forma paginada e sem identificação de paciente. Dados de continuidade clínica permanecem agregados para Gestão; profissionais com acesso assistencial usam as filas próprias do sistema.
+
+### F-GE-03 — Rastreabilidade
+Cada execução apresenta `reportRunId` (UUID do evento API_REQUEST), autor, horário, correlation ID, período, filtros, versão das definições, fórmulas e fontes dos indicadores. Totais podem ser reconciliados com referências dos registros de origem dentro da autorização do perfil. Consultas e exportações geram trilha persistente de auditoria; a exportação da página inclui `reportRunId` e filtros em evento `REPORT_EXPORT`.
+
+### F-GE-04 — Sugestões operacionais
+O sistema aplica regras determinísticas versionadas e só apresenta uma sugestão quando houver evidência e base mínima suficientes. Na versão atual, sugere revisar confirmação quando a taxa de ausência é superior a 7% com pelo menos 20 consultas concluídas/faltas, e revisar cancelamentos quando a taxa supera 10% com pelo menos 20 encerramentos. Cada sugestão informa regra, versão, evidência, período e ação proposta. Ocupação é apresentada com ressalva de qualidade histórica e não aciona sugestão até haver histórico versionado de disponibilidade. Nenhuma sugestão executa mudanças automaticamente ou recomenda conduta clínica.
+
+### F-GE-05 — Privacidade
+Indicadores e sugestões da Gestão não retornam nomes, identificadores de pacientes, atributos reidentificáveis nem texto de prontuário. Permissões são verificadas no backend também nos detalhamentos e exportações.
 
 ## 15. Auditoria
 
@@ -286,6 +304,9 @@ Somente Admin consulta auditoria.
 | Follow-ups | /api/v1/continuity/follow-ups/* |
 | Financeiro | /api/v1/finance/* |
 | Indicadores | /api/v1/management/dashboard |
+| Relatórios sintéticos | GET /api/v1/management/reports/summary |
+| Relatórios analíticos | GET /api/v1/management/reports/analysis |
+| Origem e exportação de relatórios | GET /api/v1/management/reports/sources; POST /api/v1/management/reports/exports |
 | Auditoria | /api/v1/audit |
 
 ## 17. Cenário de aceite ponta a ponta — Mariana
@@ -311,3 +332,8 @@ Uma capacidade está funcionalmente pronta quando:
 - possui rastreabilidade para requisito/regra;
 - ações sensíveis são auditadas;
 - nenhum dado clínico é exposto a perfil indevido.
+
+## Persistência e escala semanal
+A migration `V011__weekly_clinical_partitions.sql` transforma agendamentos, consultas, recebíveis, pagamentos e resultados de exames em tabelas `RANGE` semanais. Também cria armazenamento particionado para prescrições e itens. A semana começa segunda-feira às 00:00 no fuso `America/Sao_Paulo`; a PK de cada tabela inclui o timestamp temporal. Locators preservam UUID global e recebem FKs de tabelas dependentes. `appointment_reservation_guard` conserva a exclusão global de horários entre partições. O executor de migrations entende blocos PostgreSQL `$$`; `WeeklyPartitionMaintenance` cria a semana atual e 26 semanas futuras.
+
+Consultas com faixa temporal devem filtrar diretamente o timestamp de partição. Buscas por UUID usam locator para encontrar o timestamp e restringir a partição. A migration V011 copia dados e troca as tabelas em uma única transação; aplicar em ambiente com dados requer janela de manutenção e backup verificado.

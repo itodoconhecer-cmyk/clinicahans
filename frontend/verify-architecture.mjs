@@ -45,6 +45,7 @@ const screens=[
   "novo-recebivel",
   "registrar-pagamento",
   "indicadores",
+  "relatorios",
   "usuarios",
   "criar-usuario",
   "desativar-usuario",

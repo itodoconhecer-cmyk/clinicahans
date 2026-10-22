@@ -25,7 +25,9 @@ Legenda:
 | Follow-up operacional | RF-060–065 | Continuity | /follow-ups | Retornos | sem E2E; escopo médico corrigido | PARCIAL |
 | Pagamento sem overpayment concorrente | RF-072 | Billing | SELECT FOR UPDATE | Faturamento | CriticalDatabaseIntegrationTest | IMPLEMENTADO_E_VERIFICADO |
 | Estorno/cancelamento financeiro | RF-073, RN-051 | Billing | não implementado | Faturamento | — | PLANEJADO |
-| Indicadores essenciais | RF-080–087 | Management | dashboard parcial | Indicadores | sem testes de definição | PARCIAL |
+| Indicadores essenciais | RF-080–087, RN-070–073 | Management | `/management/dashboard` parcial | Indicadores | sem testes de definição | PARCIAL |
+| Relatórios sintéticos e analíticos | RF-088, RF-089, RF-093 | Management | `/management/reports/summary`, `/analysis`, `/sources` | UI-100/101 | sem execução automatizada por definição, filtro ou reconciliação | PARCIAL |
+| Proveniência e sugestões explicáveis | RF-095/096, RN-074–078 | Management/Audit | metadados de execução, correlation ID, auditoria de requisição e regras determinísticas | UI-100/101 | sem evidência automatizada de reconciliação e exportação | PARCIAL |
 | Auditoria de leitura clínica | RF-037/RF-090 | Audit | AuditService | Prontuário | sem integração específica | PARCIAL |
 | Auditoria de requisições, negação e before-after | RF-090–092 | Audit | eventos persistidos; conteúdo clínico redigido | Auditoria | interceptor/API + consulta ADMIN e consulta pública sanitizada | IMPLEMENTADO |
 | Documentos clínicos | RF-036/053 | Clinical Record | metadata/storageKey apenas | Prontuário | sem storage real/E2E | PARCIAL |
@@ -34,3 +36,5 @@ Legenda:
 | Backup/restore | RNF-031–033 | Operations | não implementado/comprovado | — | — | PLANEJADO |
 | Deploy HTTPS/produção | RNF-001/030 | Operations | não existe ambiente app publicado | — | — | PLANEJADO |
 | E2E frontend por perfil | Prompt 04 | Frontend | CI só sintaxe | todas | ausente | PLANEJADO |
+
+| Volume mensal >1 milhão e partições semanais | RF-097/098, RN-083–086, RNF-086 | Database | V011, locators, reserva global e manutenção de partições | Agenda, consultas, financeiro, exames e prescrição | migração/carga não executadas; falta benchmark PostgreSQL representativo | PARCIAL |

@@ -152,7 +152,19 @@ export const financeApi = {
 };
 
 export const managementApi = {
-  dashboard: (from, to) => api.get(`/api/v1/management/dashboard?from=${from}&to=${to}`)
+  dashboard: (from, to) => api.get(`/api/v1/management/dashboard?from=${from}&to=${to}`),
+  summary: (from, to) => api.get(`/api/v1/management/reports/summary?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`),
+  analysis: (from, to, type = 'APPOINTMENTS', groupBy = 'MONTH') => {
+    const params = new URLSearchParams({ from, to, type, groupBy });
+    return api.get(`/api/v1/management/reports/analysis?${params.toString()}`);
+  },
+  sources: (from, to, type = 'APPOINTMENTS', page = 0, size = 50, groupBy = '', groupValue = '') => {
+    const params = new URLSearchParams({ from, to, type, page: String(page), size: String(size) });
+    if (groupBy) params.set('groupBy', groupBy);
+    if (groupValue) params.set('groupValue', groupValue);
+    return api.get(`/api/v1/management/reports/sources?${params.toString()}`);
+  },
+  trackExport: body => api.post('/api/v1/management/reports/exports', body)
 };
 
 export const adminApi = {
@@ -160,10 +172,11 @@ export const adminApi = {
   roles: () => api.get('/api/v1/admin/users/roles'),
   createUser: body => api.post('/api/v1/admin/users', body),
   deactivateUser: id => api.post(`/api/v1/admin/users/${id}/deactivate`),
-  audit: (entityType = '', entityId = '', limit = 100) => {
+  audit: (entityType = '', entityId = '', limit = 100, correlationId = '') => {
     const params = new URLSearchParams();
     if (entityType) params.set('entityType', entityType);
     if (entityId) params.set('entityId', entityId);
+    if (correlationId) params.set('correlationId', correlationId);
     params.set('limit', String(limit));
     return api.get(`/api/v1/audit?${params.toString()}`);
   }

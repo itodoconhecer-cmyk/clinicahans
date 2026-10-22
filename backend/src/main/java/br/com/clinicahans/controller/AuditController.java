@@ -17,12 +17,13 @@ public class AuditController {
     @GetMapping
     public List<AuditEventView> search(@RequestParam(required=false) String entityType,
                                        @RequestParam(required=false) String entityId,
+                                       @RequestParam(required=false) String correlationId,
                                        @RequestParam(defaultValue="100") int limit){
-        return auditUseCase.search(entityType, entityId, limit).stream()
+        return auditUseCase.search(entityType, entityId, correlationId, limit).stream()
             .map(event -> new AuditEventView(event.id(), event.username(), event.action(), event.entityType(),
                 event.entityId(), event.correlationId(), event.occurredAt(), event.sourceIp(),
                 event.requestMethod(), event.requestPath(), event.httpStatus(), event.durationMs(),
-                event.outcome(), event.resourceIdentifiers(), event.previousValues()))
+                event.outcome(), event.resourceIdentifiers(), event.previousValues(), event.requestContext()))
             .toList();
     }
 

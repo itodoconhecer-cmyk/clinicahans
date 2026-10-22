@@ -16,6 +16,7 @@ const screens = [
   {key:'retornos', label:'Retornos', roles:['RECEPCAO','MEDICO','ADMIN']},
   {key:'faturamento', label:'Faturamento', roles:['RECEPCAO','GESTAO','ADMIN']},
   {key:'indicadores', label:'Indicadores', roles:['GESTAO','ADMIN']},
+  {key:'relatorios', label:'Relatórios', roles:['GESTAO','ADMIN']},
   {key:'usuarios', label:'Usuários', roles:['ADMIN']},
   {key:'auditoria', label:'Auditoria', roles:['ADMIN']}
 ];

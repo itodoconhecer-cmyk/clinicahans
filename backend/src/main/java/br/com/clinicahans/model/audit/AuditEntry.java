@@ -6,4 +6,4 @@ import java.util.UUID;
 public record AuditEntry(UUID id, String username, String action, String entityType, String entityId,
                          String correlationId, OffsetDateTime occurredAt, String sourceIp,
                          String requestMethod, String requestPath, Integer httpStatus, Long durationMs,
-                         String outcome, String resourceIdentifiers, String previousValues) {}
+                         String outcome, String resourceIdentifiers, String previousValues, String requestContext) {}

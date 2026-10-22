@@ -158,12 +158,10 @@ available_candidates AS (
     WHERE c.status NOT IN ('SCHEDULED', 'CONFIRMED', 'CHECKED_IN', 'IN_CARE')
        OR NOT EXISTS (
            SELECT 1
-           FROM appointment existing
+           FROM appointment_reservation_guard existing
            WHERE existing.doctor_id = c.doctor_id
-             AND existing.id <> c.appointment_id
-             AND existing.status IN ('SCHEDULED', 'CONFIRMED', 'CHECKED_IN', 'IN_CARE')
-             AND tstzrange(existing.starts_at, existing.ends_at, '[)')
-                 && tstzrange(c.starts_at, c.starts_at + interval '30 minutes', '[)')
+             AND existing.appointment_id <> c.appointment_id
+             AND existing.reserved_range && tstzrange(c.starts_at, c.starts_at + interval '30 minutes', '[)')
        )
 )
 INSERT INTO appointment(id, patient_id, doctor_id, starts_at, ends_at, modality, status, notes)
@@ -173,4 +171,4 @@ SELECT appointment_id, patient_id, doctor_id, starts_at, starts_at + interval '3
        'DEMO-LOAD-1000 #' || lpad(sequence_number::text, 4, '0') || ' - carga para teste operacional'
 FROM available_candidates
 WHERE preference = 1
-ON CONFLICT (id) DO NOTHING;
+ON CONFLICT (id, starts_at) DO NOTHING;

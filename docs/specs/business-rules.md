@@ -64,8 +64,18 @@
 - **RN-071:** ocupação considera capacidade configurada menos bloqueios e horários não ofertáveis.
 - **RN-072:** novo paciente é definido pela primeira ocorrência elegível, com regra explicitada no relatório.
 - **RN-073:** indicador deve guardar definição/versão quando a regra puder mudar.
+- **RN-074:** comparação de relatório só é apresentada entre períodos equivalentes e no fuso `America/Sao_Paulo`; todo intervalo e filtro aplicado aparece no resultado.
+- **RN-075:** indicador e sugestão identificam fórmula/regra, versão, período e conjunto de origem; a soma agregada deve ser reconciliável com o detalhamento autorizado.
+- **RN-076:** detalhamento de relatório aplica no backend as permissões do domínio de origem. Gestão recebe apenas agregados sem identificadores ou atributos que revelem pacientes e sem conteúdo clínico.
+- **RN-077:** sugestões são determinísticas, exibem regra, limite, evidência e ação proposta. A versão da regra fica registrada na execução.
+- **RN-078:** sugestão é orientação operacional; não altera agenda, financeiro ou prontuário e não constitui recomendação clínica.
 
 ## Regras de arquitetura de domínio
 - **RN-080:** estados de entidades críticas são enums controlados no backend e constraints no banco quando adequado.
 - **RN-081:** transições inválidas devem ser rejeitadas pelo serviço de domínio, não apenas pela UI.
 - **RN-082:** datas de criação, autoria e versão são geradas/garantidas no backend.
+
+- **RN-083:** as tabelas de alto volume são particionadas em semanas de segunda-feira a segunda-feira, usando o fuso `America/Sao_Paulo` para determinar o início do intervalo.
+- **RN-084:** o timestamp que define a partição é imutável após a criação do registro; reagendamento deve criar/atualizar o evento conforme a regra do agregado sem deixar a linha fora da semana correspondente.
+- **RN-085:** UUID permanece globalmente único por meio de tabela locator não particionada; relações externas referenciam esse locator e o registro particionado conserva chave composta com seu timestamp.
+- **RN-086:** toda tentativa de reserva ativa precisa respeitar a exclusão global de intervalo por médico, inclusive quando um intervalo cruza o limite entre semanas.

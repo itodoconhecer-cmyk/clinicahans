@@ -23,6 +23,9 @@ Permitir que a aplicação seja monitorável e auditável desde cedo.
   documento ou conteúdo clínico.
 - A consulta detalhada permanece restrita a ADMIN. A tela pública mostra apenas horário,
   método, rota parametrizada, status e duração; não mostra usuário, IP ou valores anteriores.
+- Consultas de relatório persistem tipo, período e filtros em `request_context`; exportação
+  cria evento `REPORT_EXPORT` vinculado ao ID da execução. O contexto contém somente filtros
+  necessários, sem identidade de paciente ou conteúdo clínico.
 
 Para habilitar `INFO` em desenvolvimento ou homologação, use `SPRING_PROFILES_ACTIVE=dev`
 ou `SPRING_PROFILES_ACTIVE=homolog`. Os arquivos diários são gravados em `logs/` por padrão.

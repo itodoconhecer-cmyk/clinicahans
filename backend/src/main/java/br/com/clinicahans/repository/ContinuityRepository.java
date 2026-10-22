@@ -48,8 +48,10 @@ public class ContinuityRepository {
 
     public ExamResult findResultByOrder(UUID orderId){
         return jdbc.query("""
-          select id,exam_order_id,storage_key,mime_type,received_at
-          from exam_result where exam_order_id=?
+          select r.id,r.exam_order_id,r.storage_key,r.mime_type,r.received_at
+          from exam_result_locator l
+          join exam_result r on r.id=l.id and r.received_at=l.partition_timestamp
+          where l.exam_order_id=?
           """,(rs,n)->new ExamResult(rs.getObject("id",UUID.class),rs.getObject("exam_order_id",UUID.class),
             rs.getString("storage_key"),rs.getString("mime_type"),rs.getObject("received_at",OffsetDateTime.class)),orderId)
           .stream().findFirst().orElseThrow(()->new NotFoundException("Resultado do exame não encontrado."));
@@ -58,8 +60,10 @@ public class ContinuityRepository {
     public ExamOrder getExamByResult(UUID resultId){
         return jdbc.query("""
           select o.id,o.patient_id,o.encounter_id,o.exam_name,o.priority,o.status,o.expected_by,o.created_at
-          from exam_order o join exam_result r on r.exam_order_id=o.id
-          where r.id=?
+          from exam_result_locator l
+          join exam_result r on r.id=l.id and r.received_at=l.partition_timestamp
+          join exam_order o on o.id=l.exam_order_id
+          where l.id=?
           """,(rs,n)->new ExamOrder(rs.getObject("id",UUID.class),rs.getObject("patient_id",UUID.class),
             rs.getObject("encounter_id",UUID.class),rs.getString("exam_name"),rs.getString("priority"),
             rs.getString("status"),rs.getObject("expected_by",LocalDate.class),rs.getObject("created_at",OffsetDateTime.class)),resultId)
@@ -70,7 +74,7 @@ public class ContinuityRepository {
         Integer count=jdbc.queryForObject("select count(*) from result_review where exam_result_id=?",Integer.class,resultId);
         if(count!=null && count>0) throw new BusinessRuleException("Resultado já foi revisado.");
         UUID orderId=jdbc.query("""
-          select exam_order_id from exam_result where id=?
+          select exam_order_id from exam_result_locator where id=?
           """,(rs,n)->rs.getObject(1,UUID.class),resultId).stream().findFirst().orElseThrow(()->new NotFoundException("Resultado não encontrado."));
         jdbc.update("insert into result_review(id,exam_result_id,reviewed_by,note) values (?,?,?,?)",
             UUID.randomUUID(),resultId,reviewedBy,note);
@@ -110,7 +114,7 @@ public class ContinuityRepository {
     public boolean followUpAccessibleByDoctor(UUID followUpId,UUID userId,UUID doctorId){
         Integer count=jdbc.queryForObject("""
           select count(*) from follow_up f
-          left join encounter e on e.id=f.encounter_id
+          left join encounter_locator e on e.id=f.encounter_id
           where f.id=? and (f.owner_user_id=? or e.doctor_id=?)
           """,Integer.class,followUpId,userId,doctorId);
         return count!=null && count>0;
@@ -121,7 +125,7 @@ public class ContinuityRepository {
           select f.id,f.patient_id,p.full_name,f.priority,f.status,f.due_at
           from follow_up f
           join patient p on p.id=f.patient_id
-          left join encounter e on e.id=f.encounter_id
+          left join encounter_locator e on e.id=f.encounter_id
           where f.status='OPEN' and (f.owner_user_id=? or e.doctor_id=?)
           order by case f.priority when 'CRITICAL' then 1 when 'HIGH' then 2 when 'MEDIUM' then 3 else 4 end,
                    f.due_at nulls last
@@ -149,7 +153,7 @@ public class ContinuityRepository {
     public List<ExamOrder> pendingExamsForDoctor(UUID doctorId,int limit){
         return jdbc.query("""
           select o.id,o.patient_id,o.encounter_id,o.exam_name,o.priority,o.status,o.expected_by,o.created_at
-          from exam_order o join encounter e on e.id=o.encounter_id
+          from exam_order o join encounter_locator e on e.id=o.encounter_id
           where e.doctor_id=? and o.status not in ('REVIEWED','CANCELLED')
           order by o.expected_by nulls last,o.created_at limit ?
           """,(rs,n)->new ExamOrder(rs.getObject("id",UUID.class),rs.getObject("patient_id",UUID.class),

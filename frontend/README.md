@@ -70,7 +70,7 @@ A API padrão é `http://localhost:8080`. Para outro ambiente, ajuste `frontend/
 ## CI
 
 `frontend/verify-architecture.mjs` valida automaticamente:
-- as 47 telas do inventário;
+- as 48 telas do inventário;
 - pasta própria por tela;
 - HTML, CSS e JS próprios por tela;
 - referência do HTML aos seus arquivos CSS/JS;

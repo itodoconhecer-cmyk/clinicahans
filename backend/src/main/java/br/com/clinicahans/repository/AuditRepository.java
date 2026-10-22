@@ -69,13 +69,31 @@ public class AuditRepository {
             """, status, durationMillis, outcome, previousJson, id);
     }
 
-    public List<AuditEntry> search(String entityType, String entityId, int limit) {
+    public int updateRequestContext(UUID id, String contextJson) {
+        return jdbc.update("""
+            update audit_event set request_context=?::jsonb
+            where id=? and action='API_REQUEST'
+            """, contextJson, id);
+    }
+
+    public boolean isSuccessfulReportSourcesRequest(UUID id, String username) {
+        Integer count = jdbc.queryForObject("""
+            select count(*) from audit_event
+            where id=? and action='API_REQUEST' and request_path='/api/v1/management/reports/sources'
+              and outcome='SUCCESS' and username=?
+            """, Integer.class, id, username);
+        return count != null && count == 1;
+    }
+
+    public List<AuditEntry> search(String entityType, String entityId, String correlationId, int limit) {
         return jdbc.query("""
             select id,username,action,entity_type,entity_id,correlation_id,occurred_at,
                    source_ip::text source_ip,request_method,request_path,http_status,duration_ms,outcome,
-                   resource_identifiers::text resource_identifiers,previous_values::text previous_values
+                   resource_identifiers::text resource_identifiers,previous_values::text previous_values,
+                   request_context::text request_context
             from audit_event
             where (? is null or entity_type=?) and (? is null or entity_id=?)
+              and (? is null or correlation_id=?)
             order by occurred_at desc limit ?
             """, (rs, row) -> new AuditEntry(
                 rs.getObject("id", UUID.class), rs.getString("username"), rs.getString("action"),
@@ -83,8 +101,9 @@ public class AuditRepository {
                 rs.getObject("occurred_at", java.time.OffsetDateTime.class), rs.getString("source_ip"),
                 rs.getString("request_method"), rs.getString("request_path"),
                 (Integer) rs.getObject("http_status"), (Long) rs.getObject("duration_ms"),
-                rs.getString("outcome"), rs.getString("resource_identifiers"), rs.getString("previous_values")),
-            entityType, entityType, entityId, entityId, limit);
+                rs.getString("outcome"), rs.getString("resource_identifiers"), rs.getString("previous_values"),
+                rs.getString("request_context")),
+            entityType, entityType, entityId, entityId, correlationId, correlationId, limit);
     }
 
     public List<PublicOperationRecord> recentOperations(int limit) {

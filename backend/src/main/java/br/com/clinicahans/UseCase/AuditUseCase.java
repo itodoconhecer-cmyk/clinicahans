@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import br.com.clinicahans.model.audit.AuditEntry;
 import br.com.clinicahans.repository.AuditRepository;
+import br.com.clinicahans.utilities.exception.NotFoundException;
 import org.slf4j.MDC;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -34,6 +35,15 @@ public class AuditUseCase {
             auth != null && auth.isAuthenticated());
         repository.recordEvent(UUID.randomUUID(), repository.findUserId(username), username, action, entityType,
             entityId == null ? null : entityId.toString(), MDC.get("correlationId"));
+    }
+
+    public void recordReportExport(UUID reportRunId) {
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = authenticatedUsername(auth == null ? null : auth.getName(), auth != null && auth.isAuthenticated());
+        if (username == null || !repository.isSuccessfulReportSourcesRequest(reportRunId, username))
+            throw new NotFoundException("Execução de relatório não encontrada.");
+        repository.recordEvent(UUID.randomUUID(), repository.findUserId(username), username,
+            "REPORT_EXPORT", "MANAGEMENT_REPORT", reportRunId.toString(), MDC.get("correlationId"));
     }
 
     public UUID startRequestAudit(String method, String path, String sourceIp, Map<String, String> identifiers)
@@ -74,9 +84,23 @@ public class AuditUseCase {
         if (updated != 1) throw new IllegalStateException("Não foi possível finalizar o registro de auditoria da requisição.");
     }
 
-    public List<AuditEntry> search(String entityType, String entityId, int requestedLimit) {
+    public void recordRequestContext(Map<String, ?> context) {
+        var requestAttributes = RequestContextHolder.getRequestAttributes();
+        if (!(requestAttributes instanceof ServletRequestAttributes servletAttributes)) return;
+        Object requestAuditId = servletAttributes.getRequest().getAttribute(REQUEST_AUDIT_ID);
+        if (!(requestAuditId instanceof UUID id)) return;
+        try {
+            String contextJson = objectMapper.writeValueAsString(context);
+            int updated = repository.updateRequestContext(id, contextJson);
+            if (updated != 1) throw new IllegalStateException("Não foi possível associar o contexto ao evento de auditoria.");
+        } catch (JsonProcessingException ex) {
+            throw new IllegalStateException("Não foi possível serializar o contexto da auditoria.", ex);
+        }
+    }
+
+    public List<AuditEntry> search(String entityType, String entityId, String correlationId, int requestedLimit) {
         int limit = Math.min(Math.max(requestedLimit, 1), 500);
-        return repository.search(entityType, entityId, limit);
+        return repository.search(entityType, entityId, correlationId, limit);
     }
 
     public void recordPreviousValues(Map<String, ?> values) {

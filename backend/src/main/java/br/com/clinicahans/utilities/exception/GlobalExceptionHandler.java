@@ -29,6 +29,11 @@ public class GlobalExceptionHandler {
         return response(HttpStatus.CONFLICT, "BUSINESS_RULE_VIOLATION", ex.getMessage(), List.of());
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    ResponseEntity<ApiError> invalidArgument(IllegalArgumentException ex) {
+        return response(HttpStatus.BAD_REQUEST, "INVALID_REQUEST", ex.getMessage(), List.of());
+    }
+
     @ExceptionHandler(DataIntegrityViolationException.class)
     ResponseEntity<ApiError> integrity(DataIntegrityViolationException ex) {
         return response(HttpStatus.CONFLICT, "DATA_INTEGRITY_VIOLATION", "Operação viola uma regra de integridade.", List.of());

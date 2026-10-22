@@ -45,6 +45,7 @@ Este arquivo é o checklist funcional do Prompt 04. O frontend só é considerad
 | UI-091 | Novo recebível | Recepção/Gestão/Admin | PARCIAL |
 | UI-092 | Registrar pagamento | Recepção/Gestão/Admin | PARCIAL |
 | UI-100 | Indicadores | Gestão/Admin | PARCIAL |
+| UI-101 | Relatórios sintéticos e analíticos | Gestão/Admin | PARCIAL |
 | UI-110 | Usuários | Admin | PARCIAL |
 | UI-111 | Criar usuário | Admin | PARCIAL |
 | UI-112 | Desativar usuário | Admin | PARCIAL |
@@ -55,6 +56,7 @@ Este arquivo é o checklist funcional do Prompt 04. O frontend só é considerad
 ## Critérios para encerrar Prompt 04
 - Prontuário e Atendimento devem ser telas distintas.
 - Dashboard e Indicadores devem ser telas distintas.
+- Indicadores sintéticos e análise detalhada devem preservar filtros e mostrar versão, fontes e trilha da execução.
 - Exames e Follow-ups devem possuir criação e ações, não apenas listagem.
 - Financeiro deve permitir lançamento e pagamento.
 - Corpo clínico deve possuir UI para especialidades, disponibilidade e bloqueios.
@@ -80,5 +82,6 @@ Exemplos:
 - UI-042 → `frontend/detalhe-medico/detalhe-medico.html|css|js`
 - UI-072 → `frontend/receber-resultado/receber-resultado.html|css|js`
 - UI-092 → `frontend/registrar-pagamento/registrar-pagamento.html|css|js`
+- UI-101 → `frontend/relatorios/relatorios.html|css|js`
 
-O Frontend CI valida automaticamente todas as 47 pastas.
+O Frontend CI valida automaticamente todas as 48 pastas.

@@ -107,9 +107,11 @@ public class SmartAppointmentSearchRepository {
                   and b.ends_at > (slot_start at time zone ?))
             )
             select distinct c.doctor_id,c.doctor_name,c.specialty_id,c.specialty_name,c.starts_at,c.ends_at,
-              coalesce((select a.status from appointment a where a.doctor_id=c.doctor_id
-                and a.status in ('SCHEDULED','CONFIRMED','CHECKED_IN','IN_CARE','COMPLETED')
-                and a.starts_at<c.ends_at and a.ends_at>c.starts_at order by a.starts_at limit 1),'AVAILABLE') status
+              coalesce((select l.status from appointment_reservation_guard g
+                join appointment_locator l on l.id=g.appointment_id
+                where g.doctor_id=c.doctor_id
+                  and g.reserved_range && tstzrange(c.starts_at,c.ends_at,'[)')
+                order by lower(g.reserved_range) limit 1),'AVAILABLE') status
             from candidates c where c.starts_at>now() order by c.starts_at,c.doctor_name limit 500
             """, (rs, row) -> new AppointmentSlotResponse(
                 rs.getObject("doctor_id", java.util.UUID.class),rs.getString("doctor_name"),

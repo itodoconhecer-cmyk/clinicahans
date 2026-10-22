@@ -124,7 +124,11 @@ Quanto tempo um paciente aguardava entre o agendamento e a consulta?
 
 Qual era a capacidade real de atendimento de cada especialidade?
 
-Hans possuía muitos dados, mas poucos deles estavam organizados de maneira que pudessem gerar **informação para tomada de decisão**.
+Hans possuía muitos dados, mas poucos deles estavam organizados de maneira que pudessem gerar **informação para tomada de decisão**. Os números apareciam sem explicar de onde vieram, qual regra os calculou ou quais registros os compunham. Isso dificultava comparar períodos e transformar um sinal operacional em uma ação verificável.
+
+Hans passou a precisar de dois níveis de leitura. Um relatório **sintético** deve mostrar rapidamente resultados, variações e alertas operacionais. Um relatório **analítico** deve permitir filtrar e decompor esses resultados por período, situação, médico ou especialidade, chegando aos registros de origem somente quando o perfil tiver autorização.
+
+Quando um padrão exigir atenção, o sistema deve apresentar uma sugestão prática junto com os dados que a motivaram, a regra usada e a origem consultável. A sugestão orienta uma revisão da operação; não altera dados por conta própria nem substitui decisões clínicas.
 
 ## Surge uma nova visão
 
@@ -209,3 +213,6 @@ E assim o Dr. Hans Chucrute começa seu próximo grande desafio.
 Depois de estudar medicina para aprender a cuidar das pessoas, ele agora precisa transformar sua visão em um sistema capaz de ajudar toda a clínica a fazer exatamente isso:
 
 **usar tecnologia para cuidar melhor de cada paciente.**
+
+## Capacidade de crescimento
+Com mais de um milhão de atendimentos por mês, a persistência precisa acompanhar o crescimento. Agendamentos, consultas, registros financeiros, prescrições e resultados de exames devem ser organizados por semana, mantendo ligações e identificação global para que relatórios e consultas por período continuem rastreáveis.

@@ -68,6 +68,9 @@ Metas abaixo são alvos de engenharia para o projeto e devem ser validadas em pr
 - **RNF-082 [P1] Retenção:** política formal por classe de dado antes da entrada em produção.
 - **RNF-083 [P1] Exportação/portabilidade:** processos devem evitar vazamento de dados de terceiros.
 - **RNF-084 [P1] Incidentes:** logs e arquitetura devem permitir investigação e contenção.
+- **RNF-085 [P1] Proveniência de relatórios:** cada execução deve expor período, filtros, versão das definições, fontes, autor, horário e correlation ID; o contexto de auditoria deve conter somente filtros necessários e nenhum dado clínico/paciente.
 
 ## Definition of Done técnica
 Um endpoint crítico só está pronto se: valida entrada, aplica autorização, usa SQL parametrizado, possui teste, registra auditoria quando aplicável, não loga PHI, documenta OpenAPI e retorna erro padronizado.
+
+- **RNF-086 [P0] Capacidade de persistência:** suportar mais de 1 milhão de atendimentos por mês com tabelas operacionais de agendamento, consulta, financeiro, prescrição e resultado de exame particionadas semanalmente; consultas por período devem permitir poda de partições e a criação de novas semanas precisa ser automatizada.

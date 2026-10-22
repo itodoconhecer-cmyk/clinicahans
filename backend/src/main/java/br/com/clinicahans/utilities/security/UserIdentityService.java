@@ -22,11 +22,11 @@ public class UserIdentityService {
         UUID doctorId = currentDoctorId();
         Integer count = jdbc.queryForObject("""
             select count(*) from (
-              select 1 from appointment
+              select 1 from appointment_locator
                where doctor_id=? and patient_id=?
                  and status in ('SCHEDULED','CONFIRMED','CHECKED_IN','IN_CARE','COMPLETED')
               union all
-              select 1 from encounter where doctor_id=? and patient_id=?
+              select 1 from encounter_locator where doctor_id=? and patient_id=?
             ) rel
             """, Integer.class, doctorId, patientId, doctorId, patientId);
         return count != null && count > 0;

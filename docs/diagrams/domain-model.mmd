@@ -37,6 +37,10 @@ erDiagram
 
   ENCOUNTER ||--o| RECEIVABLE : generates
   RECEIVABLE ||--o{ PAYMENT : settled_by
+  PATIENT ||--o{ PRESCRIPTION : receives
+  DOCTOR ||--o{ PRESCRIPTION : issues
+  ENCOUNTER ||--o{ PRESCRIPTION : documents
+  PRESCRIPTION ||--|{ PRESCRIPTION_ITEM : contains
 
   APPOINTMENT ||--o{ NOTIFICATION_OUTBOX : publishes
 
@@ -95,6 +99,7 @@ erDiagram
   }
   APPOINTMENT {
     uuid id PK
+    timestamptz starts_at PK
     uuid patient_id FK
     uuid doctor_id FK
     timestamptz starts_at
@@ -134,7 +139,7 @@ erDiagram
     text plan
     string status
     int version
-    timestamptz started_at
+    timestamptz started_at PK
     timestamptz completed_at
   }
   ENCOUNTER_ADDENDUM {
@@ -203,10 +208,10 @@ erDiagram
   }
   EXAM_RESULT {
     uuid id PK
+    timestamptz received_at PK
     uuid exam_order_id FK
     string storage_key
     string mime_type
-    timestamptz received_at
   }
   RESULT_REVIEW {
     uuid id PK
@@ -236,6 +241,7 @@ erDiagram
   }
   RECEIVABLE {
     uuid id PK
+    timestamptz created_at PK
     uuid encounter_id FK
     string payer_type
     string payer_reference
@@ -245,10 +251,33 @@ erDiagram
   }
   PAYMENT {
     uuid id PK
+    timestamptz paid_at PK
     uuid receivable_id FK
     decimal amount
     string method
-    timestamptz paid_at
+  }
+  PRESCRIPTION {
+    uuid id PK
+    timestamptz issued_at PK
+    uuid patient_id FK
+    uuid encounter_id FK
+    uuid doctor_id FK
+    string status
+    date valid_until
+    text instructions
+    timestamptz signed_at
+  }
+  PRESCRIPTION_ITEM {
+    uuid prescription_id PK, FK
+    timestamptz issued_at PK, FK
+    smallint item_number PK
+    string medication_name
+    string dosage
+    string route
+    string frequency
+    string duration
+    string quantity
+    text instructions
   }
   USER {
     uuid id PK

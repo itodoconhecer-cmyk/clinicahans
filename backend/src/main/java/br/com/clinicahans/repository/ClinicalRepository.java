@@ -52,8 +52,10 @@ public class ClinicalRepository {
 
     public Encounter getEncounter(UUID id){
         return jdbc.query("""
-          select id,patient_id,doctor_id,appointment_id,chief_complaint,assessment,plan,status,version,started_at,completed_at
-          from encounter where id=?
+          select e.id,e.patient_id,e.doctor_id,e.appointment_id,e.chief_complaint,e.assessment,e.plan,e.status,e.version,e.started_at,e.completed_at
+          from encounter_locator l
+          join encounter e on e.id=l.id and e.started_at=l.partition_timestamp
+          where l.id=?
           """,(rs,n)->new Encounter(rs.getObject("id",UUID.class),rs.getObject("patient_id",UUID.class),
           rs.getObject("doctor_id",UUID.class),rs.getObject("appointment_id",UUID.class),rs.getString("chief_complaint"),
           rs.getString("assessment"),rs.getString("plan"),rs.getString("status"),rs.getInt("version"),
@@ -63,8 +65,9 @@ public class ClinicalRepository {
 
     public Encounter saveDraft(UUID id,String chiefComplaint,String assessment,String plan,int version){
         int changed=jdbc.update("""
-          update encounter set chief_complaint=?,assessment=?,plan=?,version=version+1
-          where id=? and status='DRAFT' and version=?
+          update encounter e set chief_complaint=?,assessment=?,plan=?,version=version+1
+          from encounter_locator l
+          where e.id=l.id and e.started_at=l.partition_timestamp and l.id=? and e.status='DRAFT' and e.version=?
           """,chiefComplaint,assessment,plan,id,version);
         if(changed==0) throw new BusinessRuleException("Atendimento não pode ser alterado ou foi modificado por outra operação.");
         return getEncounter(id);
@@ -72,8 +75,9 @@ public class ClinicalRepository {
 
     public Encounter finalizeEncounter(UUID id,int version){
         int changed=jdbc.update("""
-          update encounter set status='FINAL',completed_at=now(),version=version+1
-          where id=? and status='DRAFT' and version=?
+          update encounter e set status='FINAL',completed_at=now(),version=version+1
+          from encounter_locator l
+          where e.id=l.id and e.started_at=l.partition_timestamp and l.id=? and e.status='DRAFT' and e.version=?
           """,id,version);
         if(changed==0) throw new BusinessRuleException("Somente atendimento em rascunho e na versão atual pode ser finalizado.");
         return getEncounter(id);
@@ -162,8 +166,9 @@ public class ClinicalRepository {
     public List<TimelineEvent> timeline(UUID patientId,int limit){
         return jdbc.query("""
           select event_type, event_id, title, occurred_at from (
-            select 'ENCOUNTER' event_type, id event_id, 'Atendimento clínico' title, coalesce(completed_at,started_at) occurred_at
-              from encounter where patient_id=?
+            select 'ENCOUNTER' event_type, e.id event_id, 'Atendimento clínico' title, coalesce(e.completed_at,e.started_at) occurred_at
+              from encounter_locator l join encounter e on e.id=l.id and e.started_at=l.partition_timestamp
+              where l.patient_id=?
             union all
             select 'ALLERGY', id, 'Alergia/reação: '||substance, recorded_at from allergy where patient_id=?
             union all

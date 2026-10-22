@@ -87,9 +87,24 @@ Recepção visualiza apenas informação operacional necessária.
 **Ator:** Financeiro/Recepção autorizada.  
 Criar conta → pagador → valor → pagamento/pendência → eventual estorno auditado.
 
-## UC-090 — Consultar indicadores
-**Ator:** Gestor.  
-Filtros de período, médico/especialidade e estado; dados consolidados; sem texto clínico.
+## UC-090 — Consultar relatório sintético
+**Ator:** Gestor. **Prioridade:** P1.
+1. Selecionar intervalo e filtros permitidos.
+2. Consultar totais e comparação com o intervalo anterior equivalente.
+3. Conferir fórmula, numerador/denominador, versão e período de cada indicador.
+4. Examinar sugestões operacionais com regra e evidências visíveis.
+5. Abrir análise relacionada se precisar entender a composição.
+6. Consultar identificador da execução e correlation ID para rastreabilidade.
+**Restrições:** sem identificação de pacientes ou texto clínico; sugestão não executa ação.
+
+## UC-091 — Analisar relatório e rastrear origem
+**Ator:** Gestor/Admin, conforme domínio e autorização. **Prioridade:** P1.
+1. Escolher relatório, período, agrupamento e filtros.
+2. Consultar resultados agregados e paginados.
+3. Abrir referências dos registros que compõem o indicador dentro do escopo autorizado.
+4. Exportar os dados filtrados, se autorizado.
+5. Registrar consulta/exportação na auditoria com autor, período, filtros e correlation ID.
+**Restrições:** gestão recebe dados operacionais/financeiros sem identidade de paciente; dados de exames e acompanhamentos ficam agregados.
 
 ## UC-100 — Auditar atividade
 **Ator:** Admin/Auditor autorizado.  

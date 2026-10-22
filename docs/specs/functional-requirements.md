@@ -87,6 +87,16 @@ Transformar a Clínica Hans de registros fragmentados para uma plataforma centra
 - **RF-085 [P1] Exames e acompanhamentos pendentes/vencidos**.
 - **RF-086 [P1] Receita recebida/pendente do período**.
 - **RF-087 [P0] Indicadores não devem expor conteúdo clínico detalhado a Gestão**.
+- **RF-088 [P1] Relatório sintético de gestão** com totais, comparação com período equivalente e sinais operacionais, exibindo período, filtros e definição dos indicadores.
+- **RF-089 [P1] Relatório analítico** com filtros por período, status, médico e especialidade, agrupamento temporal e detalhamento paginado dos registros de origem conforme a autorização do perfil.
+- **RF-095 [P1] Rastrear a geração e a composição do relatório** com identificador da execução, autor, horário, correlation ID, filtros aplicados, versão das fórmulas e referências aos dados de origem; registrar consulta e exportação na auditoria.
+- **RF-096 [P1] Exibir sugestões operacionais explicáveis** com regra acionada, evidência, período e ação recomendada; sugestões não executam alterações nem recomendam condutas clínicas.
+
+### Critérios transversais dos relatórios
+- Períodos e datas usam o fuso da clínica; comparações usam intervalos equivalentes.
+- Cada taxa mostra numerador, denominador e regra vigente; intervalos sem base suficiente são identificados como insuficientes, não como zero.
+- O detalhamento herda autorização do domínio de origem; Gestão recebe agregados operacionais/financeiros sem identificação do paciente nem texto clínico.
+- Toda sugestão permite chegar ao indicador e aos dados que a fundamentam, dentro do escopo autorizado.
 
 ## 11. Auditoria e conformidade
 - **RF-090 [P0] Registrar eventos de auditoria** para autenticação relevante, prontuário, registros clínicos, permissões e alterações críticas.
@@ -104,4 +114,9 @@ Telemedicina, assinatura/prescrição digital, multiunidade, estoque, faturament
 - Falta de acompanhamento: RF-060 a RF-065.
 - Ociosidade e recepção: RF-020 a RF-029.
 - Gestão por dados: RF-080 a RF-087.
+- Relatórios comparáveis e explicáveis: RF-088, RF-089, RF-095 e RF-096.
 - Crescimento do corpo clínico: RF-003 a RF-005.
+
+## 14. Capacidade e organização de dados
+- **RF-097 [P0] Persistir agendamentos, consultas, recebíveis, pagamentos, resultados de exames e prescrições em partições semanais**, com identificadores globalmente únicos, integridade referencial e manutenção automática das semanas futuras.
+- **RF-098 [P1] Armazenar prescrição e itens em estrutura própria**, associada ao paciente, médico e opcionalmente à consulta; emissão e assinatura digital permanecem fora do fluxo atual.

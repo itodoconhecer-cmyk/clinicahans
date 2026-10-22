@@ -10,6 +10,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.UUID;
 
@@ -19,6 +20,9 @@ public class AppointmentRepository {
     public AppointmentRepository(JdbcTemplate jdbc){this.jdbc=jdbc;}
 
     public Appointment create(UUID patientId,UUID doctorId,OffsetDateTime start,OffsetDateTime end,String modality,String notes,UUID createdBy){
+        jdbc.query("select ensure_clinic_week_partition(?)",
+            ps -> ps.setObject(1,start.toInstant().atZone(ZoneId.of("America/Sao_Paulo")).toLocalDate()),
+            rs -> null);
         UUID id=UUID.randomUUID();
         jdbc.update("""
           insert into appointment(id,patient_id,doctor_id,starts_at,ends_at,modality,status,notes,created_by)
@@ -37,9 +41,11 @@ public class AppointmentRepository {
 
     public Appointment get(UUID id){
         return jdbc.query("""
-          select id,patient_id,doctor_id,starts_at,ends_at,modality,status,notes,cancellation_reason,
-                 confirmed_at,checked_in_at,created_at,updated_at
-          from appointment where id=?
+          select a.id,a.patient_id,a.doctor_id,a.starts_at,a.ends_at,a.modality,a.status,a.notes,a.cancellation_reason,
+                 a.confirmed_at,a.checked_in_at,a.created_at,a.updated_at
+          from appointment_locator l
+          join appointment a on a.id=l.id and a.starts_at=l.partition_timestamp
+          where l.id=?
           """,mapper(),id).stream().findFirst().orElseThrow(()->new NotFoundException("Agendamento não encontrado."));
     }
 
@@ -94,10 +100,9 @@ public class AppointmentRepository {
 
     public boolean hasConflict(UUID doctorId,OffsetDateTime start,OffsetDateTime end){
         Integer count=jdbc.queryForObject("""
-          select count(*) from appointment
-          where doctor_id=? and status in ('SCHEDULED','CONFIRMED','CHECKED_IN','IN_CARE')
-            and starts_at < ? and ends_at > ?
-          """,Integer.class,doctorId,end,start);
+          select count(*) from appointment_reservation_guard
+          where doctor_id=? and reserved_range && tstzrange(?,?,'[)')
+          """,Integer.class,doctorId,start,end);
         return count!=null && count>0;
     }
 
@@ -106,8 +111,9 @@ public class AppointmentRepository {
         OffsetDateTime confirmed=target==AppointmentStatus.CONFIRMED?OffsetDateTime.now():current.confirmedAt();
         OffsetDateTime checkin=target==AppointmentStatus.CHECKED_IN?OffsetDateTime.now():current.checkedInAt();
         jdbc.update("""
-          update appointment set status=?, cancellation_reason=?, confirmed_at=?, checked_in_at=?, updated_at=now()
-          where id=?
+          update appointment a set status=?, cancellation_reason=?, confirmed_at=?, checked_in_at=?, updated_at=now()
+          from appointment_locator l
+          where a.id=l.id and a.starts_at=l.partition_timestamp and l.id=?
           """,target.name(),target==AppointmentStatus.CANCELLED?reason:current.cancellationReason(),confirmed,checkin,id);
         jdbc.update("""
           insert into appointment_status_history(id,appointment_id,from_status,to_status,changed_by,reason)

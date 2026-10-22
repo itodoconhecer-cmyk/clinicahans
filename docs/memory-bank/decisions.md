@@ -41,3 +41,18 @@ Em caso de conflito entre documentos, aplicar a seguinte precedência:
 5. prompts e agentes.
 
 Motivo: impedir que prompts ou templates antigos sobrescrevam decisões vigentes.
+
+## DEC-006 — Relatórios com proveniência e sugestões explicáveis
+Relatórios sintéticos e analíticos devem mostrar período, filtros, definição/versionamento e fontes de cada indicador. Acesso, consulta e exportação são rastreáveis; detalhamento sempre respeita as permissões do domínio de origem. Sugestões são determinísticas e operacionais, apresentam evidência e regra, não executam alterações e não recomendam condutas clínicas.
+
+Motivo: permitir decisões de gestão comparáveis e auditáveis sem ampliar exposição de dados de saúde.
+
+## DEC-007 — Particionamento semanal dos registros de alto volume
+Agendamentos, consultas, recebíveis, pagamentos, resultados de exames e prescrições são particionados por intervalo semanal sobre o timestamp do evento, com semanas iniciando às 00:00 de segunda-feira em `America/Sao_Paulo`. Cada tabela usa chave primária composta com o timestamp; tabelas locator preservam unicidade global do UUID e a integridade referencial. Um guard não particionado continua impondo a exclusão de horários sobrepostos entre médicos.
+
+Motivo: suportar mais de um milhão de atendimentos mensais, permitindo poda de partições nas consultas temporais sem perder as relações existentes por UUID.
+
+## DEC-008 — Modelo de prescrição preparado para particionamento
+A migração cria armazenamento semanal de prescrições e itens; a emissão, a assinatura digital e a interface clínica continuam fora da API atual.
+
+Motivo: cumprir a necessidade de retenção e escala da prescrição sem afirmar que o fluxo assistencial já foi implementado.

@@ -52,8 +52,8 @@ public class PatientRepository {
             from patient p
             where (lower(p.full_name) like ? or coalesce(p.cpf,'') like ? or coalesce(p.phone,'') like ? or lower(coalesce(p.insurance_card,'')) like ?)
               and (
-                exists(select 1 from encounter e where e.patient_id=p.id and e.doctor_id=?)
-                or exists(select 1 from appointment a where a.patient_id=p.id and a.doctor_id=?
+                exists(select 1 from encounter_locator e where e.patient_id=p.id and e.doctor_id=?)
+                or exists(select 1 from appointment_locator a where a.patient_id=p.id and a.doctor_id=?
                   and a.status in ('SCHEDULED','CONFIRMED','CHECKED_IN','IN_CARE','COMPLETED'))
               )
             order by p.full_name limit ?
