@@ -40,7 +40,7 @@ O override deve corresponder à JVM instalada. No CI e no ambiente padrão do pr
 
 ## Evidências da execução
 
-Cada teste grava vídeo MP4 em 1920×1080, capturas PNG por etapa e um `rede-trilha.json` com URLs, método, payload filtrado, status, `X-Correlation-Id` e duração em milissegundos. A trilha identifica também as verificações feitas diretamente no banco. Senhas, tokens, nomes de pacientes e médicos, CPF, contato, nascimento e observações são removidos dos registros de rede.
+Cada teste grava vídeo WebM em 1920×1080, capturas PNG por etapa e um `rede-trilha.json` com URLs, método, payload filtrado, status, `X-Correlation-Id` e duração em milissegundos. A trilha identifica também as verificações feitas diretamente no banco. Senhas, tokens, nomes de pacientes e médicos, CPF, contato, nascimento e observações são removidos dos registros de rede.
 
 Os arquivos ficam em `artifacts/playwright/`; essa pasta é ignorada pelo Git por poder conter imagens e dados operacionais de teste. Abra o relatório com:
 

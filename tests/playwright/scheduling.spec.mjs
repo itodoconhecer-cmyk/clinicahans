@@ -222,6 +222,68 @@ test('data passada não apresenta horários reserváveis', async ({ page, scenar
   await recorder.screenshot('data-passada-sem-horarios');
 });
 
+test('transições de agenda persistem estados, histórico e auditoria; rejeitam cancelamento sem motivo', async ({ page, scenario, recorder }) => {
+  const primary = await apiCall(page, '/api/v1/appointments', 'POST', appointmentPayload(scenario));
+  const primaryId = primary.body.id;
+  const transitions = ['CONFIRMED', 'CHECKED_IN', 'IN_CARE', 'COMPLETED'];
+  for (const target of transitions) {
+    const response = await apiCall(page, `/api/v1/appointments/${primaryId}/transition`, 'POST', { target, reason: null });
+    expect(response.body.status).toBe(target);
+  }
+
+  const cancellationStartsAt = new Date(new Date(scenario.startsAt).getTime() + 60 * 60_000).toISOString();
+  const cancellationAppointment = await apiCall(page, '/api/v1/appointments', 'POST', {
+    ...appointmentPayload(scenario), startsAt: cancellationStartsAt
+  });
+  const missingReason = await rawApiCall(page, `/api/v1/appointments/${cancellationAppointment.body.id}/transition`, 'POST', {
+    target: 'CANCELLED', reason: null
+  });
+  expect(missingReason.status).toBeGreaterThanOrEqual(400);
+  const cancelled = await apiCall(page, `/api/v1/appointments/${cancellationAppointment.body.id}/transition`, 'POST', {
+    target: 'CANCELLED', reason: 'Cancelamento funcional E2E'
+  });
+  expect(cancelled.body.status).toBe('CANCELLED');
+
+  const noShowStartsAt = new Date(new Date(scenario.startsAt).getTime() + 2 * 60 * 60_000).toISOString();
+  const noShowAppointment = await apiCall(page, '/api/v1/appointments', 'POST', {
+    ...appointmentPayload(scenario), startsAt: noShowStartsAt
+  });
+  const noShow = await apiCall(page, `/api/v1/appointments/${noShowAppointment.body.id}/transition`, 'POST', {
+    target: 'NO_SHOW', reason: null
+  });
+  expect(noShow.body.status).toBe('NO_SHOW');
+
+  const invalidFinalTransition = await rawApiCall(page, `/api/v1/appointments/${primaryId}/transition`, 'POST', {
+    target: 'SCHEDULED', reason: null
+  });
+  expect(invalidFinalTransition.status).toBeGreaterThanOrEqual(400);
+
+  const persisted = await pool.query(`
+    select a.id, a.status, count(h.id)::int as history_rows
+    from appointment a
+    left join appointment_status_history h on h.appointment_id = a.id
+    where a.id = any($1::uuid[])
+    group by a.id, a.status
+  `, [[primaryId, cancellationAppointment.body.id, noShowAppointment.body.id]]);
+  const results = new Map(persisted.rows.map(row => [row.id, row]));
+  expect(results.get(primaryId).status).toBe('COMPLETED');
+  expect(results.get(primaryId).history_rows).toBe(5);
+  expect(results.get(cancellationAppointment.body.id).status).toBe('CANCELLED');
+  expect(results.get(cancellationAppointment.body.id).history_rows).toBe(2);
+  expect(results.get(noShowAppointment.body.id).status).toBe('NO_SHOW');
+  expect(results.get(noShowAppointment.body.id).history_rows).toBe(2);
+
+  const audit = await pool.query(`
+    select count(*)::int as count from audit_event
+    where entity_type = 'APPOINTMENT' and entity_id = any($1::text[])
+  `, [[primaryId, cancellationAppointment.body.id, noShowAppointment.body.id].map(String)]);
+  expect(audit.rows[0].count).toBeGreaterThanOrEqual(7);
+  recorder.mark('transições confirmadas no serviço e persistidas no histórico/auditoria', {
+    statuses: [...results.values()].map(row => row.status),
+    auditRows: audit.rows[0].count
+  });
+});
+
 async function prepareScenario(page, recorder, testInfo) {
   await page.addInitScript(url => { window.CLN_API_BASE_URL = url; }, apiBaseUrl);
   await page.goto('/login/login.html');
@@ -340,6 +402,21 @@ async function apiCall(page, path, method, body) {
     throw new Error(`${method} ${path} falhou com HTTP ${response.status}: ${JSON.stringify(response.body)}`);
   }
   return response;
+}
+
+async function rawApiCall(page, path, method, body) {
+  return page.evaluate(async ({ path, method, body, apiBaseUrl }) => {
+    const session = JSON.parse(sessionStorage.getItem('clinicaHans.session') || 'null');
+    const result = await fetch(`${apiBaseUrl}${path}`, {
+      method,
+      headers: {
+        Authorization: `Bearer ${session?.accessToken || ''}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(body)
+    });
+    return { status: result.status, body: await result.json().catch(() => null) };
+  }, { path, method, body, apiBaseUrl });
 }
 
 async function openScheduling(page, scenario) {
