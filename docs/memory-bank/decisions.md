@@ -66,3 +66,9 @@ O diretório `infra/aws` prepara a alocação real com EC2/Auto Scaling para web
 Esta decisão autoriza a preparação dos scripts, não registra uma implantação AWS realizada. Redis, anexos S3, receitas NoSQL e envio de e-mail ainda exigem integração no código. As decisões DEC-007/008 permanecem vigentes para prescrições existentes no PostgreSQL; a mudança de fonte oficial para NoSQL depende de especificação. O job só pode notificar resultados liberados e deve controlar cada exame/versão/destinatário, com mensagens sem conteúdo clínico.
 
 Motivo: alocar uma base evolutiva sem confundir serviços provisionados com funcionalidades implementadas. Mapa, diagrama, comandos e limites estão em `infra/README.md`.
+
+## DEC-010 — Avisos de resultados pelo worker do monólito
+
+Implementamos a parte de notificações antes pendente da DEC-009: outbox V013 por resultado/destinatário, liberação pelo job de 12 horas, verificação de objeto S3, publicação/consumo SQS e SMTP com captura Mailpit local. O worker compartilha a imagem da API, com habilitação explícita. Claims com lease impedem concorrência normal; status SENT impede reenvios de mensagens já concluídas. O limite de falha após aceitação SMTP permanece documentado, sem promessa de exatamente uma entrega. Não há envio retroativo de resultados históricos nem portal de pacientes nesta etapa.
+
+Motivo: avisar paciente e médico sem acoplar disponibilidade de e-mail ao atendimento e sem colocar dados clínicos em filas, logs ou mensagens. Contrato em `docs/specs/exam-ready-notifications.md`.

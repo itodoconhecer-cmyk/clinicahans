@@ -14,6 +14,10 @@ spring:
       connection-timeout: 3000
   jackson:
     time-zone: UTC
+  task:
+    scheduling:
+      pool:
+        size: ${TASK_SCHEDULER_POOL_SIZE:3}
 server:
   port: ${SERVER_PORT:8080}
   error:
@@ -41,6 +45,20 @@ clinicahans:
   bootstrap-admin:
     username: ${BOOTSTRAP_ADMIN_USERNAME:}
     password: ${BOOTSTRAP_ADMIN_PASSWORD:}
+  exam-notifications:
+    worker-enabled: ${EXAM_NOTIFICATION_WORKER_ENABLED:false}
+    region: ${AWS_REGION:us-east-1}
+    endpoint: ${AWS_ENDPOINT_URL:}
+    bucket: ${EXAMS_BUCKET:clinicahans-exames-local}
+    jobs-queue: ${JOBS_QUEUE_URL:}
+    notifications-queue: ${NOTIFICATIONS_QUEUE_URL:}
+    smtp-host: ${SMTP_HOST:mailpit}
+    smtp-port: ${SMTP_PORT:1025}
+    smtp-username: ${SMTP_USERNAME:}
+    smtp-password: ${SMTP_PASSWORD:}
+    from: ${NOTIFICATION_FROM:avisos@clinicahans.local}
+    portal-url: ${NOTIFICATION_PORTAL_URL:http://localhost:8090/login/login.html}
+    external-delivery-enabled: ${NOTIFICATION_EXTERNAL_ENABLED:false}
 logging:
   file:
     name: ${LOG_DIR:logs}/clinicahans.log
@@ -56,5 +74,6 @@ logging:
       clean-history-on-start: false
   level:
     root: WARN
+    br.com.clinicahans.config.SafeHttpActivityLoggingFilter: INFO
   pattern:
     level: "%5p [cid:%X{correlationId:-}]"

@@ -122,3 +122,7 @@ Telemedicina, assinatura/prescrição digital, multiunidade, estoque, faturament
 ## 14. Capacidade e organização de dados
 - **RF-097 [P0] Persistir agendamentos, consultas, recebíveis, pagamentos, resultados de exames e prescrições em partições semanais**, com identificadores globalmente únicos, integridade referencial e manutenção automática das semanas futuras.
 - **RF-098 [P1] Armazenar prescrição e itens em estrutura própria**, associada ao paciente, médico e opcionalmente à consulta; emissão e assinatura digital permanecem fora do fluxo atual.
+
+## 15. Avisos de exames
+
+- **RF-101 [P1] Avisar paciente e médico responsável por e-mail sobre resultado novo disponível**, com verificação às 00h/12h de São Paulo, arquivo existente no S3, controle individual de tentativas e prevenção de reenvio de avisos já confirmados. Fluxo e limites em `exam-ready-notifications.md`; validação local com Mailpit, sem envio externo habilitado.

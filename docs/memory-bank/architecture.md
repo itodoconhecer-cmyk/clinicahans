@@ -54,3 +54,12 @@ Dentro de `model`, os tipos de domínio ficam em arquivos independentes sob subp
 - Consultas operacionais e relatórios devem filtrar a coluna temporal de particionamento sempre que houver período; buscas por UUID resolvem primeiro o locator para evitar varredura de todas as semanas.
 - `maintain_clinic_week_partitions()` provisiona a semana atual e as 26 seguintes. A rotina roda na inicialização e diariamente; não remove histórico.
 - A proteção global contra reserva sobreposta permanece em `appointment_reservation_guard`, pois uma constraint de exclusão em cada partição não evita conflito entre semanas diferentes.
+
+## Notificações de resultados
+
+- V013 registra intenção por UUID de resultado e destinatário na mesma transação de recebimento, sem chamadas de rede nessa transação.
+- Modo worker do mesmo monólito consome jobs de 12 horas e notificações SQS. Publicação/envio usam leases e claims SQL com `SKIP LOCKED`, sem manter transação aberta durante S3/SMTP.
+- O arquivo deve existir no S3 antes do aviso. Mensagens SQS contêm somente contrato e UUID; e-mails são individuais, genéricos e sem anexos. Aceitação SMTP e auditoria são persistidas; não há garantia de exatamente uma entrega após falha entre SMTP e banco.
+- Worker desabilitado por padrão; Compose completo ativa captura Mailpit. SMTP externo exige configuração explícita, STARTTLS e credenciais. A API mantém o modo worker desativado.
+
+Diagramas consolidados de infraestrutura, componentes de software, inicialização e sequência dos avisos: [Arquitetura de sistemas](../diagrams/system-architecture.md).

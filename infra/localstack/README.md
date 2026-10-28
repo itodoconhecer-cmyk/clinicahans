@@ -2,6 +2,8 @@
 
 Ambiente local para S3, SQS, DynamoDB e EventBridge Scheduler. O Compose complementar preserva o PostgreSQL existente e não inicia nem modifica o backend.
 
+IAM e STS também ficam habilitados: o Scheduler assume uma role via STS para entregar mensagens na fila. Criar um agendamento com sucesso não comprova essa entrega; o smoke executa um agendamento isolado para conferir o caminho completo.
+
 Para frontend, backend, Redis, balanceador e alocação EC2/AWS, consulte o [mapa completo da infraestrutura](../README.md).
 
 ## Executar no Windows
@@ -48,19 +50,19 @@ Use somente dados sintéticos. O emulador não comprova segurança, durabilidade
 ```mermaid
 flowchart LR
     S[Scheduler: 00h e 12h] --> J[SQS: jobs]
-    J --> C[Consumidor do monólito: pendente]
+    J --> C[Consumidor do monólito]
     C --> P[(PostgreSQL: exames liberados e outbox)]
     P --> N[SQS: notificações]
-    N --> W[Worker de e-mail: pendente]
-    W --> E[Provedor SMTP: pendente]
+    N --> W[Worker de e-mail]
+    W --> E[Mailpit / SMTP configurado]
 ```
 
 O agendamento envia apenas `{"type":"CHECK_READY_EXAMS","schemaVersion":1}` à fila de jobs. Não contém pacientes, resultados ou endereços de e-mail. Falhas de entrega do Scheduler vão para a DLQ de jobs, com até 3 tentativas e idade máxima de 1 hora.
 
-Esta entrega prepara a infraestrutura. Ainda faltam consumidor do job, consulta dos exames liberados, outbox transacional, controle por exame/versão/destinatário, publicador, worker e integração com e-mail. Nenhum e-mail é enviado pelos scripts. O consumidor deverá criar avisos separados para paciente e médico responsável, com acesso pelo portal autenticado e sem resultado no corpo do e-mail. Atraso esperado: até 12 horas mais o tempo da fila. Filas podem repetir mensagens; o backend deverá tratar idempotência, inclusive entre instâncias e em caso de falha após o provedor aceitar o e-mail.
+O worker do monólito implementa consumo do job, outbox transacional e envio individual, habilitado localmente por `start-all`. O script de provisionamento não envia e-mails: ele configura os recursos. Os avisos de resultados novos só seguem após o job e a verificação de existência do arquivo no S3. Captura local pelo Mailpit; nenhuma mensagem contém resultado ou anexo. Como o portal de pacientes ainda não existe, a mensagem ao paciente orienta os canais da clínica, enquanto a do médico aponta ao sistema autenticado. Atraso esperado: até 12 horas mais fila/retries. [Regras, deduplicação e limites SMTP](../../docs/specs/exam-ready-notifications.md).
 
 ## Verificação
 
-`verify` confere configuração das filas/DLQs, proteção do bucket, tabela e horário do Scheduler. Também faz round-trip com conteúdo sintético em fila temporária, objeto versionado e item isolado; remove esses recursos ao terminar. Não consome jobs/notificações reais e não testa entrega agendada ou envio de e-mails. Reaplique `provision` e execute `verify` para conferir o provisionamento repetido.
+`verify` confere configuração das filas/DLQs, proteção do bucket, tabela e horário do Scheduler. Também faz round-trip com conteúdo sintético em fila temporária, objeto versionado e item isolado, além de testar a entrega de um agendamento temporário em SQS (espera de até 60 segundos). Remove os recursos sintéticos ao terminar. Não consome jobs/notificações reais nem envia e-mails. Usa o Python do ambiente virtual interno do LocalStack, que contém boto3. Reaplique `provision` e execute `verify` para conferir o provisionamento repetido.
 
 Referências oficiais: [instalação e token](https://docs.localstack.cloud/aws/getting-started/installation/), [hooks de inicialização](https://docs.localstack.cloud/aws/customization/advanced/initialization-hooks/) e [Scheduler com destino SQS](https://docs.localstack.cloud/aws/services/scheduler/).

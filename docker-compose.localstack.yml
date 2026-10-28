@@ -7,7 +7,7 @@ services:
       - "127.0.0.1:4566:4566"
     environment:
       LOCALSTACK_AUTH_TOKEN: ${LOCALSTACK_AUTH_TOKEN:?Defina LOCALSTACK_AUTH_TOKEN no ambiente ou em .env.localstack}
-      SERVICES: s3,sqs,dynamodb,iam,scheduler
+      SERVICES: s3,sqs,dynamodb,iam,sts,scheduler
       AWS_DEFAULT_REGION: us-east-1
       AWS_ACCESS_KEY_ID: test
       AWS_SECRET_ACCESS_KEY: test

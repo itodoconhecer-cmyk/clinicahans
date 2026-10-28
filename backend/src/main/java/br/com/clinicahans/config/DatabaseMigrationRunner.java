@@ -22,7 +22,7 @@ public class DatabaseMigrationRunner implements ApplicationRunner {
         "V006__patient_insurance_card.sql", "V007__cme_medical_specialty_catalog.sql",
         "V008__specialty_search_aliases.sql", "V009__appointment_calendar_search_index.sql",
         "V010__audit_request_context.sql", "V011__weekly_clinical_partitions.sql",
-        "V012__partition_trigger_identity.sql");
+        "V012__partition_trigger_identity.sql", "V013__exam_notification_outbox.sql");
     private final DataSource dataSource;
     private final JdbcTemplate jdbc;
 

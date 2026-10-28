@@ -1,6 +1,7 @@
-# Usar com docker-compose.yml e docker-compose.localstack.yml.
+# Usar com docker-compose.yml; adicionar docker-compose.localstack.yml para emulacao AWS.
 services:
   backend:
+    image: ${CLINICAHANS_BACKEND_IMAGE:-clinicahans-backend:local}
     build: ./backend
     restart: unless-stopped
     environment:
@@ -25,8 +26,6 @@ services:
       - "8080"
     depends_on:
       db:
-        condition: service_healthy
-      localstack:
         condition: service_healthy
     healthcheck:
       # O JRE nao depende de curl: verificar readiness via porta pela ferramenta bash.

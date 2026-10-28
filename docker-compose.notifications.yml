@@ -1,0 +1,40 @@
+# Incluir com os tres Composes base, localstack e application.
+services:
+  notification-worker:
+    image: ${CLINICAHANS_BACKEND_IMAGE:-clinicahans-backend:local}
+    pull_policy: never
+    restart: unless-stopped
+    environment:
+      DB_URL: jdbc:postgresql://db:5432/clinicahans
+      DB_USER: postgres
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      DB_POOL_MAX: "5"
+      JWT_SECRET: ${JWT_SECRET:?Defina JWT_SECRET}
+      CLINICAHANS_DEMO_DATA_ENABLED: "false"
+      EXAM_NOTIFICATION_WORKER_ENABLED: "true"
+      NOTIFICATION_EXTERNAL_ENABLED: "false"
+      AWS_ENDPOINT_URL: http://localstack:4566
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
+      AWS_REGION: us-east-1
+      EXAMS_BUCKET: clinicahans-exames-local
+      JOBS_QUEUE_URL: http://localstack:4566/000000000000/clinicahans-jobs
+      NOTIFICATIONS_QUEUE_URL: http://localstack:4566/000000000000/clinicahans-notificacoes
+      SMTP_HOST: mailpit
+      SMTP_PORT: "1025"
+      NOTIFICATION_FROM: avisos@clinicahans.local
+      NOTIFICATION_PORTAL_URL: http://localhost:8090/login/login.html
+      TASK_SCHEDULER_POOL_SIZE: "3"
+    depends_on:
+      backend:
+        condition: service_healthy
+      localstack:
+        condition: service_healthy
+      mailpit:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "bash", "-ec", "exec 3<>/dev/tcp/127.0.0.1/8080; printf 'GET /actuator/health/readiness HTTP/1.0\r\nHost: localhost\r\n\r\n' >&3; cat <&3 | grep -q '\"status\":\"UP\"'"]
+      interval: 15s
+      timeout: 5s
+      start_period: 60s
+      retries: 12

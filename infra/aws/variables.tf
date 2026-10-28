@@ -38,7 +38,7 @@ variable "frontend_image" {
 variable "worker_image" {
   type        = string
   default     = ""
-  description = "Imagem futura que implementa consumo SQS. Nao usar a API como worker sem implementar esse modo."
+  description = "Imagem publicada do monolito com o worker de notificacoes; pode ser a mesma referencia de backend_image."
 }
 variable "api_desired_capacity" {
   type        = number

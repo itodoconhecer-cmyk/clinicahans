@@ -1,0 +1,44 @@
+sequenceDiagram
+    autonumber
+    participant UI as Tela de resultado
+    participant API as API / ContinuityUseCase
+    participant DB as PostgreSQL / outbox
+    participant CLOCK as Scheduler
+    participant JQ as SQS jobs
+    participant W as Worker do monólito
+    participant S3 as S3 privado
+    participant NQ as SQS notificações
+    participant SMTP as Mailpit / SMTP
+
+    UI->>API: Registrar storageKey e mimeType, com JWT
+    API->>API: Validar contrato, perfil e acesso ao atendimento
+    API->>DB: BEGIN: resultado + status + duas intenções WAITING
+    DB-->>API: COMMIT
+    API-->>UI: 200 OK: resultado registrado
+    Note over UI,S3: Upload pela tela ainda pendente; arquivo precisa existir no bucket
+    Note over CLOCK,DB: As intenções aguardam o job de 00h ou 12h de São Paulo
+    CLOCK->>JQ: CHECK_READY_EXAMS, versão 1
+    W->>JQ: Receber comando
+    W->>DB: Liberar intenções elegíveis para READY
+    W->>JQ: Confirmar processamento do comando
+    loop Paciente e médico, independentemente
+        W->>DB: Obter intenção com lease e consultar destinatário atual
+        W->>S3: HEAD do objeto do exame
+        alt Destinatário inválido, inativo ou arquivo ausente
+            W->>DB: BLOCKED e código técnico; reavaliar no próximo job
+        else Condições válidas
+            W->>NQ: EXAM_READY_EMAIL + UUID da intenção
+            W->>DB: Registrar publicação
+            W->>NQ: Receber mensagem de aviso
+            W->>DB: Claim exclusivo e consulta do estado atual
+            W->>S3: Revalidar existência do objeto
+            W->>SMTP: Mensagem individual, genérica, sem anexo
+            alt SMTP aceitou e confirmação no banco teve sucesso
+                W->>DB: Transação: SENT + auditoria
+                W->>NQ: Excluir mensagem processada
+            else Falha de envio
+                W->>DB: Registrar falha e tentativa
+                Note over W,NQ: Sem confirmação, mensagem pode voltar; falhas persistentes vão à DLQ
+            end
+        end
+    end

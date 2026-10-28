@@ -38,3 +38,4 @@ Legenda:
 | E2E frontend por perfil | Prompt 04 | Frontend | CI só sintaxe | todas | ausente | PLANEJADO |
 
 | Volume mensal >1 milhão e partições semanais | RF-097/098/100, RN-083–086, RNF-086 | Database | V011/V012, locators, reserva global e manutenção de partições | Agenda, consultas, financeiro, exames e prescrição | carga demonstrativa de 60 consultas/semana; falta benchmark PostgreSQL representativo | PARCIAL |
+| Avisos de resultados ao paciente e médico | RF-101, RN-088, RNF-006/021/034/052 | Continuity/Integration | V013, ExamNotificationUseCase, SQS, S3 HeadObject, SMTP e auditoria | Mailpit local | unitários, concorrência SQL e PipelineIntegrationTest com LocalStack/Mailpit | IMPLEMENTADO_E_VERIFICADO_LOCALMENTE |

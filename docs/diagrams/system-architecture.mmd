@@ -1,0 +1,64 @@
+flowchart TB
+    BROWSER["Navegador da equipe<br/>Frontend: HTML, CSS e JavaScript"]
+
+    subgraph AWS["AWS — topologia preparada em Terraform, sem implantação"]
+        subgraph VPC["VPC — duas zonas de disponibilidade e security groups"]
+            subgraph PUBLIC["Sub-redes públicas"]
+                ALB["ALB público<br/>HTTPS com certificado ACM fornecido"]
+                NAT["NAT Gateway por zona<br/>Saída das instâncias privadas"]
+            end
+            subgraph APP["Sub-redes privadas de aplicação"]
+                WEB["EC2 Web + Auto Scaling<br/>Nginx: arquivos do frontend e gateway /api/"]
+                INTERNAL["ALB interno<br/>Distribuição das requisições REST"]
+                API["EC2 API + Auto Scaling<br/>Spring Boot: segurança, controllers e serviços de negócio"]
+                WORKER["EC2 Worker + grupo de Auto Scaling<br/>Consumidor de jobs, publicador da outbox e envio de avisos"]
+            end
+            subgraph DATA["Sub-redes privadas de dados"]
+                PG[("RDS PostgreSQL Multi-AZ<br/>Dados clínicos, agenda, financeiro<br/>Partições semanais, outbox e auditoria")]
+                REDIS[("ElastiCache Redis<br/>Integração de cache pendente")]
+            end
+            ALB --> WEB
+            WEB -->|REST /api/v1| INTERNAL
+            INTERNAL --> API
+            API -->|SQL parametrizado via pool JDBC| PG
+            WORKER -->|Claims, estado e auditoria| PG
+            API -. "Cache futuro" .-> REDIS
+        end
+
+        subgraph MANAGED["Serviços gerenciados AWS — fora das sub-redes da aplicação"]
+            CLOCK["EventBridge Scheduler<br/>00h e 12h — America/Sao_Paulo"]
+            JOBS["SQS jobs"]
+            NOTICES["SQS notificações"]
+            DLQ["DLQ de cada fila<br/>Falhas após tentativas"]
+            S3[("S3 privado<br/>Arquivos de exames")]
+            NOSQL[("DynamoDB<br/>Receitas: integração pendente")]
+        end
+        CLOCK --> JOBS
+        JOBS -->|Comando de verificação| WORKER
+        WORKER -->|UUID da intenção de aviso| NOTICES
+        NOTICES -->|Processamento individual| WORKER
+        JOBS -->|Tentativas esgotadas| DLQ
+        NOTICES -->|Tentativas esgotadas| DLQ
+        WORKER -->|HEAD: verificar existência do arquivo| S3
+        API -. "Upload e download a implementar" .-> S3
+        API -. "Persistência NoSQL a integrar" .-> NOSQL
+
+        SECRETS["Secrets Manager + IAM<br/>Configuração e credenciais no início do processo"]
+        ECR["ECR<br/>Imagens imutáveis para implantação"]
+        CW["CloudWatch<br/>Logs dos containers e alarmes SQS"]
+        SECRETS --> API
+        SECRETS --> WORKER
+        ECR -->|Imagem web| WEB
+        ECR -->|Mesma imagem do monólito| API
+        ECR -->|Modo worker habilitado| WORKER
+        API -->|Logs| CW
+        WORKER -->|Logs| CW
+    end
+
+    BROWSER -->|HTTPS| ALB
+    SMTP["SMTP/TLS configurado<br/>Pode ser o SMTP do SES"]
+    PEOPLE["Paciente e médico<br/>Mensagens individuais e genéricas"]
+    WORKER --> SMTP --> PEOPLE
+
+    classDef pending fill:#fff4df,stroke:#b7791f,stroke-dasharray:5 5;
+    class REDIS,NOSQL pending;

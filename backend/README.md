@@ -5,6 +5,14 @@ Backend gerado pelo Prompt 03 com foco em segurança clínica, rastreabilidade e
 ## Stack
 Java 25 LTS, Spring Boot 3.5.6, Spring Web/Security/JDBC, PostgreSQL 16, JWT, OpenAPI e migrations próprias. Não usa JPA/Hibernate.
 
+## Avisos de exames
+
+V013 adiciona `exam_notification_outbox`. Receber um resultado pela API cria, na mesma transação, intenções independentes para paciente e médico do atendimento. O worker é o mesmo monólito com `EXAM_NOTIFICATION_WORKER_ENABLED=true`; a API fica com esse modo desabilitado. O job SQS das 00h/12h libera intenções, e o publicador verifica arquivo no S3 antes de enfileirar UUIDs para envio. SMTP tem timeouts, não inclui dados clínicos/anexos e registra aceitação com auditoria. Não há backfill automático.
+
+Localmente, use `scripts/localstack.ps1 start-all` e consulte Mailpit na porta 8025. Para parar só o consumidor, use `stop-notifications`. Envio externo exige `NOTIFICATION_EXTERNAL_ENABLED=true`, SMTP/STARTTLS e credenciais próprias; captura local é o padrão. Consulte [a especificação](../docs/specs/exam-ready-notifications.md) e [a alocação](../infra/README.md).
+
+Testes SQL usam banco **isolado** com `CI_POSTGRES=true`, `DB_URL`, `DB_USER`, `DB_PASSWORD` e `JWT_SECRET`. O teste do fluxo completo também exige `NOTIFICATION_PIPELINE_TEST=true`, acesso a `http://localstack:4566` e `http://mailpit:8025` (substituíveis por `PIPELINE_LOCALSTACK_URL`/`PIPELINE_MAILPIT_URL`), credenciais AWS locais e SMTP Mailpit na porta 1025. Ele cria recursos temporários e destinatários sintéticos, limpa os registros/recursos do teste e mantém os dois e-mails capturados para inspeção. Sem essas flags, os testes de integração são ignorados. Nunca apontar essas configurações para banco ou SMTP de produção.
+
 ## Subir localmente
 1. Suba o PostgreSQL da raiz: `docker compose up -d db`.
 2. Exporte um segredo JWT com pelo menos 32 caracteres.

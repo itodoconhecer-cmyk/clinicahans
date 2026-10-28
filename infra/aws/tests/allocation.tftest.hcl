@@ -65,8 +65,48 @@ run "scaled_api" {
   }
 }
 
-run "reject_unimplemented_worker" {
+run "reject_worker_without_published_image" {
   command = plan
   variables { worker_desired_capacity = 1 }
   expect_failures = [aws_autoscaling_group.app["worker"]]
+}
+
+run "worker_reuses_monolith_with_explicit_mode" {
+  command = plan
+  override_resource {
+    target          = aws_db_instance.clinic
+    override_during = plan
+    values = {
+      address            = "postgres.internal"
+      master_user_secret = [{ secret_arn = "arn:aws:secretsmanager:sa-east-1:123456789012:secret:rds-test", kms_key_id = "test", secret_status = "active" }]
+    }
+  }
+  override_resource {
+    target          = aws_elasticache_replication_group.clinic
+    override_during = plan
+    values          = { primary_endpoint_address = "redis.internal" }
+  }
+  override_resource {
+    target          = aws_s3_bucket.exams
+    override_during = plan
+    values          = { id = "clinicahans-test-exams", arn = "arn:aws:s3:::clinicahans-test-exams" }
+  }
+  override_resource {
+    target          = aws_sqs_queue.main["jobs"]
+    override_during = plan
+    values          = { url = "https://sqs.sa-east-1.amazonaws.com/123456789012/test-jobs", arn = "arn:aws:sqs:sa-east-1:123456789012:test-jobs" }
+  }
+  override_resource {
+    target          = aws_sqs_queue.main["notificacoes"]
+    override_during = plan
+    values          = { url = "https://sqs.sa-east-1.amazonaws.com/123456789012/test-notices", arn = "arn:aws:sqs:sa-east-1:123456789012:test-notices" }
+  }
+  variables {
+    worker_desired_capacity = 1
+    worker_image            = "123456789012.dkr.ecr.sa-east-1.amazonaws.com/clinicahans-homolog/backend:release-001"
+  }
+  assert {
+    condition     = jsondecode(base64decode(regex("export BASE_ENVIRONMENT='([^']+)'", base64decode(aws_launch_template.app["worker"].user_data))[0])).EXAM_NOTIFICATION_WORKER_ENABLED == "true"
+    error_message = "EC2 worker precisa habilitar o modo de notificacoes do monolito."
+  }
 }

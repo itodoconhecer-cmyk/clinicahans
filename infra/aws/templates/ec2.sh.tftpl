@@ -19,7 +19,7 @@ secret_arn = os.environ['APP_SECRET_ARN']
 if secret_arn:
     raw = subprocess.check_output(['aws', 'secretsmanager', 'get-secret-value', '--secret-id', secret_arn, '--query', 'SecretString', '--output', 'text'])
     secret = json.loads(raw)
-    for name in ['JWT_SECRET', 'DB_USER', 'DB_PASSWORD', 'BOOTSTRAP_ADMIN_USERNAME', 'BOOTSTRAP_ADMIN_PASSWORD']:
+    for name in ['JWT_SECRET', 'DB_USER', 'DB_PASSWORD', 'BOOTSTRAP_ADMIN_USERNAME', 'BOOTSTRAP_ADMIN_PASSWORD', 'SMTP_HOST', 'SMTP_PORT', 'SMTP_USERNAME', 'SMTP_PASSWORD', 'NOTIFICATION_FROM', 'NOTIFICATION_EXTERNAL_ENABLED']:
         if name in secret:
             config[name] = secret[name]
     if len(config.get('JWT_SECRET', '')) < 32 or not config.get('DB_USER') or not config.get('DB_PASSWORD'):

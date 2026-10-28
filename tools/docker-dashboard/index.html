@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>Painel Docker · Clínica Hans</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script type="module" src="/app.js"></script>
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="Painel Docker Clínica Hans">
+        <span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></span>
+        <span>CLÍNICA <strong>HANS</strong><small>LAB DE ARQUITETURA</small></span>
+      </a>
+      <div class="topbar-status"><span class="connection-dot" id="connection-dot"></span><span id="connection-label">Conectando ao Docker</span><span class="topbar-divider"></span><span class="local-badge">AMBIENTE LOCAL</span></div>
+    </header>
+
+    <section class="intro" aria-labelledby="page-title">
+      <div>
+        <p class="eyebrow"><span class="eyebrow-line"></span> OBSERVABILIDADE AO VIVO <span id="project-label" class="project-chip">clinicahans</span></p>
+        <h1 id="page-title">Veja a aplicação <span>em movimento.</span></h1>
+        <p class="intro-copy">Cada elemento da arquitetura tem sua própria lâmpada. Quando um container grava uma linha nova no Docker, a luz acende.</p>
+      </div>
+      <div class="intro-aside">
+        <span class="big-led" id="master-led" aria-hidden="true"></span>
+        <div><strong id="master-state">AGUARDANDO SINAL</strong><small>atividade de log</small></div>
+      </div>
+    </section>
+
+    <section class="metrics" aria-label="Resumo do ambiente">
+      <article class="metric"><span class="metric-symbol" aria-hidden="true">▦</span><div><strong id="running-count">—</strong><span>containers rodando</span></div></article>
+      <article class="metric"><span class="metric-symbol metric-symbol-led" aria-hidden="true"></span><div><strong id="active-count">—</strong><span>lâmpadas acesas agora</span></div></article>
+      <article class="metric"><span class="metric-symbol" aria-hidden="true">⌁</span><div><strong id="log-count">—</strong><span>linhas desde abrir o painel</span></div></article>
+    </section>
+
+    <div class="content-grid">
+      <section class="panel components-panel" aria-labelledby="components-title">
+        <div class="section-heading">
+          <div><p class="eyebrow">MAPA DE CONTAINERS</p><h2 id="components-title">Elementos do Docker</h2></div>
+          <span class="live-pill"><span></span> AO VIVO</span>
+        </div>
+        <div id="docker-message" class="docker-message" hidden></div>
+        <div id="container-grid" class="container-grid" aria-live="polite" aria-busy="true"></div>
+        <div id="empty-state" class="empty-state" hidden>
+          <span class="empty-icon" aria-hidden="true">◌</span>
+          <strong>Nenhum container encontrado</strong>
+          <p>Suba a Clínica Hans e mantenha o projeto Docker Compose chamado <code>clinicahans</code>.</p>
+        </div>
+      </section>
+
+      <aside class="panel activity-panel" aria-labelledby="activity-title">
+        <div class="section-heading">
+          <div><p class="eyebrow">SINAL RECENTE</p><h2 id="activity-title">Quem acendeu</h2></div>
+          <span class="activity-count" id="activity-count">0</span>
+        </div>
+        <p class="activity-explainer">O painel conta a linha e identifica o container; o texto do log fica oculto.</p>
+        <ol id="activity-feed" class="activity-feed" aria-live="polite">
+          <li class="feed-empty">Aguardando novas linhas de log…</li>
+        </ol>
+        <div class="activity-footer"><span class="legend-led" aria-hidden="true"></span><span>Luz acesa por até 5 segundos após uma linha nova.</span></div>
+      </aside>
+    </div>
+
+    <section class="learning-note" aria-label="Como interpretar o painel">
+      <span class="note-icon" aria-hidden="true">i</span>
+      <p><strong>Rodando não significa que acabou de gerar log.</strong> O indicador de estado mostra se o container está ativo. A lâmpada mostra atividade recente. Banco e Redis podem processar operações sem escrever um log para cada consulta.</p>
+    </section>
+
+    <footer><span>CLÍNICA HANS · DEMONSTRAÇÃO EDUCACIONAL</span><span>Atualizado <time id="updated-at">—</time></span></footer>
+  </main>
+</body>
+</html>

@@ -43,6 +43,13 @@ public class ContinuityRepository {
         UUID id=UUID.randomUUID();
         jdbc.update("insert into exam_result(id,exam_order_id,storage_key,mime_type) values (?,?,?,?)",id,orderId,storageKey,mimeType);
         jdbc.update("update exam_order set status='RESULT_RECEIVED' where id=?",orderId);
+        // Executado na transacao de receiveResult do UseCase: sem envio de rede aqui.
+        for (String recipient : List.of("PATIENT", "DOCTOR")) {
+            jdbc.update("""
+                insert into exam_notification_outbox(id,result_id,recipient_kind)
+                values (?,?,?) on conflict (result_id,recipient_kind) do nothing
+                """, UUID.randomUUID(), id, recipient);
+        }
         return new ExamResult(id,orderId,storageKey,mimeType,OffsetDateTime.now());
     }
 

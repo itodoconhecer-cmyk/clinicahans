@@ -1,0 +1,41 @@
+flowchart TB
+    SCREEN["Páginas HTML reais<br/>JS de cada tela, componentes e sessão"]
+    CLIENT["frontend/services/api.js<br/>HTTP centralizado e token Bearer"]
+    GATEWAY["Gateway Nginx e balanceador"]
+    SCREEN --> CLIENT --> GATEWAY
+
+    subgraph MONOLITH["Código compartilhado do monólito — Java 25 e Spring Boot"]
+        subgraph HTTP["Processo API — responde às ações da equipe"]
+            SECURITY["Spring Security<br/>JWT, usuário ativo e permissões atuais"]
+            CONTROLLER["Controllers REST /api/v1<br/>DTOs e validação de entrada"]
+            USECASE["UseCases / serviços de negócio<br/>Pacientes e médicos; agenda e fila de espera<br/>Prontuário; exames e retornos; financeiro<br/>Relatórios; usuários e auditoria"]
+            MODEL["Modelo de domínio<br/>Entidades, estados e objetos de valor"]
+            REPOSITORY["Repositories<br/>SQL explícito e parametrizado"]
+            SECURITY --> CONTROLLER --> USECASE --> REPOSITORY
+            SECURITY -->|Consultar usuário e perfis atuais| REPOSITORY
+            USECASE --> MODEL
+        end
+        subgraph ASYNC["Processo worker — ExamNotificationUseCase"]
+            JOB["Consumir CHECK_READY_EXAMS<br/>Liberar intenções pendentes"]
+            PUBLISH["Publicar intenções liberadas<br/>Validar destinatário e arquivo"]
+            SEND["Consumir EXAM_READY_EMAIL<br/>Enviar individualmente e confirmar estado"]
+            NREPO["ExamNotificationRepository<br/>Claims com lease, deduplicação e auditoria"]
+            ADAPTER["ExamNotificationGateway<br/>AWS SDK: SQS/S3; JavaMail: SMTP"]
+            JOB --> NREPO
+            PUBLISH --> NREPO
+            SEND --> NREPO
+            JOB --> ADAPTER
+            PUBLISH --> ADAPTER
+            SEND --> ADAPTER
+        end
+    end
+    GATEWAY --> SECURITY
+    DB[("PostgreSQL<br/>Dados de negócio + outbox + auditoria")]
+    QUEUES["SQS jobs e notificações"]
+    STORAGE[("S3: existência do objeto")]
+    MAIL["Mailpit local / SMTP configurado"]
+    REPOSITORY --> DB
+    NREPO --> DB
+    ADAPTER --> QUEUES
+    ADAPTER --> STORAGE
+    ADAPTER --> MAIL

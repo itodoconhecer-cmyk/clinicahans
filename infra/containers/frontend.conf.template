@@ -1,4 +1,5 @@
 limit_req_zone $binary_remote_addr zone=api_limit:10m rate=30r/s;
+log_format clinicahans_safe '$time_iso8601 component=frontend method=$request_method status=$status duration=$request_time correlation_id=$request_id upstream_status=$upstream_status';
 map $http_x_forwarded_proto $gateway_proto {
     default $scheme;
     https https;
@@ -9,7 +10,7 @@ server {
     root /usr/share/nginx/html;
     index index.html;
     server_tokens off;
-    access_log off;
+    access_log /dev/stdout clinicahans_safe;
     client_max_body_size 2m;
     add_header X-Content-Type-Options nosniff always;
     add_header Referrer-Policy same-origin always;

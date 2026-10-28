@@ -1,0 +1,900 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mxfile host="app.diagrams.net" type="device" compressed="false" libraries="general;aws4;aws4b">
+  <diagram id="page-0" name="01 - Docker local">
+    <mxGraphModel dx="1900" dy="1400" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1900" pageHeight="1400" math="0" shadow="0" background="#ffffff">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="Clínica Hans | Containers e infraestrutura local" style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;fontFamily=Helvetica;fontSize=29;fontColor=#173457;fontStyle=1;spacing=4;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="35" y="20" width="1830" height="45" />
+        </mxCell>
+        <mxCell id="subtitle" value="Ícones de referência AWS, conforme o AWS Shape Pack do Miro. Nomes e tipos reais do Docker nos rótulos; tracejado = integração pendente." style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;fontFamily=Helvetica;fontSize=15;fontColor=#475569;fontStyle=0;spacing=4;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="35" y="70" width="1830" height="50" />
+        </mxCell>
+        <mxCell id="network" value="Docker Compose: clinicahans · rede bridge: clinicahans_default" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f3f5f8;strokeColor=#8190a5;fontColor=#203047;fontFamily=Helvetica;fontSize=14;spacing=10;strokeWidth=1.5;swimlane;startSize=40;horizontal=1;container=1;collapsible=0;align=left;verticalAlign=top;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="280" y="145" width="1570" height="1050" />
+        </mxCell>
+        <mxCell id="browser" value="&lt;b&gt;Navegador&lt;/b&gt;&lt;br&gt;Frontend executa aqui&lt;br&gt;http://localhost:8090" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#232F3E;fontFamily=Helvetica;fontSize=11;spacing=8;strokeWidth=1.5;shape=rectangle;align=left;verticalAlign=middle;spacingLeft=66;spacingRight=10;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="35" y="280" width="205" height="120" />
+        </mxCell>
+        <mxCell id="frontend" value="&lt;b&gt;clinicahans-frontend-1&lt;/b&gt;&lt;br&gt;Tipo: frontend + gateway Nginx&lt;br&gt;Imagem: clinicahans-frontend&lt;br&gt;Host 8090 → container 80" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#232F3E;fontFamily=Helvetica;fontSize=13;spacing=8;strokeWidth=1.5;shape=rectangle;align=left;verticalAlign=middle;spacingLeft=86;spacingRight=10;" vertex="1" parent="network">
+          <mxGeometry as="geometry" x="40" y="115" width="310" height="155" />
+        </mxCell>
+        <mxCell id="lb" value="&lt;b&gt;clinicahans-backend-lb-1&lt;/b&gt;&lt;br&gt;Tipo: balanceador HTTP Nginx&lt;br&gt;Imagem: nginx:1.28-alpine&lt;br&gt;Listener interno: 8080" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#232F3E;fontFamily=Helvetica;fontSize=12;spacing=8;strokeWidth=1.5;shape=rectangle;align=left;verticalAlign=middle;spacingLeft=78;spacingRight=10;" vertex="1" parent="network">
+          <mxGeometry as="geometry" x="410" y="125" width="270" height="135" />
+        </mxCell>
+        <mxCell id="api" value="&lt;b&gt;clinicahans-backend-1&lt;/b&gt;&lt;br&gt;Tipo: API REST · Java 25 / Spring Boot&lt;br&gt;Imagem: clinicahans-backend:local&lt;br&gt;Porta interna: 8080" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#232F3E;fontFamily=Helvetica;fontSize=13;spacing=8;strokeWidth=1.5;shape=rectangle;align=left;verticalAlign=middle;spacingLeft=86;spacingRight=10;" vertex="1" parent="network">
+          <mxGeometry as="geometry" x="750" y="115" width="340" height="155" />
+        </mxCell>
+        <mxCell id="db" value="&lt;b&gt;clinicahans-db&lt;/b&gt;&lt;br&gt;Serviço Compose: db&lt;br&gt;Tipo: PostgreSQL 16&lt;br&gt;Imagem: postgres:16-alpine&lt;br&gt;Host 5433 → container 5432" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#232F3E;fontFamily=Helvetica;fontSize=13;spacing=8;strokeWidth=1.5;shape=rectangle;align=left;verticalAlign=middle;spacingLeft=86;spacingRight=10;" vertex="1" parent="network">
+          <mxGeometry as="geometry" x="1160" y="110" width="340" height="180" />
+        </mxCell>
+        <mxCell id="pgvol" value="&lt;b&gt;Volume Docker&lt;/b&gt;&lt;br&gt;clinicahans_clinicahans_pgdata&lt;br&gt;/var/lib/postgresql/data" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#232F3E;fontFamily=Helvetica;fontSize=13;spacing=8;strokeWidth=1.5;shape=rectangle;align=left;verticalAlign=middle;spacingLeft=86;spacingRight=10;" vertex="1" parent="network">
+          <mxGeometry as="geometry" x="1160" y="350" width="340" height="100" />
+        </mxCell>
+        <mxCell id="redis" value="&lt;b&gt;clinicahans-redis-1&lt;/b&gt;&lt;br&gt;Tipo: cache Redis — integração pendente&lt;br&gt;Imagem: redis:7.4-alpine&lt;br&gt;Porta interna: 6379" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#B7791F;fontColor=#232F3E;fontFamily=Helvetica;fontSize=12;spacing=8;strokeWidth=1.5;dashed=1;dashPattern=6 4;shape=rectangle;align=left;verticalAlign=middle;spacingLeft=78;spacingRight=10;" vertex="1" parent="network">
+          <mxGeometry as="geometry" x="410" y="480" width="270" height="145" />
+        </mxCell>
+        <mxCell id="worker" value="&lt;b&gt;clinicahans-notification-worker-1&lt;/b&gt;&lt;br&gt;Tipo: worker de avisos de exames&lt;br&gt;Imagem: clinicahans-backend:local&lt;br&gt;Mesma aplicação, modo worker&lt;br&gt;HTTP interno: 8080; sem porta no host" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#232F3E;fontFamily=Helvetica;fontSize=13;spacing=8;strokeWidth=1.5;shape=rectangle;align=left;verticalAlign=middle;spacingLeft=86;spacingRight=10;" vertex="1" parent="network">
+          <mxGeometry as="geometry" x="750" y="470" width="340" height="170" />
+        </mxCell>
+        <mxCell id="mail" value="&lt;b&gt;clinicahans-mailpit-1&lt;/b&gt;&lt;br&gt;Tipo: captura de e-mail SMTP&lt;br&gt;Imagem: axllent/mailpit:v1.27&lt;br&gt;SMTP interno: 1025&lt;br&gt;Painel: localhost:8025" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#232F3E;fontFamily=Helvetica;fontSize=13;spacing=8;strokeWidth=1.5;shape=rectangle;align=left;verticalAlign=middle;spacingLeft=86;spacingRight=10;" vertex="1" parent="network">
+          <mxGeometry as="geometry" x="1160" y="470" width="340" height="170" />
+        </mxCell>
+        <mxCell id="localstack" value="&lt;b&gt;clinicahans-localstack-1&lt;/b&gt;&lt;br&gt;Tipo: emulador de APIs AWS&lt;br&gt;Imagem: localstack/localstack:2026.10.0&lt;br&gt;Host/container: 4566 · http://localstack:4566 na rede Docker&lt;br&gt;Serviços habilitados: S3, SQS, DynamoDB, Scheduler, IAM e STS&lt;br&gt;Nomes e tipos de cada recurso: aba 02" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#232F3E;fontFamily=Helvetica;fontSize=13;spacing=8;strokeWidth=1.5;shape=rectangle;align=left;verticalAlign=middle;spacingLeft=86;spacingRight=10;" vertex="1" parent="network">
+          <mxGeometry as="geometry" x="40" y="720" width="1050" height="225" />
+        </mxCell>
+        <mxCell id="lsvol" value="&lt;b&gt;Volume Docker&lt;/b&gt;&lt;br&gt;clinicahans_clinicahans_localstack_data&lt;br&gt;/var/lib/localstack" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#232F3E;fontFamily=Helvetica;fontSize=13;spacing=8;strokeWidth=1.5;shape=rectangle;align=left;verticalAlign=middle;spacingLeft=86;spacingRight=10;" vertex="1" parent="network">
+          <mxGeometry as="geometry" x="1160" y="780" width="340" height="115" />
+        </mxCell>
+        <mxCell id="edge-1" value="HTTP 8090" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#536d8b;strokeWidth=1.6;fontColor=#334155;fontSize=12;labelBackgroundColor=#ffffff;exitX=1;exitY=0.5;entryX=0;entryY=0.5;exitPerimeter=1;entryPerimeter=1;jumpStyle=arc;jumpSize=8;" edge="1" parent="1" source="browser" target="frontend">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="edge-2" value="/api/v1/**" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#536d8b;strokeWidth=1.6;fontColor=#334155;fontSize=12;labelBackgroundColor=#ffffff;exitX=1;exitY=0.5;entryX=0;entryY=0.5;exitPerimeter=1;entryPerimeter=1;jumpStyle=arc;jumpSize=8;" edge="1" parent="1" source="frontend" target="lb">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="edge-3" value="HTTP 8080" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#536d8b;strokeWidth=1.6;fontColor=#334155;fontSize=12;labelBackgroundColor=#ffffff;exitX=1;exitY=0.5;entryX=0;entryY=0.5;exitPerimeter=1;entryPerimeter=1;jumpStyle=arc;jumpSize=8;" edge="1" parent="1" source="lb" target="api">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="edge-4" value="SQL / JDBC 5432" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#536d8b;strokeWidth=1.6;fontColor=#334155;fontSize=12;labelBackgroundColor=#ffffff;exitX=1;exitY=0.5;entryX=0;entryY=0.5;exitPerimeter=1;entryPerimeter=1;jumpStyle=arc;jumpSize=8;" edge="1" parent="1" source="api" target="db">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="edge-5" value="Persistência" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#536d8b;strokeWidth=1.6;fontColor=#334155;fontSize=12;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;entryX=0.5;entryY=0;exitPerimeter=1;entryPerimeter=1;jumpStyle=arc;jumpSize=8;" edge="1" parent="1" source="db" target="pgvol">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="edge-6" value="Cache futuro" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#ba8328;strokeWidth=1.6;fontColor=#334155;fontSize=12;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;entryX=0.5;entryY=0;exitPerimeter=1;entryPerimeter=1;jumpStyle=arc;jumpSize=8;dashed=1;dashPattern=6 4;" edge="1" parent="1" source="api" target="redis">
+          <mxGeometry as="geometry" relative="1">
+            <Array as="points">
+              <mxPoint x="1200" y="460" />
+              <mxPoint x="825" y="460" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-7" value="Outbox e auditoria" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#536d8b;strokeWidth=1.6;fontColor=#334155;fontSize=12;labelBackgroundColor=#ffffff;exitX=1;exitY=0.5;entryX=0;entryY=0.5;exitPerimeter=1;entryPerimeter=1;jumpStyle=arc;jumpSize=8;" edge="1" parent="1" source="worker" target="db">
+          <mxGeometry as="geometry" relative="1">
+            <Array as="points">
+              <mxPoint x="1400" y="700" />
+              <mxPoint x="1400" y="345" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-8" value="SMTP 1025" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#536d8b;strokeWidth=1.6;fontColor=#334155;fontSize=12;labelBackgroundColor=#ffffff;exitX=1;exitY=0.5;entryX=0;entryY=0.5;exitPerimeter=1;entryPerimeter=1;jumpStyle=arc;jumpSize=8;" edge="1" parent="1" source="worker" target="mail">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="edge-9" value="SQS + HEAD S3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#536d8b;strokeWidth=1.6;fontColor=#334155;fontSize=12;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;entryX=0.72;entryY=0;exitPerimeter=1;entryPerimeter=1;jumpStyle=arc;jumpSize=8;startArrow=block;startFill=1;" edge="1" parent="1" source="worker" target="localstack">
+          <mxGeometry as="geometry" relative="1">
+            <Array as="points">
+              <mxPoint x="1200" y="825" />
+              <mxPoint x="1080" y="825" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-10" value="Persistência" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#536d8b;strokeWidth=1.6;fontColor=#334155;fontSize=12;labelBackgroundColor=#ffffff;exitX=1;exitY=0.5;entryX=0;entryY=0.5;exitPerimeter=1;entryPerimeter=1;jumpStyle=arc;jumpSize=8;" edge="1" parent="1" source="localstack" target="lsvol">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="legend" value="&lt;b&gt;Leitura do desenho&lt;/b&gt;&lt;br&gt;A API responde às telas. O worker processa avisos em segundo plano. O Mailpit captura mensagens; envio externo desabilitado.&lt;br&gt;Os seis serviços AWS são emulados dentro de um único container LocalStack. EC2/RDS/ElastiCache reais pertencem à aba 05, ainda sem implantação." style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;fontFamily=Helvetica;fontSize=15;fontColor=#475569;fontStyle=0;spacing=4;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="35" y="1230" width="1810" height="125" />
+        </mxCell>
+        <mxCell id="aws-icon-browser" value="" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.client;sketch=0;html=1;aspect=fixed;outlineConnect=0;gradientColor=none;fillColor=#545B64;strokeColor=#ffffff;strokeWidth=0;fontColor=#232F3E;connectable=0;pointerEvents=1;movable=1;resizable=1;" vertex="1" parent="browser" connectable="0">
+          <mxGeometry as="geometry" x="14" y="40.0" width="40" height="40" />
+        </mxCell>
+        <mxCell id="aws-icon-frontend" value="" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.container_1;sketch=0;html=1;aspect=fixed;outlineConnect=0;gradientColor=none;fillColor=#ED7100;strokeColor=#ffffff;strokeWidth=0;fontColor=#232F3E;connectable=0;pointerEvents=1;movable=1;resizable=1;" vertex="1" parent="frontend" connectable="0">
+          <mxGeometry as="geometry" x="14" y="47.5" width="60" height="60" />
+        </mxCell>
+        <mxCell id="aws-icon-lb" value="" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.elastic_load_balancing;sketch=0;html=1;aspect=fixed;outlineConnect=0;gradientColor=none;fillColor=#8C4FFF;strokeColor=#ffffff;strokeWidth=0;fontColor=#232F3E;connectable=0;pointerEvents=1;movable=1;resizable=1;" vertex="1" parent="lb" connectable="0">
+          <mxGeometry as="geometry" x="14" y="41.5" width="52" height="52" />
+        </mxCell>
+        <mxCell id="aws-icon-api" value="" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.container_1;sketch=0;html=1;aspect=fixed;outlineConnect=0;gradientColor=none;fillColor=#ED7100;strokeColor=#ffffff;strokeWidth=0;fontColor=#232F3E;connectable=0;pointerEvents=1;movable=1;resizable=1;" vertex="1" parent="api" connectable="0">
+          <mxGeometry as="geometry" x="14" y="47.5" width="60" height="60" />
+        </mxCell>
+        <mxCell id="aws-icon-db" value="" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.generic_database;sketch=0;html=1;aspect=fixed;outlineConnect=0;gradientColor=none;fillColor=#545B64;strokeColor=#ffffff;strokeWidth=0;fontColor=#232F3E;connectable=0;pointerEvents=1;movable=1;resizable=1;" vertex="1" parent="db" connectable="0">
+          <mxGeometry as="geometry" x="14" y="60.0" width="60" height="60" />
+        </mxCell>
+        <mxCell id="aws-icon-pgvol" value="" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.volume;sketch=0;html=1;aspect=fixed;outlineConnect=0;gradientColor=none;fillColor=#545B64;strokeColor=#ffffff;strokeWidth=0;fontColor=#232F3E;connectable=0;pointerEvents=1;movable=1;resizable=1;" vertex="1" parent="pgvol" connectable="0">
+          <mxGeometry as="geometry" x="14" y="20.0" width="60" height="60" />
+        </mxCell>
+        <mxCell id="aws-icon-redis" value="" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.generic_database;sketch=0;html=1;aspect=fixed;outlineConnect=0;gradientColor=none;fillColor=#545B64;strokeColor=#ffffff;strokeWidth=0;fontColor=#232F3E;connectable=0;pointerEvents=1;movable=1;resizable=1;" vertex="1" parent="redis" connectable="0">
+          <mxGeometry as="geometry" x="14" y="46.5" width="52" height="52" />
+        </mxCell>
+        <mxCell id="aws-icon-worker" value="" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.container_1;sketch=0;html=1;aspect=fixed;outlineConnect=0;gradientColor=none;fillColor=#ED7100;strokeColor=#ffffff;strokeWidth=0;fontColor=#232F3E;connectable=0;pointerEvents=1;movable=1;resizable=1;" vertex="1" parent="worker" connectable="0">
+          <mxGeometry as="geometry" x="14" y="55.0" width="60" height="60" />
+        </mxCell>
+        <mxCell id="aws-icon-mail" value="" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.email_notification;sketch=0;html=1;aspect=fixed;outlineConnect=0;gradientColor=none;fillColor=#545B64;strokeColor=#ffffff;strokeWidth=0;fontColor=#232F3E;connectable=0;pointerEvents=1;movable=1;resizable=1;" vertex="1" parent="mail" connectable="0">
+          <mxGeometry as="geometry" x="14" y="55.0" width="60" height="60" />
+        </mxCell>
+        <mxCell id="aws-icon-localstack" value="" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.aws_cloud;sketch=0;html=1;aspect=fixed;outlineConnect=0;gradientColor=none;fillColor=#545B64;strokeColor=#ffffff;strokeWidth=0;fontColor=#232F3E;connectable=0;pointerEvents=1;movable=1;resizable=1;" vertex="1" parent="localstack" connectable="0">
+          <mxGeometry as="geometry" x="14" y="82.5" width="60" height="60" />
+        </mxCell>
+        <mxCell id="aws-icon-lsvol" value="" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.volume;sketch=0;html=1;aspect=fixed;outlineConnect=0;gradientColor=none;fillColor=#545B64;strokeColor=#ffffff;strokeWidth=0;fontColor=#232F3E;connectable=0;pointerEvents=1;movable=1;resizable=1;" vertex="1" parent="lsvol" connectable="0">
+          <mxGeometry as="geometry" x="14" y="27.5" width="60" height="60" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="page-1" name="02 - Recursos LocalStack">
+    <mxGraphModel dx="1900" dy="1470" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1900" pageHeight="1470" math="0" shadow="0" background="#ffffff">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="LocalStack | Nomes e tipos dos recursos" style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;fontFamily=Helvetica;fontSize=29;fontColor=#173457;fontStyle=1;spacing=4;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="35" y="20" width="1830" height="45" />
+        </mxCell>
+        <mxCell id="subtitle" value="Container: clinicahans-localstack-1 · região us-east-1 · conta de teste 000000000000 · endpoint do host http://localhost:4566" style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;fontFamily=Helvetica;fontSize=15;fontColor=#475569;fontStyle=0;spacing=4;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="35" y="70" width="1830" height="50" />
+        </mxCell>
+        <mxCell id="ls" value="clinicahans-localstack-1 | AWS emulado: S3, SQS, DynamoDB, Scheduler, IAM e STS" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f3f5f8;strokeColor=#8190a5;fontColor=#203047;fontFamily=Helvetica;fontSize=14;spacing=10;strokeWidth=1.5;swimlane;startSize=40;horizontal=1;container=1;collapsible=0;align=left;verticalAlign=top;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="40" y="150" width="1790" height="1030" />
+        </mxCell>
+        <mxCell id="schedulegroup" value="default | Tipo: Scheduler Schedule Group" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#232F3E;fontFamily=Helvetica;fontSize=13;spacing=8;strokeWidth=1.5;shape=rectangle;align=left;verticalAlign=middle;spacingLeft=34;spacingRight=10;" vertex="1" parent="ls">
+          <mxGeometry as="geometry" x="40" y="45" width="450" height="27" />
+        </mxCell>
+        <mxCell id="schedule" value="&lt;b&gt;clinicahans-exames-prontos-12h&lt;/b&gt;&lt;br&gt;Tipo: EventBridge Scheduler / Schedule&lt;br&gt;Grupo: default · estado: ENABLED&lt;br&gt;cron(0 0,12 * * ? *)&lt;br&gt;Fuso: America/Sao_Paulo" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#232F3E;fontFamily=Helvetica;fontSize=13;spacing=8;strokeWidth=1.5;shape=rectangle;align=left;verticalAlign=middle;spacingLeft=86;spacingRight=10;" vertex="1" parent="ls">
+          <mxGeometry as="geometry" x="40" y="80" width="450" height="160" />
+        </mxCell>
+        <mxCell id="jobs" value="&lt;b&gt;clinicahans-jobs&lt;/b&gt;&lt;br&gt;Tipo: SQS Standard Queue&lt;br&gt;Contrato: CHECK_READY_EXAMS v1&lt;br&gt;Visibilidade 300 s · retenção 4 dias" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#232F3E;fontFamily=Helvetica;fontSize=13;spacing=8;strokeWidth=1.5;shape=rectangle;align=left;verticalAlign=middle;spacingLeft=86;spacingRight=10;" vertex="1" parent="ls">
+          <mxGeometry as="geometry" x="580" y="80" width="480" height="160" />
+        </mxCell>
+        <mxCell id="notices" value="&lt;b&gt;clinicahans-notificacoes&lt;/b&gt;&lt;br&gt;Tipo: SQS Standard Queue&lt;br&gt;Contrato: EXAM_READY_EMAIL v1 + UUID&lt;br&gt;Visibilidade 300 s · retenção 4 dias" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#232F3E;fontFamily=Helvetica;fontSize=13;spacing=8;strokeWidth=1.5;shape=rectangle;align=left;verticalAlign=middle;spacingLeft=86;spacingRight=10;" vertex="1" parent="ls">
+          <mxGeometry as="geometry" x="1160" y="80" width="560" height="160" />
+        </mxCell>
+        <mxCell id="jobsdlq" value="&lt;b&gt;clinicahans-jobs-dlq&lt;/b&gt;&lt;br&gt;Tipo: SQS Standard / Dead-Letter Queue&lt;br&gt;Retenção: 14 dias" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#232F3E;fontFamily=Helvetica;fontSize=13;spacing=8;strokeWidth=1.5;shape=rectangle;align=left;verticalAlign=middle;spacingLeft=86;spacingRight=10;" vertex="1" parent="ls">
+          <mxGeometry as="geometry" x="580" y="340" width="480" height="110" />
+        </mxCell>
+        <mxCell id="noticesdlq" value="&lt;b&gt;clinicahans-notificacoes-dlq&lt;/b&gt;&lt;br&gt;Tipo: SQS Standard / Dead-Letter Queue&lt;br&gt;Retenção: 14 dias" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#232F3E;fontFamily=Helvetica;fontSize=13;spacing=8;strokeWidth=1.5;shape=rectangle;align=left;verticalAlign=middle;spacingLeft=86;spacingRight=10;" vertex="1" parent="ls">
+          <mxGeometry as="geometry" x="1160" y="340" width="560" height="110" />
+        </mxCell>
+        <mxCell id="role" value="&lt;b&gt;clinicahans-scheduler-local&lt;/b&gt;&lt;br&gt;Tipo: IAM Role&lt;br&gt;Trust: scheduler.amazonaws.com&lt;br&gt;Destino autorizado: fila jobs e sua DLQ" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#232F3E;fontFamily=Helvetica;fontSize=13;spacing=8;strokeWidth=1.5;shape=rectangle;align=left;verticalAlign=middle;spacingLeft=86;spacingRight=10;" vertex="1" parent="ls">
+          <mxGeometry as="geometry" x="40" y="350" width="450" height="130" />
+        </mxCell>
+        <mxCell id="policyjob" value="&lt;b&gt;send-exam-check-job&lt;/b&gt;&lt;br&gt;Tipo: IAM Inline Policy&lt;br&gt;sqs:SendMessage → jobs" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#232F3E;fontFamily=Helvetica;fontSize=11;spacing=8;strokeWidth=1.5;shape=rectangle;align=left;verticalAlign=middle;spacingLeft=66;spacingRight=10;" vertex="1" parent="ls">
+          <mxGeometry as="geometry" x="40" y="550" width="210" height="105" />
+        </mxCell>
+        <mxCell id="policydlq" value="&lt;b&gt;send-scheduler-dlq&lt;/b&gt;&lt;br&gt;Tipo: IAM Inline Policy&lt;br&gt;sqs:SendMessage → jobs-dlq" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#232F3E;fontFamily=Helvetica;fontSize=11;spacing=8;strokeWidth=1.5;shape=rectangle;align=left;verticalAlign=middle;spacingLeft=66;spacingRight=10;" vertex="1" parent="ls">
+          <mxGeometry as="geometry" x="275" y="550" width="215" height="105" />
+        </mxCell>
+        <mxCell id="sts" value="&lt;b&gt;STS&lt;/b&gt;&lt;br&gt;Tipo: serviço de identidade&lt;br&gt;AssumeRole para o Scheduler&lt;br&gt;Sem recurso persistente nomeado" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#232F3E;fontFamily=Helvetica;fontSize=13;spacing=8;strokeWidth=1.5;shape=rectangle;align=left;verticalAlign=middle;spacingLeft=86;spacingRight=10;" vertex="1" parent="ls">
+          <mxGeometry as="geometry" x="40" y="760" width="450" height="125" />
+        </mxCell>
+        <mxCell id="s3" value="&lt;b&gt;clinicahans-exames-local&lt;/b&gt;&lt;br&gt;Tipo: Amazon S3 Bucket&lt;br&gt;Privado, versionado e AES256&lt;br&gt;Arquivos binários de exames&lt;br&gt;Worker verifica presença com HEAD" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#232F3E;fontFamily=Helvetica;fontSize=13;spacing=8;strokeWidth=1.5;shape=rectangle;align=left;verticalAlign=middle;spacingLeft=86;spacingRight=10;" vertex="1" parent="ls">
+          <mxGeometry as="geometry" x="580" y="650" width="480" height="170" />
+        </mxCell>
+        <mxCell id="dynamo" value="&lt;b&gt;clinicahans-receitas-local&lt;/b&gt;&lt;br&gt;Tipo: DynamoDB Table&lt;br&gt;pk: string / HASH · sk: string / RANGE&lt;br&gt;Billing: PAY_PER_REQUEST&lt;br&gt;Recurso criado; integração clínica pendente" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#B7791F;fontColor=#232F3E;fontFamily=Helvetica;fontSize=13;spacing=8;strokeWidth=1.5;shape=rectangle;dashed=1;dashPattern=6 4;align=left;verticalAlign=middle;spacingLeft=86;spacingRight=10;" vertex="1" parent="ls">
+          <mxGeometry as="geometry" x="1160" y="650" width="560" height="170" />
+        </mxCell>
+        <mxCell id="consumer" value="&lt;b&gt;clinicahans-notification-worker-1&lt;/b&gt;&lt;br&gt;Tipo: container Docker / worker Java&lt;br&gt;Consumidor externo ao LocalStack: jobs, avisos e HEAD S3." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#232F3E;fontFamily=Helvetica;fontSize=13;spacing=8;strokeWidth=1.5;shape=rectangle;align=left;verticalAlign=middle;spacingLeft=86;spacingRight=10;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="620" y="1250" width="1100" height="140" />
+        </mxCell>
+        <mxCell id="edge-1" value="Comando a cada 12h" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#536d8b;strokeWidth=1.6;fontColor=#334155;fontSize=12;labelBackgroundColor=#ffffff;exitX=1;exitY=0.5;entryX=0;entryY=0.5;exitPerimeter=1;entryPerimeter=1;jumpStyle=arc;jumpSize=8;" edge="1" parent="1" source="schedule" target="jobs">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="edge-2" value="RoleArn / permissão" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#536d8b;strokeWidth=1.6;fontColor=#334155;fontSize=12;labelBackgroundColor=#ffffff;exitX=0.5;exitY=0;entryX=0.5;entryY=1;exitPerimeter=1;entryPerimeter=1;jumpStyle=arc;jumpSize=8;" edge="1" parent="1" source="role" target="schedule">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="edge-3" value="Política inline" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#536d8b;strokeWidth=1.6;fontColor=#334155;fontSize=12;labelBackgroundColor=#ffffff;exitX=0.25;exitY=1;entryX=0.5;entryY=0;exitPerimeter=1;entryPerimeter=1;jumpStyle=arc;jumpSize=8;" edge="1" parent="1" source="role" target="policyjob">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="edge-4" value="Política inline" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#536d8b;strokeWidth=1.6;fontColor=#334155;fontSize=12;labelBackgroundColor=#ffffff;exitX=0.75;exitY=1;entryX=0.5;entryY=0;exitPerimeter=1;entryPerimeter=1;jumpStyle=arc;jumpSize=8;" edge="1" parent="1" source="role" target="policydlq">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="edge-5" value="Após 5 recebimentos sem sucesso" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#c46a5a;strokeWidth=1.6;fontColor=#334155;fontSize=12;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;entryX=0.5;entryY=0;exitPerimeter=1;entryPerimeter=1;jumpStyle=arc;jumpSize=8;" edge="1" parent="1" source="jobs" target="jobsdlq">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="edge-6" value="Após 5 recebimentos sem sucesso" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#c46a5a;strokeWidth=1.6;fontColor=#334155;fontSize=12;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;entryX=0.5;entryY=0;exitPerimeter=1;entryPerimeter=1;jumpStyle=arc;jumpSize=8;" edge="1" parent="1" source="notices" target="noticesdlq">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="edge-7" value="Consumir jobs" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#536d8b;strokeWidth=1.6;fontColor=#334155;fontSize=12;labelBackgroundColor=#ffffff;exitX=0;exitY=0.5;entryX=0;entryY=0.5;exitPerimeter=1;entryPerimeter=1;jumpStyle=arc;jumpSize=8;" edge="1" parent="1" source="jobs" target="consumer">
+          <mxGeometry as="geometry" relative="1">
+            <Array as="points">
+              <mxPoint x="575" y="310" />
+              <mxPoint x="575" y="1320" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-8" value="Publicar / consumir avisos" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#536d8b;strokeWidth=1.6;fontColor=#334155;fontSize=12;labelBackgroundColor=#ffffff;exitX=1;exitY=0.5;entryX=1;entryY=0.5;exitPerimeter=1;entryPerimeter=1;jumpStyle=arc;jumpSize=8;startArrow=block;startFill=1;" edge="1" parent="1" source="notices" target="consumer">
+          <mxGeometry as="geometry" relative="1">
+            <Array as="points">
+              <mxPoint x="1800" y="310" />
+              <mxPoint x="1800" y="1320" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-9" value="HEAD Object" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#536d8b;strokeWidth=1.6;fontColor=#334155;fontSize=12;labelBackgroundColor=#ffffff;exitX=0.33;exitY=0;entryX=0.5;entryY=1;exitPerimeter=1;entryPerimeter=1;jumpStyle=arc;jumpSize=8;" edge="1" parent="1" source="consumer" target="s3">
+          <mxGeometry as="geometry" relative="1">
+            <Array as="points">
+              <mxPoint x="980" y="1210" />
+              <mxPoint x="860" y="1210" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="urlnote" value="URLs canônicas SQS: http://localhost:4566/queue/us-east-1/000000000000/&amp;lt;nome-da-fila&amp;gt; · Dentro dos containers, usar host localstack." style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;fontFamily=Helvetica;fontSize=13;fontColor=#475569;fontStyle=0;spacing=4;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="45" y="1410" width="1785" height="40" />
+        </mxCell>
+        <mxCell id="aws-icon-schedule" value="" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.eventbridge_scheduler;sketch=0;html=1;aspect=fixed;outlineConnect=0;gradientColor=none;fillColor=#E7157B;strokeColor=#ffffff;strokeWidth=0;fontColor=#232F3E;connectable=0;pointerEvents=1;movable=1;resizable=1;" vertex="1" parent="schedule" connectable="0">
+          <mxGeometry as="geometry" x="14" y="50.0" width="60" height="60" />
+        </mxCell>
+        <mxCell id="aws-icon-jobs" value="" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.sqs;sketch=0;html=1;aspect=fixed;outlineConnect=0;gradientColor=none;fillColor=#E7157B;strokeColor=#ffffff;strokeWidth=0;fontColor=#232F3E;connectable=0;pointerEvents=1;movable=1;resizable=1;" vertex="1" parent="jobs" connectable="0">
+          <mxGeometry as="geometry" x="14" y="50.0" width="60" height="60" />
+        </mxCell>
+        <mxCell id="aws-icon-notices" value="" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.sqs;sketch=0;html=1;aspect=fixed;outlineConnect=0;gradientColor=none;fillColor=#E7157B;strokeColor=#ffffff;strokeWidth=0;fontColor=#232F3E;connectable=0;pointerEvents=1;movable=1;resizable=1;" vertex="1" parent="notices" connectable="0">
+          <mxGeometry as="geometry" x="14" y="50.0" width="60" height="60" />
+        </mxCell>
+        <mxCell id="aws-icon-jobsdlq" value="" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.queue;sketch=0;html=1;aspect=fixed;outlineConnect=0;gradientColor=none;fillColor=#D13212;strokeColor=#ffffff;strokeWidth=0;fontColor=#232F3E;connectable=0;pointerEvents=1;movable=1;resizable=1;" vertex="1" parent="jobsdlq" connectable="0">
+          <mxGeometry as="geometry" x="14" y="25.0" width="60" height="60" />
+        </mxCell>
+        <mxCell id="aws-icon-noticesdlq" value="" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.queue;sketch=0;html=1;aspect=fixed;outlineConnect=0;gradientColor=none;fillColor=#D13212;strokeColor=#ffffff;strokeWidth=0;fontColor=#232F3E;connectable=0;pointerEvents=1;movable=1;resizable=1;" vertex="1" parent="noticesdlq" connectable="0">
+          <mxGeometry as="geometry" x="14" y="25.0" width="60" height="60" />
+        </mxCell>
+        <mxCell id="aws-icon-role" value="" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.role;sketch=0;html=1;aspect=fixed;outlineConnect=0;gradientColor=none;fillColor=#DD344C;strokeColor=#ffffff;strokeWidth=0;fontColor=#232F3E;connectable=0;pointerEvents=1;movable=1;resizable=1;" vertex="1" parent="role" connectable="0">
+          <mxGeometry as="geometry" x="14" y="35.0" width="60" height="60" />
+        </mxCell>
+        <mxCell id="aws-icon-policyjob" value="" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.policy;sketch=0;html=1;aspect=fixed;outlineConnect=0;gradientColor=none;fillColor=#DD344C;strokeColor=#ffffff;strokeWidth=0;fontColor=#232F3E;connectable=0;pointerEvents=1;movable=1;resizable=1;" vertex="1" parent="policyjob" connectable="0">
+          <mxGeometry as="geometry" x="14" y="32.5" width="40" height="40" />
+        </mxCell>
+        <mxCell id="aws-icon-policydlq" value="" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.policy;sketch=0;html=1;aspect=fixed;outlineConnect=0;gradientColor=none;fillColor=#DD344C;strokeColor=#ffffff;strokeWidth=0;fontColor=#232F3E;connectable=0;pointerEvents=1;movable=1;resizable=1;" vertex="1" parent="policydlq" connectable="0">
+          <mxGeometry as="geometry" x="14" y="32.5" width="40" height="40" />
+        </mxCell>
+        <mxCell id="aws-icon-sts" value="" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.sts;sketch=0;html=1;aspect=fixed;outlineConnect=0;gradientColor=none;fillColor=#DD344C;strokeColor=#ffffff;strokeWidth=0;fontColor=#232F3E;connectable=0;pointerEvents=1;movable=1;resizable=1;" vertex="1" parent="sts" connectable="0">
+          <mxGeometry as="geometry" x="14" y="32.5" width="60" height="60" />
+        </mxCell>
+        <mxCell id="aws-icon-s3" value="" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.s3;sketch=0;html=1;aspect=fixed;outlineConnect=0;gradientColor=none;fillColor=#7AA116;strokeColor=#ffffff;strokeWidth=0;fontColor=#232F3E;connectable=0;pointerEvents=1;movable=1;resizable=1;" vertex="1" parent="s3" connectable="0">
+          <mxGeometry as="geometry" x="14" y="55.0" width="60" height="60" />
+        </mxCell>
+        <mxCell id="aws-icon-dynamo" value="" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.dynamodb;sketch=0;html=1;aspect=fixed;outlineConnect=0;gradientColor=none;fillColor=#C925D1;strokeColor=#ffffff;strokeWidth=0;fontColor=#232F3E;connectable=0;pointerEvents=1;movable=1;resizable=1;" vertex="1" parent="dynamo" connectable="0">
+          <mxGeometry as="geometry" x="14" y="55.0" width="60" height="60" />
+        </mxCell>
+        <mxCell id="aws-icon-consumer" value="" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.container_1;sketch=0;html=1;aspect=fixed;outlineConnect=0;gradientColor=none;fillColor=#ED7100;strokeColor=#ffffff;strokeWidth=0;fontColor=#232F3E;connectable=0;pointerEvents=1;movable=1;resizable=1;" vertex="1" parent="consumer" connectable="0">
+          <mxGeometry as="geometry" x="14" y="40.0" width="60" height="60" />
+        </mxCell>
+        <mxCell id="aws-icon-schedulegroup" value="" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.event_time_based;sketch=0;html=1;aspect=fixed;outlineConnect=0;gradientColor=none;fillColor=#E7157B;strokeColor=#ffffff;strokeWidth=0;fontColor=#232F3E;connectable=0;pointerEvents=1;movable=1;resizable=1;" vertex="1" parent="schedulegroup" connectable="0">
+          <mxGeometry as="geometry" x="6" y="3.5" width="20" height="20" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="page-2" name="03 - Software">
+    <mxGraphModel dx="1900" dy="1400" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1900" pageHeight="1400" math="0" shadow="0" background="#ffffff">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="Software | API e worker do mesmo monólito" style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;fontFamily=Helvetica;fontSize=29;fontColor=#173457;fontStyle=1;spacing=4;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="35" y="20" width="1830" height="45" />
+        </mxCell>
+        <mxCell id="subtitle" value="Java 25 + Spring Boot · frontend multipágina em HTML/CSS/JS · SQL explícito via JDBC, sem JPA/Hibernate" style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;fontFamily=Helvetica;fontSize=15;fontColor=#475569;fontStyle=0;spacing=4;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="35" y="70" width="1830" height="50" />
+        </mxCell>
+        <mxCell id="screen" value="&lt;b&gt;clinicahans-frontend-1&lt;/b&gt;&lt;br&gt;HTML, CSS e JavaScript executados no navegador" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#232F3E;fontFamily=Helvetica;fontSize=13;spacing=8;strokeWidth=1.5;shape=rectangle;align=left;verticalAlign=middle;spacingLeft=86;spacingRight=10;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="50" y="150" width="360" height="110" />
+        </mxCell>
+        <mxCell id="client" value="&lt;b&gt;frontend/services/api.js&lt;/b&gt;&lt;br&gt;HTTP centralizado + token Bearer" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eaf2ff;strokeColor=#3b6ea8;fontColor=#203047;fontFamily=Helvetica;fontSize=14;spacing=10;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="480" y="150" width="360" height="110" />
+        </mxCell>
+        <mxCell id="gateway" value="&lt;b&gt;clinicahans-frontend-1&lt;/b&gt;&lt;br&gt;→ clinicahans-backend-lb-1&lt;br&gt;Gateway Nginx e balanceamento HTTP" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#232F3E;fontFamily=Helvetica;fontSize=13;spacing=8;strokeWidth=1.5;shape=rectangle;align=left;verticalAlign=middle;spacingLeft=86;spacingRight=10;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="910" y="150" width="360" height="110" />
+        </mxCell>
+        <mxCell id="apiScope" value="clinicahans-backend-1 | Processo API / Spring Boot" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f3f5f8;strokeColor=#8190a5;fontColor=#203047;fontFamily=Helvetica;fontSize=14;spacing=10;strokeWidth=1.5;swimlane;startSize=40;horizontal=1;container=1;collapsible=0;align=left;verticalAlign=top;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="45" y="325" width="835" height="760" />
+        </mxCell>
+        <mxCell id="security" value="&lt;b&gt;Spring Security / JwtAuthenticationFilter&lt;/b&gt;&lt;br&gt;JWT, usuário ativo e perfis atuais" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#232F3E;fontFamily=Helvetica;fontSize=13;spacing=8;strokeWidth=1.5;shape=rectangle;align=left;verticalAlign=middle;spacingLeft=86;spacingRight=10;" vertex="1" parent="apiScope">
+          <mxGeometry as="geometry" x="45" y="80" width="340" height="100" />
+        </mxCell>
+        <mxCell id="controllers" value="&lt;b&gt;Controllers REST&lt;/b&gt;&lt;br&gt;DTOs e validação de entrada" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#232F3E;fontFamily=Helvetica;fontSize=13;spacing=8;strokeWidth=1.5;shape=rectangle;align=left;verticalAlign=middle;spacingLeft=86;spacingRight=10;" vertex="1" parent="apiScope">
+          <mxGeometry as="geometry" x="45" y="240" width="340" height="100" />
+        </mxCell>
+        <mxCell id="usecase" value="&lt;b&gt;UseCases / serviços de negócio&lt;/b&gt;&lt;br&gt;Pacientes, médicos, agenda e fila de espera&lt;br&gt;Prontuário, exames e retornos&lt;br&gt;Financeiro, relatórios, usuários e auditoria" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eaf2ff;strokeColor=#3b6ea8;fontColor=#203047;fontFamily=Helvetica;fontSize=14;spacing=10;strokeWidth=1.5;" vertex="1" parent="apiScope">
+          <mxGeometry as="geometry" x="45" y="400" width="340" height="180" />
+        </mxCell>
+        <mxCell id="model" value="&lt;b&gt;Model / domínios&lt;/b&gt;&lt;br&gt;Entidades, estados e objetos de valor" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eaf7ef;strokeColor=#34855a;fontColor=#203047;fontFamily=Helvetica;fontSize=14;spacing=10;strokeWidth=1.5;" vertex="1" parent="apiScope">
+          <mxGeometry as="geometry" x="450" y="240" width="340" height="100" />
+        </mxCell>
+        <mxCell id="repo" value="&lt;b&gt;Repositories&lt;/b&gt;&lt;br&gt;SQL parametrizado&lt;br&gt;Pool de conexões JDBC" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#232F3E;fontFamily=Helvetica;fontSize=13;spacing=8;strokeWidth=1.5;shape=rectangle;align=left;verticalAlign=middle;spacingLeft=86;spacingRight=10;" vertex="1" parent="apiScope">
+          <mxGeometry as="geometry" x="450" y="430" width="340" height="130" />
+        </mxCell>
+        <mxCell id="workerScope" value="clinicahans-notification-worker-1 | ExamNotificationUseCase" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f3f5f8;strokeColor=#8190a5;fontColor=#203047;fontFamily=Helvetica;fontSize=14;spacing=10;strokeWidth=1.5;swimlane;startSize=40;horizontal=1;container=1;collapsible=0;align=left;verticalAlign=top;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="920" y="325" width="930" height="760" />
+        </mxCell>
+        <mxCell id="job" value="&lt;b&gt;Consumidor de jobs&lt;/b&gt;&lt;br&gt;CHECK_READY_EXAMS&lt;br&gt;Libera a outbox" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f1edff;strokeColor=#7960a6;fontColor=#203047;fontFamily=Helvetica;fontSize=14;spacing=10;strokeWidth=1.5;" vertex="1" parent="workerScope">
+          <mxGeometry as="geometry" x="40" y="80" width="260" height="130" />
+        </mxCell>
+        <mxCell id="publish" value="&lt;b&gt;Publicador da outbox&lt;/b&gt;&lt;br&gt;Claim + destinatário + S3&lt;br&gt;Publica UUID no SQS" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f1edff;strokeColor=#7960a6;fontColor=#203047;fontFamily=Helvetica;fontSize=14;spacing=10;strokeWidth=1.5;" vertex="1" parent="workerScope">
+          <mxGeometry as="geometry" x="335" y="80" width="260" height="130" />
+        </mxCell>
+        <mxCell id="send" value="&lt;b&gt;Consumidor de avisos&lt;/b&gt;&lt;br&gt;EXAM_READY_EMAIL&lt;br&gt;Envia e confirma estado" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f1edff;strokeColor=#7960a6;fontColor=#203047;fontFamily=Helvetica;fontSize=14;spacing=10;strokeWidth=1.5;" vertex="1" parent="workerScope">
+          <mxGeometry as="geometry" x="630" y="80" width="260" height="130" />
+        </mxCell>
+        <mxCell id="nrepo" value="&lt;b&gt;ExamNotificationRepository&lt;/b&gt;&lt;br&gt;Leases, deduplicação, estado e auditoria" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#232F3E;fontFamily=Helvetica;fontSize=13;spacing=8;strokeWidth=1.5;shape=rectangle;align=left;verticalAlign=middle;spacingLeft=86;spacingRight=10;" vertex="1" parent="workerScope">
+          <mxGeometry as="geometry" x="40" y="340" width="390" height="125" />
+        </mxCell>
+        <mxCell id="adapter" value="&lt;b&gt;ExamNotificationGateway&lt;/b&gt;&lt;br&gt;AWS SDK: SQS + S3&lt;br&gt;JavaMailSender: SMTP" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f1edff;strokeColor=#7960a6;fontColor=#203047;fontFamily=Helvetica;fontSize=14;spacing=10;strokeWidth=1.5;" vertex="1" parent="workerScope">
+          <mxGeometry as="geometry" x="490" y="340" width="400" height="125" />
+        </mxCell>
+        <mxCell id="sqs" value="&lt;b&gt;clinicahans-jobs&lt;/b&gt;&lt;br&gt;clinicahans-notificacoes&lt;br&gt;Tipo: SQS + DLQs" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#232F3E;fontFamily=Helvetica;fontSize=12;spacing=8;strokeWidth=1.5;shape=rectangle;align=left;verticalAlign=middle;spacingLeft=78;spacingRight=10;" vertex="1" parent="workerScope">
+          <mxGeometry as="geometry" x="40" y="575" width="260" height="100" />
+        </mxCell>
+        <mxCell id="s3" value="&lt;b&gt;clinicahans-exames-local&lt;/b&gt;&lt;br&gt;Tipo: S3 Bucket&lt;br&gt;Verificar existência do objeto" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#232F3E;fontFamily=Helvetica;fontSize=12;spacing=8;strokeWidth=1.5;shape=rectangle;align=left;verticalAlign=middle;spacingLeft=78;spacingRight=10;" vertex="1" parent="workerScope">
+          <mxGeometry as="geometry" x="335" y="575" width="260" height="100" />
+        </mxCell>
+        <mxCell id="smtp" value="&lt;b&gt;clinicahans-mailpit-1&lt;/b&gt;&lt;br&gt;Tipo: captura SMTP local" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#232F3E;fontFamily=Helvetica;fontSize=12;spacing=8;strokeWidth=1.5;shape=rectangle;align=left;verticalAlign=middle;spacingLeft=78;spacingRight=10;" vertex="1" parent="workerScope">
+          <mxGeometry as="geometry" x="630" y="575" width="260" height="100" />
+        </mxCell>
+        <mxCell id="pg" value="&lt;b&gt;clinicahans-db&lt;/b&gt;&lt;br&gt;Tipo: PostgreSQL&lt;br&gt;Dados, partições, outbox e auditoria" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#232F3E;fontFamily=Helvetica;fontSize=13;spacing=8;strokeWidth=1.5;shape=rectangle;align=left;verticalAlign=middle;spacingLeft=86;spacingRight=10;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="430" y="1170" width="550" height="140" />
+        </mxCell>
+        <mxCell id="edge-1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#536d8b;strokeWidth=1.6;fontColor=#334155;fontSize=12;labelBackgroundColor=#ffffff;exitX=1;exitY=0.5;entryX=0;entryY=0.5;exitPerimeter=1;entryPerimeter=1;jumpStyle=arc;jumpSize=8;" edge="1" parent="1" source="screen" target="client">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="edge-2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#536d8b;strokeWidth=1.6;fontColor=#334155;fontSize=12;labelBackgroundColor=#ffffff;exitX=1;exitY=0.5;entryX=0;entryY=0.5;exitPerimeter=1;entryPerimeter=1;jumpStyle=arc;jumpSize=8;" edge="1" parent="1" source="client" target="gateway">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="edge-3" value="Entrada REST" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#536d8b;strokeWidth=1.6;fontColor=#334155;fontSize=12;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;entryX=0.5;entryY=0;exitPerimeter=1;entryPerimeter=1;jumpStyle=arc;jumpSize=8;" edge="1" parent="1" source="gateway" target="security">
+          <mxGeometry as="geometry" relative="1">
+            <Array as="points">
+              <mxPoint x="1320" y="300" />
+              <mxPoint x="260" y="300" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#536d8b;strokeWidth=1.6;fontColor=#334155;fontSize=12;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;entryX=0.5;entryY=0;exitPerimeter=1;entryPerimeter=1;jumpStyle=arc;jumpSize=8;" edge="1" parent="1" source="security" target="controllers">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="edge-5" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#536d8b;strokeWidth=1.6;fontColor=#334155;fontSize=12;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;entryX=0.5;entryY=0;exitPerimeter=1;entryPerimeter=1;jumpStyle=arc;jumpSize=8;" edge="1" parent="1" source="controllers" target="usecase">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="edge-6" value="Persistência" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#536d8b;strokeWidth=1.6;fontColor=#334155;fontSize=12;labelBackgroundColor=#ffffff;exitX=1;exitY=0.5;entryX=0;entryY=0.5;exitPerimeter=1;entryPerimeter=1;jumpStyle=arc;jumpSize=8;" edge="1" parent="1" source="usecase" target="repo">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="edge-7" value="Regras de domínio" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#536d8b;strokeWidth=1.6;fontColor=#334155;fontSize=12;labelBackgroundColor=#ffffff;exitX=1;exitY=0.3;entryX=0;entryY=0.5;exitPerimeter=1;entryPerimeter=1;jumpStyle=arc;jumpSize=8;" edge="1" parent="1" source="usecase" target="model">
+          <mxGeometry as="geometry" relative="1">
+            <Array as="points">
+              <mxPoint x="460" y="815" />
+              <mxPoint x="460" y="615" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-8" value="Usuário e perfis" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#536d8b;strokeWidth=1.6;fontColor=#334155;fontSize=12;labelBackgroundColor=#ffffff;exitX=1;exitY=0.5;entryX=1;entryY=0;exitPerimeter=1;entryPerimeter=1;jumpStyle=arc;jumpSize=8;" edge="1" parent="1" source="security" target="repo">
+          <mxGeometry as="geometry" relative="1">
+            <Array as="points">
+              <mxPoint x="850" y="455" />
+              <mxPoint x="850" y="735" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-9" value="SQL / JDBC" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#536d8b;strokeWidth=1.6;fontColor=#334155;fontSize=12;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;entryX=0.5;entryY=0;exitPerimeter=1;entryPerimeter=1;jumpStyle=arc;jumpSize=8;" edge="1" parent="1" source="repo" target="pg">
+          <mxGeometry as="geometry" relative="1">
+            <Array as="points">
+              <mxPoint x="665" y="1120" />
+              <mxPoint x="705" y="1120" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-10" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#536d8b;strokeWidth=1.6;fontColor=#334155;fontSize=12;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;entryX=0.4;entryY=0;exitPerimeter=1;entryPerimeter=1;jumpStyle=arc;jumpSize=8;" edge="1" parent="1" source="job" target="nrepo">
+          <mxGeometry as="geometry" relative="1">
+            <Array as="points">
+              <mxPoint x="1090" y="610" />
+              <mxPoint x="1115" y="610" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-11" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#536d8b;strokeWidth=1.6;fontColor=#334155;fontSize=12;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;entryX=0.4;entryY=0;exitPerimeter=1;entryPerimeter=1;jumpStyle=arc;jumpSize=8;" edge="1" parent="1" source="publish" target="nrepo">
+          <mxGeometry as="geometry" relative="1">
+            <Array as="points">
+              <mxPoint x="1385" y="610" />
+              <mxPoint x="1115" y="610" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-12" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#536d8b;strokeWidth=1.6;fontColor=#334155;fontSize=12;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;entryX=0.4;entryY=0;exitPerimeter=1;entryPerimeter=1;jumpStyle=arc;jumpSize=8;" edge="1" parent="1" source="send" target="nrepo">
+          <mxGeometry as="geometry" relative="1">
+            <Array as="points">
+              <mxPoint x="1680" y="610" />
+              <mxPoint x="1115" y="610" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-13" value="Estado + auditoria" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#536d8b;strokeWidth=1.6;fontColor=#334155;fontSize=12;labelBackgroundColor=#ffffff;exitX=0.4;exitY=1;entryX=1;entryY=0.5;exitPerimeter=1;entryPerimeter=1;jumpStyle=arc;jumpSize=8;" edge="1" parent="1" source="nrepo" target="pg">
+          <mxGeometry as="geometry" relative="1">
+            <Array as="points">
+              <mxPoint x="1115" y="1125" />
+              <mxPoint x="1020" y="1125" />
+              <mxPoint x="1020" y="1240" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-14" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#536d8b;strokeWidth=1.6;fontColor=#334155;fontSize=12;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;entryX=0.5;entryY=0;exitPerimeter=1;entryPerimeter=1;jumpStyle=arc;jumpSize=8;" edge="1" parent="1" source="job" target="adapter">
+          <mxGeometry as="geometry" relative="1">
+            <Array as="points">
+              <mxPoint x="1090" y="570" />
+              <mxPoint x="1610" y="570" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-15" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#536d8b;strokeWidth=1.6;fontColor=#334155;fontSize=12;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;entryX=0.5;entryY=0;exitPerimeter=1;entryPerimeter=1;jumpStyle=arc;jumpSize=8;" edge="1" parent="1" source="publish" target="adapter">
+          <mxGeometry as="geometry" relative="1">
+            <Array as="points">
+              <mxPoint x="1385" y="570" />
+              <mxPoint x="1610" y="570" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-16" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#536d8b;strokeWidth=1.6;fontColor=#334155;fontSize=12;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;entryX=0.5;entryY=0;exitPerimeter=1;entryPerimeter=1;jumpStyle=arc;jumpSize=8;" edge="1" parent="1" source="send" target="adapter">
+          <mxGeometry as="geometry" relative="1">
+            <Array as="points">
+              <mxPoint x="1680" y="570" />
+              <mxPoint x="1610" y="570" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-17" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#536d8b;strokeWidth=1.6;fontColor=#334155;fontSize=12;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;entryX=0.5;entryY=0;exitPerimeter=1;entryPerimeter=1;jumpStyle=arc;jumpSize=8;" edge="1" parent="1" source="adapter" target="sqs">
+          <mxGeometry as="geometry" relative="1">
+            <Array as="points">
+              <mxPoint x="1600" y="860" />
+              <mxPoint x="1090" y="860" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-18" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#536d8b;strokeWidth=1.6;fontColor=#334155;fontSize=12;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;entryX=0.5;entryY=0;exitPerimeter=1;entryPerimeter=1;jumpStyle=arc;jumpSize=8;" edge="1" parent="1" source="adapter" target="s3">
+          <mxGeometry as="geometry" relative="1">
+            <Array as="points">
+              <mxPoint x="1600" y="860" />
+              <mxPoint x="1385" y="860" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-19" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#536d8b;strokeWidth=1.6;fontColor=#334155;fontSize=12;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;entryX=0.5;entryY=0;exitPerimeter=1;entryPerimeter=1;jumpStyle=arc;jumpSize=8;" edge="1" parent="1" source="adapter" target="smtp">
+          <mxGeometry as="geometry" relative="1">
+            <Array as="points">
+              <mxPoint x="1600" y="860" />
+              <mxPoint x="1680" y="860" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="swNote" value="&lt;b&gt;Mesmo código e imagem, processos separados&lt;/b&gt;&lt;br&gt;API: EXAM_NOTIFICATION_WORKER_ENABLED=false · worker: true.&lt;br&gt;O gateway expõe a API; o worker executa processamento em segundo plano." style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;fontFamily=Helvetica;fontSize=15;fontColor=#475569;fontStyle=0;spacing=4;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="1050" y="1170" width="780" height="145" />
+        </mxCell>
+        <mxCell id="aws-icon-screen" value="" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.client;sketch=0;html=1;aspect=fixed;outlineConnect=0;gradientColor=none;fillColor=#545B64;strokeColor=#ffffff;strokeWidth=0;fontColor=#232F3E;connectable=0;pointerEvents=1;movable=1;resizable=1;" vertex="1" parent="screen" connectable="0">
+          <mxGeometry as="geometry" x="14" y="25.0" width="60" height="60" />
+        </mxCell>
+        <mxCell id="aws-icon-gateway" value="" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.elastic_load_balancing;sketch=0;html=1;aspect=fixed;outlineConnect=0;gradientColor=none;fillColor=#8C4FFF;strokeColor=#ffffff;strokeWidth=0;fontColor=#232F3E;connectable=0;pointerEvents=1;movable=1;resizable=1;" vertex="1" parent="gateway" connectable="0">
+          <mxGeometry as="geometry" x="14" y="25.0" width="60" height="60" />
+        </mxCell>
+        <mxCell id="aws-icon-security" value="" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.authenticated_user;sketch=0;html=1;aspect=fixed;outlineConnect=0;gradientColor=none;fillColor=#545B64;strokeColor=#ffffff;strokeWidth=0;fontColor=#232F3E;connectable=0;pointerEvents=1;movable=1;resizable=1;" vertex="1" parent="security" connectable="0">
+          <mxGeometry as="geometry" x="14" y="20.0" width="60" height="60" />
+        </mxCell>
+        <mxCell id="aws-icon-controllers" value="" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.generic_application;sketch=0;html=1;aspect=fixed;outlineConnect=0;gradientColor=none;fillColor=#545B64;strokeColor=#ffffff;strokeWidth=0;fontColor=#232F3E;connectable=0;pointerEvents=1;movable=1;resizable=1;" vertex="1" parent="controllers" connectable="0">
+          <mxGeometry as="geometry" x="14" y="20.0" width="60" height="60" />
+        </mxCell>
+        <mxCell id="aws-icon-repo" value="" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.generic_database;sketch=0;html=1;aspect=fixed;outlineConnect=0;gradientColor=none;fillColor=#545B64;strokeColor=#ffffff;strokeWidth=0;fontColor=#232F3E;connectable=0;pointerEvents=1;movable=1;resizable=1;" vertex="1" parent="repo" connectable="0">
+          <mxGeometry as="geometry" x="14" y="35.0" width="60" height="60" />
+        </mxCell>
+        <mxCell id="aws-icon-nrepo" value="" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.generic_database;sketch=0;html=1;aspect=fixed;outlineConnect=0;gradientColor=none;fillColor=#545B64;strokeColor=#ffffff;strokeWidth=0;fontColor=#232F3E;connectable=0;pointerEvents=1;movable=1;resizable=1;" vertex="1" parent="nrepo" connectable="0">
+          <mxGeometry as="geometry" x="14" y="32.5" width="60" height="60" />
+        </mxCell>
+        <mxCell id="aws-icon-pg" value="" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.generic_database;sketch=0;html=1;aspect=fixed;outlineConnect=0;gradientColor=none;fillColor=#545B64;strokeColor=#ffffff;strokeWidth=0;fontColor=#232F3E;connectable=0;pointerEvents=1;movable=1;resizable=1;" vertex="1" parent="pg" connectable="0">
+          <mxGeometry as="geometry" x="14" y="40.0" width="60" height="60" />
+        </mxCell>
+        <mxCell id="aws-icon-sqs" value="" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.sqs;sketch=0;html=1;aspect=fixed;outlineConnect=0;gradientColor=none;fillColor=#E7157B;strokeColor=#ffffff;strokeWidth=0;fontColor=#232F3E;connectable=0;pointerEvents=1;movable=1;resizable=1;" vertex="1" parent="sqs" connectable="0">
+          <mxGeometry as="geometry" x="14" y="24.0" width="52" height="52" />
+        </mxCell>
+        <mxCell id="aws-icon-s3" value="" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.s3;sketch=0;html=1;aspect=fixed;outlineConnect=0;gradientColor=none;fillColor=#7AA116;strokeColor=#ffffff;strokeWidth=0;fontColor=#232F3E;connectable=0;pointerEvents=1;movable=1;resizable=1;" vertex="1" parent="s3" connectable="0">
+          <mxGeometry as="geometry" x="14" y="24.0" width="52" height="52" />
+        </mxCell>
+        <mxCell id="aws-icon-smtp" value="" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.email_notification;sketch=0;html=1;aspect=fixed;outlineConnect=0;gradientColor=none;fillColor=#545B64;strokeColor=#ffffff;strokeWidth=0;fontColor=#232F3E;connectable=0;pointerEvents=1;movable=1;resizable=1;" vertex="1" parent="smtp" connectable="0">
+          <mxGeometry as="geometry" x="14" y="24.0" width="52" height="52" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="page-3" name="04 - Fluxo dos exames">
+    <mxGraphModel dx="1900" dy="1580" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1900" pageHeight="1580" math="0" shadow="0" background="#ffffff">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="Exames | Da gravação do resultado ao aviso" style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;fontFamily=Helvetica;fontSize=29;fontColor=#173457;fontStyle=1;spacing=4;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="35" y="20" width="1830" height="45" />
+        </mxCell>
+        <mxCell id="subtitle" value="Cada resultado possui duas intenções independentes: paciente e médico responsável. E-mails genéricos e sem anexo." style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;fontFamily=Helvetica;fontSize=15;fontColor=#475569;fontStyle=0;spacing=4;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="35" y="70" width="1830" height="50" />
+        </mxCell>
+        <mxCell id="apiLane" value="clinicahans-backend-1 + clinicahans-db | API e transação" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f3f5f8;strokeColor=#8190a5;fontColor=#203047;fontFamily=Helvetica;fontSize=13;spacing=10;strokeWidth=1.5;startSize=56;horizontal=1;container=1;collapsible=0;align=left;verticalAlign=top;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="30" y="150" width="490" height="1360" />
+        </mxCell>
+        <mxCell id="jobLane" value="clinicahans-localstack-1 + clinicahans-notification-worker-1 | Jobs / outbox" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f3f5f8;strokeColor=#8190a5;fontColor=#203047;fontFamily=Helvetica;fontSize=13;spacing=10;strokeWidth=1.5;startSize=56;horizontal=1;container=1;collapsible=0;align=left;verticalAlign=top;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="550" y="150" width="520" height="1360" />
+        </mxCell>
+        <mxCell id="sendLane" value="clinicahans-notification-worker-1 → clinicahans-mailpit-1 | Envio" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f3f5f8;strokeColor=#8190a5;fontColor=#203047;fontFamily=Helvetica;fontSize=13;spacing=10;strokeWidth=1.5;startSize=56;horizontal=1;container=1;collapsible=0;align=left;verticalAlign=top;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="1100" y="150" width="760" height="1360" />
+        </mxCell>
+        <mxCell id="receive" value="&lt;b&gt;Receber resultado&lt;/b&gt;&lt;br&gt;POST /continuity/exams/{id}/result&lt;br&gt;storageKey + mimeType + JWT" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eaf2ff;strokeColor=#3b6ea8;fontColor=#203047;fontFamily=Helvetica;fontSize=14;spacing=10;strokeWidth=1.5;" vertex="1" parent="apiLane">
+          <mxGeometry as="geometry" x="55" y="90" width="380" height="120" />
+        </mxCell>
+        <mxCell id="auth" value="&lt;b&gt;Validar solicitação&lt;/b&gt;&lt;br&gt;Perfil, contrato e acesso ao atendimento" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eaf2ff;strokeColor=#3b6ea8;fontColor=#203047;fontFamily=Helvetica;fontSize=14;spacing=10;strokeWidth=1.5;" vertex="1" parent="apiLane">
+          <mxGeometry as="geometry" x="55" y="285" width="380" height="100" />
+        </mxCell>
+        <mxCell id="transaction" value="&lt;b&gt;Transação PostgreSQL&lt;/b&gt;&lt;br&gt;Resultado + status do pedido&lt;br&gt;Intenção PATIENT + intenção DOCTOR&lt;br&gt;Estado inicial: WAITING" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#232F3E;fontFamily=Helvetica;fontSize=13;spacing=8;strokeWidth=1.5;shape=rectangle;align=left;verticalAlign=middle;spacingLeft=86;spacingRight=10;" vertex="1" parent="apiLane">
+          <mxGeometry as="geometry" x="55" y="460" width="380" height="170" />
+        </mxCell>
+        <mxCell id="ok" value="&lt;b&gt;Responder 200 OK&lt;/b&gt;&lt;br&gt;Resultado registrado; aviso ainda pendente" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eaf2ff;strokeColor=#3b6ea8;fontColor=#203047;fontFamily=Helvetica;fontSize=14;spacing=10;strokeWidth=1.5;" vertex="1" parent="apiLane">
+          <mxGeometry as="geometry" x="55" y="710" width="380" height="100" />
+        </mxCell>
+        <mxCell id="waiting" value="&lt;b&gt;WAITING&lt;/b&gt;&lt;br&gt;Aguardar o próximo job&lt;br&gt;Sem aviso imediato&lt;br&gt;Sem backfill de resultados históricos" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff3df;strokeColor=#ba8328;fontColor=#203047;fontFamily=Helvetica;fontSize=14;spacing=10;strokeWidth=1.5;" vertex="1" parent="apiLane">
+          <mxGeometry as="geometry" x="55" y="935" width="380" height="150" />
+        </mxCell>
+        <mxCell id="cron" value="&lt;b&gt;clinicahans-exames-prontos-12h&lt;/b&gt;&lt;br&gt;EventBridge Scheduler: 00h e 12h&lt;br&gt;America/Sao_Paulo" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#232F3E;fontFamily=Helvetica;fontSize=13;spacing=8;strokeWidth=1.5;shape=rectangle;align=left;verticalAlign=middle;spacingLeft=86;spacingRight=10;" vertex="1" parent="jobLane">
+          <mxGeometry as="geometry" x="45" y="90" width="430" height="110" />
+        </mxCell>
+        <mxCell id="qjob" value="&lt;b&gt;clinicahans-jobs&lt;/b&gt;&lt;br&gt;Tipo: SQS Standard Queue&lt;br&gt;CHECK_READY_EXAMS v1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#232F3E;fontFamily=Helvetica;fontSize=13;spacing=8;strokeWidth=1.5;shape=rectangle;align=left;verticalAlign=middle;spacingLeft=86;spacingRight=10;" vertex="1" parent="jobLane">
+          <mxGeometry as="geometry" x="45" y="280" width="430" height="100" />
+        </mxCell>
+        <mxCell id="release" value="&lt;b&gt;Consumidor de jobs&lt;/b&gt;&lt;br&gt;Libera intenções elegíveis&lt;br&gt;WAITING / BLOCKED → READY" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f1edff;strokeColor=#7960a6;fontColor=#203047;fontFamily=Helvetica;fontSize=14;spacing=10;strokeWidth=1.5;" vertex="1" parent="jobLane">
+          <mxGeometry as="geometry" x="45" y="455" width="430" height="130" />
+        </mxCell>
+        <mxCell id="claim" value="&lt;b&gt;Publicador da outbox&lt;/b&gt;&lt;br&gt;Worker: claim exclusivo por lease/token&lt;br&gt;Verifica clinicahans-exames-local no S3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f1edff;strokeColor=#7960a6;fontColor=#203047;fontFamily=Helvetica;fontSize=14;spacing=10;strokeWidth=1.5;" vertex="1" parent="jobLane">
+          <mxGeometry as="geometry" x="45" y="695" width="430" height="130" />
+        </mxCell>
+        <mxCell id="valid" value="&lt;b&gt;Ativo, e-mail válido&lt;/b&gt;&lt;br&gt;e arquivo no S3?" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff3df;strokeColor=#ba8328;fontColor=#203047;fontFamily=Helvetica;fontSize=14;spacing=10;strokeWidth=1.5;shape=rhombus;perimeter=rhombusPerimeter;" vertex="1" parent="jobLane">
+          <mxGeometry as="geometry" x="145" y="920" width="230" height="150" />
+        </mxCell>
+        <mxCell id="blocked" value="&lt;b&gt;BLOCKED&lt;/b&gt;&lt;br&gt;Reavaliar no próximo job&lt;br&gt;Não impede o outro aviso" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff3df;strokeColor=#ba8328;fontColor=#203047;fontFamily=Helvetica;fontSize=13;spacing=10;strokeWidth=1.5;" vertex="1" parent="jobLane">
+          <mxGeometry as="geometry" x="25" y="1180" width="220" height="120" />
+        </mxCell>
+        <mxCell id="publish" value="&lt;b&gt;clinicahans-notificacoes&lt;/b&gt;&lt;br&gt;Publicar UUID da intenção&lt;br&gt;Tipo: SQS Standard Queue" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#232F3E;fontFamily=Helvetica;fontSize=11;spacing=8;strokeWidth=1.5;shape=rectangle;align=left;verticalAlign=middle;spacingLeft=66;spacingRight=10;" vertex="1" parent="jobLane">
+          <mxGeometry as="geometry" x="275" y="1180" width="220" height="120" />
+        </mxCell>
+        <mxCell id="consume" value="&lt;b&gt;clinicahans-notificacoes&lt;/b&gt;&lt;br&gt;Consumir EXAM_READY_EMAIL&lt;br&gt;UUID da intenção, sem dados clínicos" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#232F3E;fontFamily=Helvetica;fontSize=13;spacing=8;strokeWidth=1.5;shape=rectangle;align=left;verticalAlign=middle;spacingLeft=86;spacingRight=10;" vertex="1" parent="sendLane">
+          <mxGeometry as="geometry" x="45" y="90" width="440" height="110" />
+        </mxCell>
+        <mxCell id="claim2" value="&lt;b&gt;Claim + revalidação&lt;/b&gt;&lt;br&gt;Destinatário atual e objeto no bucket&lt;br&gt;clinicahans-exames-local · até 5 tentativas" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f1edff;strokeColor=#7960a6;fontColor=#203047;fontFamily=Helvetica;fontSize=14;spacing=10;strokeWidth=1.5;" vertex="1" parent="sendLane">
+          <mxGeometry as="geometry" x="45" y="280" width="440" height="130" />
+        </mxCell>
+        <mxCell id="duplicate" value="&lt;b&gt;Já enviado ou&lt;/b&gt;&lt;br&gt;lease de outro worker?" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff3df;strokeColor=#ba8328;fontColor=#203047;fontFamily=Helvetica;fontSize=14;spacing=10;strokeWidth=1.5;shape=rhombus;perimeter=rhombusPerimeter;" vertex="1" parent="sendLane">
+          <mxGeometry as="geometry" x="145" y="490" width="240" height="150" />
+        </mxCell>
+        <mxCell id="ackDup" value="&lt;b&gt;Duplicata&lt;/b&gt;&lt;br&gt;Confirmar sem novo envio" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f3f5f8;strokeColor=#8190a5;fontColor=#203047;fontFamily=Helvetica;fontSize=13;spacing=10;strokeWidth=1.5;" vertex="1" parent="sendLane">
+          <mxGeometry as="geometry" x="515" y="505" width="205" height="115" />
+        </mxCell>
+        <mxCell id="mail" value="&lt;b&gt;clinicahans-mailpit-1&lt;/b&gt;&lt;br&gt;Envio SMTP individual&lt;br&gt;Sem resultado ou anexo" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#232F3E;fontFamily=Helvetica;fontSize=13;spacing=8;strokeWidth=1.5;shape=rectangle;align=left;verticalAlign=middle;spacingLeft=86;spacingRight=10;" vertex="1" parent="sendLane">
+          <mxGeometry as="geometry" x="45" y="740" width="440" height="125" />
+        </mxCell>
+        <mxCell id="accepted" value="&lt;b&gt;SMTP aceitou e&lt;/b&gt;&lt;br&gt;banco confirmou?" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff3df;strokeColor=#ba8328;fontColor=#203047;fontFamily=Helvetica;fontSize=14;spacing=10;strokeWidth=1.5;shape=rhombus;perimeter=rhombusPerimeter;" vertex="1" parent="sendLane">
+          <mxGeometry as="geometry" x="145" y="940" width="240" height="150" />
+        </mxCell>
+        <mxCell id="retry" value="&lt;b&gt;Falha / retry&lt;/b&gt;&lt;br&gt;Sem ACK na fila&lt;br&gt;Falha persistente: FAILED + DLQ" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff0ee;strokeColor=#c46a5a;fontColor=#203047;fontFamily=Helvetica;fontSize=13;spacing=10;strokeWidth=1.5;" vertex="1" parent="sendLane">
+          <mxGeometry as="geometry" x="515" y="935" width="205" height="160" />
+        </mxCell>
+        <mxCell id="sent" value="&lt;b&gt;SENT + auditoria&lt;/b&gt;&lt;br&gt;Aceito pelo SMTP&lt;br&gt;Não comprova entrega/leitura" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eaf7ef;strokeColor=#34855a;fontColor=#203047;fontFamily=Helvetica;fontSize=14;spacing=10;strokeWidth=1.5;" vertex="1" parent="sendLane">
+          <mxGeometry as="geometry" x="25" y="1180" width="320" height="120" />
+        </mxCell>
+        <mxCell id="ack" value="&lt;b&gt;Excluir mensagem&lt;/b&gt;&lt;br&gt;Confirmação ao SQS" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eaf2ff;strokeColor=#3b6ea8;fontColor=#203047;fontFamily=Helvetica;fontSize=14;spacing=10;strokeWidth=1.5;" vertex="1" parent="sendLane">
+          <mxGeometry as="geometry" x="420" y="1180" width="300" height="120" />
+        </mxCell>
+        <mxCell id="edge-1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#536d8b;strokeWidth=1.6;fontColor=#334155;fontSize=12;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;entryX=0.5;entryY=0;exitPerimeter=1;entryPerimeter=1;jumpStyle=arc;jumpSize=8;" edge="1" parent="1" source="receive" target="auth">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="edge-2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#536d8b;strokeWidth=1.6;fontColor=#334155;fontSize=12;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;entryX=0.5;entryY=0;exitPerimeter=1;entryPerimeter=1;jumpStyle=arc;jumpSize=8;" edge="1" parent="1" source="auth" target="transaction">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="edge-3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#536d8b;strokeWidth=1.6;fontColor=#334155;fontSize=12;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;entryX=0.5;entryY=0;exitPerimeter=1;entryPerimeter=1;jumpStyle=arc;jumpSize=8;" edge="1" parent="1" source="transaction" target="ok">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="edge-4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#536d8b;strokeWidth=1.6;fontColor=#334155;fontSize=12;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;entryX=0.5;entryY=0;exitPerimeter=1;entryPerimeter=1;jumpStyle=arc;jumpSize=8;" edge="1" parent="1" source="ok" target="waiting">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="edge-5" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#536d8b;strokeWidth=1.6;fontColor=#334155;fontSize=12;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;entryX=0.5;entryY=0;exitPerimeter=1;entryPerimeter=1;jumpStyle=arc;jumpSize=8;" edge="1" parent="1" source="cron" target="qjob">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="edge-6" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#536d8b;strokeWidth=1.6;fontColor=#334155;fontSize=12;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;entryX=0.5;entryY=0;exitPerimeter=1;entryPerimeter=1;jumpStyle=arc;jumpSize=8;" edge="1" parent="1" source="qjob" target="release">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="edge-7" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#536d8b;strokeWidth=1.6;fontColor=#334155;fontSize=12;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;entryX=0.5;entryY=0;exitPerimeter=1;entryPerimeter=1;jumpStyle=arc;jumpSize=8;" edge="1" parent="1" source="release" target="claim">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="edge-8" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#536d8b;strokeWidth=1.6;fontColor=#334155;fontSize=12;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;entryX=0.5;entryY=0;exitPerimeter=1;entryPerimeter=1;jumpStyle=arc;jumpSize=8;" edge="1" parent="1" source="claim" target="valid">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="edge-9" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#536d8b;strokeWidth=1.6;fontColor=#334155;fontSize=12;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;entryX=0.5;entryY=0;exitPerimeter=1;entryPerimeter=1;jumpStyle=arc;jumpSize=8;" edge="1" parent="1" source="consume" target="claim2">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="edge-10" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#536d8b;strokeWidth=1.6;fontColor=#334155;fontSize=12;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;entryX=0.5;entryY=0;exitPerimeter=1;entryPerimeter=1;jumpStyle=arc;jumpSize=8;" edge="1" parent="1" source="claim2" target="duplicate">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="edge-11" value="Não" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#536d8b;strokeWidth=1.6;fontColor=#334155;fontSize=12;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;entryX=0.5;entryY=0;exitPerimeter=1;entryPerimeter=1;jumpStyle=arc;jumpSize=8;" edge="1" parent="1" source="duplicate" target="mail">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="edge-12" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#536d8b;strokeWidth=1.6;fontColor=#334155;fontSize=12;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;entryX=0.5;entryY=0;exitPerimeter=1;entryPerimeter=1;jumpStyle=arc;jumpSize=8;" edge="1" parent="1" source="mail" target="accepted">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="edge-13" value="Aguardar liberação" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#536d8b;strokeWidth=1.6;fontColor=#334155;fontSize=12;labelBackgroundColor=#ffffff;exitX=1;exitY=0.5;entryX=0;entryY=0.5;exitPerimeter=1;entryPerimeter=1;jumpStyle=arc;jumpSize=8;" edge="1" parent="1" source="waiting" target="release">
+          <mxGeometry as="geometry" relative="1">
+            <Array as="points">
+              <mxPoint x="535" y="1160" />
+              <mxPoint x="535" y="670" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-14" value="Não" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#536d8b;strokeWidth=1.6;fontColor=#334155;fontSize=12;labelBackgroundColor=#ffffff;exitX=0;exitY=0.5;entryX=0.5;entryY=0;exitPerimeter=1;entryPerimeter=1;jumpStyle=arc;jumpSize=8;" edge="1" parent="1" source="valid" target="blocked">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="edge-15" value="Sim" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#536d8b;strokeWidth=1.6;fontColor=#334155;fontSize=12;labelBackgroundColor=#ffffff;exitX=1;exitY=0.5;entryX=0.5;entryY=0;exitPerimeter=1;entryPerimeter=1;jumpStyle=arc;jumpSize=8;" edge="1" parent="1" source="valid" target="publish">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="edge-16" value="Próxima etapa pela fila" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#536d8b;strokeWidth=1.6;fontColor=#334155;fontSize=12;labelBackgroundColor=#ffffff;exitX=1;exitY=0.5;entryX=0;entryY=0.5;exitPerimeter=1;entryPerimeter=1;jumpStyle=arc;jumpSize=8;" edge="1" parent="1" source="publish" target="consume">
+          <mxGeometry as="geometry" relative="1">
+            <Array as="points">
+              <mxPoint x="1080" y="1390" />
+              <mxPoint x="1080" y="295" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-17" value="Sim" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#536d8b;strokeWidth=1.6;fontColor=#334155;fontSize=12;labelBackgroundColor=#ffffff;exitX=1;exitY=0.5;entryX=0;entryY=0.5;exitPerimeter=1;entryPerimeter=1;jumpStyle=arc;jumpSize=8;" edge="1" parent="1" source="duplicate" target="ackDup">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="edge-18" value="Não" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#c46a5a;strokeWidth=1.6;fontColor=#334155;fontSize=12;labelBackgroundColor=#ffffff;exitX=1;exitY=0.5;entryX=0;entryY=0.5;exitPerimeter=1;entryPerimeter=1;jumpStyle=arc;jumpSize=8;" edge="1" parent="1" source="accepted" target="retry">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="edge-19" value="Sim" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#536d8b;strokeWidth=1.6;fontColor=#334155;fontSize=12;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;entryX=0.5;entryY=0;exitPerimeter=1;entryPerimeter=1;jumpStyle=arc;jumpSize=8;" edge="1" parent="1" source="accepted" target="sent">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="edge-20" value="Confirmar" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#536d8b;strokeWidth=1.6;fontColor=#334155;fontSize=12;labelBackgroundColor=#ffffff;exitX=1;exitY=0.5;entryX=0;entryY=0.5;exitPerimeter=1;entryPerimeter=1;jumpStyle=arc;jumpSize=8;" edge="1" parent="1" source="sent" target="ack">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="flowNote" value="SENT confirma aceitação SMTP. Falha após essa aceitação e antes de gravar no banco ainda pode duplicar e-mail. Upload pela tela e envio externo seguem pendentes." style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;fontFamily=Helvetica;fontSize=14;fontColor=#475569;fontStyle=0;spacing=4;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="40" y="1520" width="1800" height="45" />
+        </mxCell>
+        <mxCell id="aws-icon-cron" value="" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.eventbridge_scheduler;sketch=0;html=1;aspect=fixed;outlineConnect=0;gradientColor=none;fillColor=#E7157B;strokeColor=#ffffff;strokeWidth=0;fontColor=#232F3E;connectable=0;pointerEvents=1;movable=1;resizable=1;" vertex="1" parent="cron" connectable="0">
+          <mxGeometry as="geometry" x="14" y="25.0" width="60" height="60" />
+        </mxCell>
+        <mxCell id="aws-icon-qjob" value="" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.sqs;sketch=0;html=1;aspect=fixed;outlineConnect=0;gradientColor=none;fillColor=#E7157B;strokeColor=#ffffff;strokeWidth=0;fontColor=#232F3E;connectable=0;pointerEvents=1;movable=1;resizable=1;" vertex="1" parent="qjob" connectable="0">
+          <mxGeometry as="geometry" x="14" y="20.0" width="60" height="60" />
+        </mxCell>
+        <mxCell id="aws-icon-publish" value="" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.sqs;sketch=0;html=1;aspect=fixed;outlineConnect=0;gradientColor=none;fillColor=#E7157B;strokeColor=#ffffff;strokeWidth=0;fontColor=#232F3E;connectable=0;pointerEvents=1;movable=1;resizable=1;" vertex="1" parent="publish" connectable="0">
+          <mxGeometry as="geometry" x="14" y="40.0" width="40" height="40" />
+        </mxCell>
+        <mxCell id="aws-icon-consume" value="" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.sqs;sketch=0;html=1;aspect=fixed;outlineConnect=0;gradientColor=none;fillColor=#E7157B;strokeColor=#ffffff;strokeWidth=0;fontColor=#232F3E;connectable=0;pointerEvents=1;movable=1;resizable=1;" vertex="1" parent="consume" connectable="0">
+          <mxGeometry as="geometry" x="14" y="25.0" width="60" height="60" />
+        </mxCell>
+        <mxCell id="aws-icon-transaction" value="" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.generic_database;sketch=0;html=1;aspect=fixed;outlineConnect=0;gradientColor=none;fillColor=#545B64;strokeColor=#ffffff;strokeWidth=0;fontColor=#232F3E;connectable=0;pointerEvents=1;movable=1;resizable=1;" vertex="1" parent="transaction" connectable="0">
+          <mxGeometry as="geometry" x="14" y="55.0" width="60" height="60" />
+        </mxCell>
+        <mxCell id="aws-icon-mail" value="" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.email_notification;sketch=0;html=1;aspect=fixed;outlineConnect=0;gradientColor=none;fillColor=#545B64;strokeColor=#ffffff;strokeWidth=0;fontColor=#232F3E;connectable=0;pointerEvents=1;movable=1;resizable=1;" vertex="1" parent="mail" connectable="0">
+          <mxGeometry as="geometry" x="14" y="32.5" width="60" height="60" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="page-4" name="05 - AWS prevista">
+    <mxGraphModel dx="1900" dy="1380" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1900" pageHeight="1380" math="0" shadow="0" background="#ffffff">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="AWS | Infraestrutura preparada em Terraform" style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;fontFamily=Helvetica;fontSize=29;fontColor=#173457;fontStyle=1;spacing=4;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="35" y="20" width="1830" height="45" />
+        </mxCell>
+        <mxCell id="subtitle" value="AWS prevista, sem implantação. Rótulos mostram correspondência com Docker/LocalStack; os nomes definitivos AWS são definidos pelo Terraform." style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;fontFamily=Helvetica;fontSize=15;fontColor=#475569;fontStyle=0;spacing=4;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="35" y="70" width="1830" height="50" />
+        </mxCell>
+        <mxCell id="public" value="Sub-redes públicas" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#7AA116;fontColor=#232F3E;fontFamily=Helvetica;fontSize=13;spacing=10;strokeWidth=1.5;container=1;collapsible=0;align=left;verticalAlign=top;fontStyle=1;shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_subnet;spacingLeft=34;spacingTop=8;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="270" y="150" width="250" height="690" />
+        </mxCell>
+        <mxCell id="app" value="Sub-redes privadas de aplicação" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#8C4FFF;fontColor=#232F3E;fontFamily=Helvetica;fontSize=13;spacing=10;strokeWidth=1.5;container=1;collapsible=0;align=left;verticalAlign=top;fontStyle=1;shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_subnet;spacingLeft=34;spacingTop=8;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="550" y="150" width="650" height="690" />
+        </mxCell>
+        <mxCell id="data" value="Sub-redes privadas de dados" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#C925D1;fontColor=#232F3E;fontFamily=Helvetica;fontSize=13;spacing=10;strokeWidth=1.5;container=1;collapsible=0;align=left;verticalAlign=top;fontStyle=1;shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_subnet;spacingLeft=34;spacingTop=8;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="1230" y="150" width="300" height="690" />
+        </mxCell>
+        <mxCell id="browser" value="&lt;b&gt;Navegador&lt;/b&gt;&lt;br&gt;Frontend HTML/CSS/JS" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#232F3E;fontFamily=Helvetica;fontSize=11;spacing=8;strokeWidth=1.5;shape=rectangle;align=left;verticalAlign=middle;spacingLeft=66;spacingRight=10;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="35" y="250" width="205" height="110" />
+        </mxCell>
+        <mxCell id="alb" value="&lt;b&gt;clinicahans-frontend-1&lt;/b&gt;&lt;br&gt;Equivalente AWS: ALB público&lt;br&gt;Entrada HTTPS / ACM" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#232F3E;fontFamily=Helvetica;fontSize=11;spacing=8;strokeWidth=1.5;shape=rectangle;align=left;verticalAlign=middle;spacingLeft=66;spacingRight=10;" vertex="1" parent="public">
+          <mxGeometry as="geometry" x="25" y="100" width="200" height="110" />
+        </mxCell>
+        <mxCell id="nat" value="&lt;b&gt;clinicahans_default&lt;/b&gt;&lt;br&gt;Referência de rede local&lt;br&gt;AWS: NAT Gateway por zona" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#232F3E;fontFamily=Helvetica;fontSize=11;spacing=8;strokeWidth=1.5;shape=rectangle;align=left;verticalAlign=middle;spacingLeft=66;spacingRight=10;" vertex="1" parent="public">
+          <mxGeometry as="geometry" x="25" y="410" width="200" height="120" />
+        </mxCell>
+        <mxCell id="web" value="&lt;b&gt;clinicahans-frontend-1&lt;/b&gt;&lt;br&gt;Equivalente AWS: EC2 Web + ASG&lt;br&gt;Nginx / frontend / gateway" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#232F3E;fontFamily=Helvetica;fontSize=12;spacing=8;strokeWidth=1.5;shape=rectangle;align=left;verticalAlign=middle;spacingLeft=78;spacingRight=10;" vertex="1" parent="app">
+          <mxGeometry as="geometry" x="30" y="100" width="260" height="120" />
+        </mxCell>
+        <mxCell id="internal" value="&lt;b&gt;clinicahans-backend-lb-1&lt;/b&gt;&lt;br&gt;Equivalente AWS: ALB interno" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#232F3E;fontFamily=Helvetica;fontSize=12;spacing=8;strokeWidth=1.5;shape=rectangle;align=left;verticalAlign=middle;spacingLeft=78;spacingRight=10;" vertex="1" parent="app">
+          <mxGeometry as="geometry" x="340" y="100" width="260" height="120" />
+        </mxCell>
+        <mxCell id="api" value="&lt;b&gt;clinicahans-backend-1&lt;/b&gt;&lt;br&gt;Equivalente AWS: EC2 API + ASG&lt;br&gt;Spring Boot" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#232F3E;fontFamily=Helvetica;fontSize=12;spacing=8;strokeWidth=1.5;shape=rectangle;align=left;verticalAlign=middle;spacingLeft=78;spacingRight=10;" vertex="1" parent="app">
+          <mxGeometry as="geometry" x="340" y="310" width="260" height="140" />
+        </mxCell>
+        <mxCell id="worker" value="&lt;b&gt;clinicahans-notification-worker-1&lt;/b&gt;&lt;br&gt;Equivalente AWS: EC2 Worker&lt;br&gt;Imagem compartilhada com a API" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#232F3E;fontFamily=Helvetica;fontSize=12;spacing=8;strokeWidth=1.5;shape=rectangle;align=left;verticalAlign=middle;spacingLeft=78;spacingRight=10;" vertex="1" parent="app">
+          <mxGeometry as="geometry" x="30" y="460" width="260" height="140" />
+        </mxCell>
+        <mxCell id="pg" value="&lt;b&gt;clinicahans-db&lt;/b&gt;&lt;br&gt;Equivalente AWS: RDS PostgreSQL&lt;br&gt;Multi-AZ / outbox / auditoria" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#232F3E;fontFamily=Helvetica;fontSize=12;spacing=8;strokeWidth=1.5;shape=rectangle;align=left;verticalAlign=middle;spacingLeft=78;spacingRight=10;" vertex="1" parent="data">
+          <mxGeometry as="geometry" x="25" y="100" width="250" height="160" />
+        </mxCell>
+        <mxCell id="redis" value="&lt;b&gt;clinicahans-redis-1&lt;/b&gt;&lt;br&gt;Equivalente AWS: ElastiCache&lt;br&gt;Integração pendente" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#B7791F;fontColor=#232F3E;fontFamily=Helvetica;fontSize=12;spacing=8;strokeWidth=1.5;shape=rectangle;dashed=1;dashPattern=6 4;align=left;verticalAlign=middle;spacingLeft=78;spacingRight=10;" vertex="1" parent="data">
+          <mxGeometry as="geometry" x="25" y="440" width="250" height="120" />
+        </mxCell>
+        <mxCell id="ecr" value="&lt;b&gt;Imagens locais de referência&lt;/b&gt;&lt;br&gt;clinicahans-frontend&lt;br&gt;clinicahans-backend:local&lt;br&gt;Destino previsto: ECR" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#232F3E;fontFamily=Helvetica;fontSize=12;spacing=8;strokeWidth=1.5;shape=rectangle;align=left;verticalAlign=middle;spacingLeft=78;spacingRight=10;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="1570" y="170" width="270" height="130" />
+        </mxCell>
+        <mxCell id="secrets" value="&lt;b&gt;Configuração do projeto&lt;/b&gt;&lt;br&gt;IAM / Secrets Manager / SSM&lt;br&gt;Previstos para AWS" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#232F3E;fontFamily=Helvetica;fontSize=12;spacing=8;strokeWidth=1.5;shape=rectangle;align=left;verticalAlign=middle;spacingLeft=78;spacingRight=10;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="1570" y="400" width="270" height="140" />
+        </mxCell>
+        <mxCell id="cw" value="&lt;b&gt;Origens locais de logs&lt;/b&gt;&lt;br&gt;clinicahans-backend-1&lt;br&gt;clinicahans-notification-worker-1&lt;br&gt;Destino previsto: CloudWatch" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#232F3E;fontFamily=Helvetica;fontSize=12;spacing=8;strokeWidth=1.5;shape=rectangle;align=left;verticalAlign=middle;spacingLeft=78;spacingRight=10;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="1570" y="650" width="270" height="130" />
+        </mxCell>
+        <mxCell id="cron" value="&lt;b&gt;clinicahans-exames-prontos-12h&lt;/b&gt;&lt;br&gt;EventBridge Scheduler&lt;br&gt;00h e 12h de São Paulo" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#232F3E;fontFamily=Helvetica;fontSize=11;spacing=8;strokeWidth=1.5;shape=rectangle;align=left;verticalAlign=middle;spacingLeft=66;spacingRight=10;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="280" y="940" width="230" height="110" />
+        </mxCell>
+        <mxCell id="jobs" value="&lt;b&gt;clinicahans-jobs&lt;/b&gt;&lt;br&gt;SQS + clinicahans-jobs-dlq" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#232F3E;fontFamily=Helvetica;fontSize=11;spacing=8;strokeWidth=1.5;shape=rectangle;align=left;verticalAlign=middle;spacingLeft=66;spacingRight=10;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="560" y="940" width="230" height="110" />
+        </mxCell>
+        <mxCell id="notices" value="&lt;b&gt;clinicahans-notificacoes&lt;/b&gt;&lt;br&gt;SQS + respectiva DLQ" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#232F3E;fontFamily=Helvetica;fontSize=11;spacing=8;strokeWidth=1.5;shape=rectangle;align=left;verticalAlign=middle;spacingLeft=66;spacingRight=10;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="840" y="940" width="230" height="110" />
+        </mxCell>
+        <mxCell id="s3" value="&lt;b&gt;clinicahans-exames-local&lt;/b&gt;&lt;br&gt;Referência local → AWS S3&lt;br&gt;Bucket privado de exames" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#232F3E;fontFamily=Helvetica;fontSize=11;spacing=8;strokeWidth=1.5;shape=rectangle;align=left;verticalAlign=middle;spacingLeft=66;spacingRight=10;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="1120" y="940" width="230" height="110" />
+        </mxCell>
+        <mxCell id="dynamo" value="&lt;b&gt;clinicahans-receitas-local&lt;/b&gt;&lt;br&gt;Referência local → DynamoDB&lt;br&gt;Integração pendente" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#B7791F;fontColor=#232F3E;fontFamily=Helvetica;fontSize=11;spacing=8;strokeWidth=1.5;shape=rectangle;dashed=1;dashPattern=6 4;align=left;verticalAlign=middle;spacingLeft=66;spacingRight=10;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="1400" y="940" width="230" height="110" />
+        </mxCell>
+        <mxCell id="smtp" value="&lt;b&gt;clinicahans-mailpit-1&lt;/b&gt;&lt;br&gt;Equivalente de envio: SMTP / SES&lt;br&gt;Produção exige habilitação" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontColor=#232F3E;fontFamily=Helvetica;fontSize=12;spacing=8;strokeWidth=1.5;shape=rectangle;align=left;verticalAlign=middle;spacingLeft=78;spacingRight=10;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="1570" y="1130" width="270" height="125" />
+        </mxCell>
+        <mxCell id="edge-1" value="HTTPS" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#536d8b;strokeWidth=1.6;fontColor=#334155;fontSize=12;labelBackgroundColor=#ffffff;exitX=1;exitY=0.5;entryX=0;entryY=0.5;exitPerimeter=1;entryPerimeter=1;jumpStyle=arc;jumpSize=8;" edge="1" parent="1" source="browser" target="alb">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="edge-2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#536d8b;strokeWidth=1.6;fontColor=#334155;fontSize=12;labelBackgroundColor=#ffffff;exitX=1;exitY=0.5;entryX=0;entryY=0.5;exitPerimeter=1;entryPerimeter=1;jumpStyle=arc;jumpSize=8;" edge="1" parent="1" source="alb" target="web">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="edge-3" value="REST" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#536d8b;strokeWidth=1.6;fontColor=#334155;fontSize=12;labelBackgroundColor=#ffffff;exitX=1;exitY=0.5;entryX=0;entryY=0.5;exitPerimeter=1;entryPerimeter=1;jumpStyle=arc;jumpSize=8;" edge="1" parent="1" source="web" target="internal">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="edge-4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#536d8b;strokeWidth=1.6;fontColor=#334155;fontSize=12;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;entryX=0.5;entryY=0;exitPerimeter=1;entryPerimeter=1;jumpStyle=arc;jumpSize=8;" edge="1" parent="1" source="internal" target="api">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="edge-5" value="SQL / JDBC" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#536d8b;strokeWidth=1.6;fontColor=#334155;fontSize=12;labelBackgroundColor=#ffffff;exitX=1;exitY=0.5;entryX=0;entryY=0.5;exitPerimeter=1;entryPerimeter=1;jumpStyle=arc;jumpSize=8;" edge="1" parent="1" source="api" target="pg">
+          <mxGeometry as="geometry" relative="1">
+            <Array as="points">
+              <mxPoint x="1210" y="530" />
+              <mxPoint x="1210" y="330" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-6" value="Outbox e auditoria" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#536d8b;strokeWidth=1.6;fontColor=#334155;fontSize=12;labelBackgroundColor=#ffffff;exitX=1;exitY=0.5;entryX=0;entryY=0.5;exitPerimeter=1;entryPerimeter=1;jumpStyle=arc;jumpSize=8;" edge="1" parent="1" source="worker" target="pg">
+          <mxGeometry as="geometry" relative="1">
+            <Array as="points">
+              <mxPoint x="1160" y="680" />
+              <mxPoint x="1160" y="330" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-7" value="Cache futuro" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#ba8328;strokeWidth=1.6;fontColor=#334155;fontSize=12;labelBackgroundColor=#ffffff;exitX=1;exitY=0.5;entryX=0;entryY=0.5;exitPerimeter=1;entryPerimeter=1;jumpStyle=arc;jumpSize=8;dashed=1;dashPattern=6 4;" edge="1" parent="1" source="api" target="redis">
+          <mxGeometry as="geometry" relative="1">
+            <Array as="points">
+              <mxPoint x="1210" y="530" />
+              <mxPoint x="1210" y="650" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-8" value="Comando" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#536d8b;strokeWidth=1.6;fontColor=#334155;fontSize=12;labelBackgroundColor=#ffffff;exitX=1;exitY=0.5;entryX=0;entryY=0.5;exitPerimeter=1;entryPerimeter=1;jumpStyle=arc;jumpSize=8;" edge="1" parent="1" source="cron" target="jobs">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="edge-9" value="Consumir jobs" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#536d8b;strokeWidth=1.6;fontColor=#334155;fontSize=12;labelBackgroundColor=#ffffff;exitX=0.5;exitY=0;entryX=0.5;entryY=1;exitPerimeter=1;entryPerimeter=1;jumpStyle=arc;jumpSize=8;" edge="1" parent="1" source="jobs" target="worker">
+          <mxGeometry as="geometry" relative="1">
+            <Array as="points">
+              <mxPoint x="675" y="885" />
+              <mxPoint x="710" y="885" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-10" value="Publicar / consumir" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#536d8b;strokeWidth=1.6;fontColor=#334155;fontSize=12;labelBackgroundColor=#ffffff;exitX=1;exitY=0.5;entryX=0.5;entryY=0;exitPerimeter=1;entryPerimeter=1;jumpStyle=arc;jumpSize=8;startArrow=block;startFill=1;" edge="1" parent="1" source="worker" target="notices">
+          <mxGeometry as="geometry" relative="1">
+            <Array as="points">
+              <mxPoint x="870" y="680" />
+              <mxPoint x="870" y="885" />
+              <mxPoint x="955" y="885" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-11" value="HEAD" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#536d8b;strokeWidth=1.6;fontColor=#334155;fontSize=12;labelBackgroundColor=#ffffff;exitX=1;exitY=0.5;entryX=0.5;entryY=0;exitPerimeter=1;entryPerimeter=1;jumpStyle=arc;jumpSize=8;" edge="1" parent="1" source="worker" target="s3">
+          <mxGeometry as="geometry" relative="1">
+            <Array as="points">
+              <mxPoint x="1110" y="680" />
+              <mxPoint x="1110" y="890" />
+              <mxPoint x="1235" y="890" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-12" value="Integração futura" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#ba8328;strokeWidth=1.6;fontColor=#334155;fontSize=12;labelBackgroundColor=#ffffff;exitX=1;exitY=1;entryX=0.5;entryY=0;exitPerimeter=1;entryPerimeter=1;jumpStyle=arc;jumpSize=8;dashed=1;dashPattern=6 4;" edge="1" parent="1" source="api" target="dynamo">
+          <mxGeometry as="geometry" relative="1">
+            <Array as="points">
+              <mxPoint x="1170" y="600" />
+              <mxPoint x="1170" y="865" />
+              <mxPoint x="1515" y="865" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-13" value="Avisos individuais" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#536d8b;strokeWidth=1.6;fontColor=#334155;fontSize=12;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;entryX=1;entryY=0.5;exitPerimeter=1;entryPerimeter=1;jumpStyle=arc;jumpSize=8;" edge="1" parent="1" source="worker" target="smtp">
+          <mxGeometry as="geometry" relative="1">
+            <Array as="points">
+              <mxPoint x="710" y="870" />
+              <mxPoint x="1850" y="870" />
+              <mxPoint x="1850" y="1190" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="awsNote" value="&lt;b&gt;Operação e limites&lt;/b&gt;&lt;br&gt;ECR fornece as imagens; EC2 lê secrets com IAM e envia logs ao CloudWatch. As EC2 privadas usam NAT para chamadas externas.&lt;br&gt;Inicializar com uma API para migrations; worker após API saudável. Redis/receitas NoSQL, upload pela tela e validação de carga ainda pendentes." style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;fontFamily=Helvetica;fontSize=14;fontColor=#475569;fontStyle=0;spacing=4;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="35" y="1280" width="1800" height="80" />
+        </mxCell>
+        <mxCell id="aws-icon-browser" value="" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.client;sketch=0;html=1;aspect=fixed;outlineConnect=0;gradientColor=none;fillColor=#545B64;strokeColor=#ffffff;strokeWidth=0;fontColor=#232F3E;connectable=0;pointerEvents=1;movable=1;resizable=1;" vertex="1" parent="browser" connectable="0">
+          <mxGeometry as="geometry" x="14" y="35.0" width="40" height="40" />
+        </mxCell>
+        <mxCell id="aws-icon-alb" value="" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.elastic_load_balancing;sketch=0;html=1;aspect=fixed;outlineConnect=0;gradientColor=none;fillColor=#8C4FFF;strokeColor=#ffffff;strokeWidth=0;fontColor=#232F3E;connectable=0;pointerEvents=1;movable=1;resizable=1;" vertex="1" parent="alb" connectable="0">
+          <mxGeometry as="geometry" x="14" y="35.0" width="40" height="40" />
+        </mxCell>
+        <mxCell id="aws-icon-internal" value="" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.elastic_load_balancing;sketch=0;html=1;aspect=fixed;outlineConnect=0;gradientColor=none;fillColor=#8C4FFF;strokeColor=#ffffff;strokeWidth=0;fontColor=#232F3E;connectable=0;pointerEvents=1;movable=1;resizable=1;" vertex="1" parent="internal" connectable="0">
+          <mxGeometry as="geometry" x="14" y="34.0" width="52" height="52" />
+        </mxCell>
+        <mxCell id="aws-icon-web" value="" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.ec2;sketch=0;html=1;aspect=fixed;outlineConnect=0;gradientColor=none;fillColor=#ED7100;strokeColor=#ffffff;strokeWidth=0;fontColor=#232F3E;connectable=0;pointerEvents=1;movable=1;resizable=1;" vertex="1" parent="web" connectable="0">
+          <mxGeometry as="geometry" x="14" y="34.0" width="52" height="52" />
+        </mxCell>
+        <mxCell id="aws-icon-api" value="" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.ec2;sketch=0;html=1;aspect=fixed;outlineConnect=0;gradientColor=none;fillColor=#ED7100;strokeColor=#ffffff;strokeWidth=0;fontColor=#232F3E;connectable=0;pointerEvents=1;movable=1;resizable=1;" vertex="1" parent="api" connectable="0">
+          <mxGeometry as="geometry" x="14" y="44.0" width="52" height="52" />
+        </mxCell>
+        <mxCell id="aws-icon-worker" value="" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.ec2;sketch=0;html=1;aspect=fixed;outlineConnect=0;gradientColor=none;fillColor=#ED7100;strokeColor=#ffffff;strokeWidth=0;fontColor=#232F3E;connectable=0;pointerEvents=1;movable=1;resizable=1;" vertex="1" parent="worker" connectable="0">
+          <mxGeometry as="geometry" x="14" y="44.0" width="52" height="52" />
+        </mxCell>
+        <mxCell id="aws-icon-pg" value="" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.rds;sketch=0;html=1;aspect=fixed;outlineConnect=0;gradientColor=none;fillColor=#C925D1;strokeColor=#ffffff;strokeWidth=0;fontColor=#232F3E;connectable=0;pointerEvents=1;movable=1;resizable=1;" vertex="1" parent="pg" connectable="0">
+          <mxGeometry as="geometry" x="14" y="54.0" width="52" height="52" />
+        </mxCell>
+        <mxCell id="aws-icon-redis" value="" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.elasticache;sketch=0;html=1;aspect=fixed;outlineConnect=0;gradientColor=none;fillColor=#C925D1;strokeColor=#ffffff;strokeWidth=0;fontColor=#232F3E;connectable=0;pointerEvents=1;movable=1;resizable=1;" vertex="1" parent="redis" connectable="0">
+          <mxGeometry as="geometry" x="14" y="34.0" width="52" height="52" />
+        </mxCell>
+        <mxCell id="aws-icon-ecr" value="" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.ecr;sketch=0;html=1;aspect=fixed;outlineConnect=0;gradientColor=none;fillColor=#ED7100;strokeColor=#ffffff;strokeWidth=0;fontColor=#232F3E;connectable=0;pointerEvents=1;movable=1;resizable=1;" vertex="1" parent="ecr" connectable="0">
+          <mxGeometry as="geometry" x="14" y="39.0" width="52" height="52" />
+        </mxCell>
+        <mxCell id="aws-icon-secrets" value="" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.secrets_manager;sketch=0;html=1;aspect=fixed;outlineConnect=0;gradientColor=none;fillColor=#DD344C;strokeColor=#ffffff;strokeWidth=0;fontColor=#232F3E;connectable=0;pointerEvents=1;movable=1;resizable=1;" vertex="1" parent="secrets" connectable="0">
+          <mxGeometry as="geometry" x="14" y="44.0" width="52" height="52" />
+        </mxCell>
+        <mxCell id="aws-icon-cw" value="" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.cloudwatch;sketch=0;html=1;aspect=fixed;outlineConnect=0;gradientColor=none;fillColor=#E7157B;strokeColor=#ffffff;strokeWidth=0;fontColor=#232F3E;connectable=0;pointerEvents=1;movable=1;resizable=1;" vertex="1" parent="cw" connectable="0">
+          <mxGeometry as="geometry" x="14" y="39.0" width="52" height="52" />
+        </mxCell>
+        <mxCell id="aws-icon-cron" value="" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.eventbridge_scheduler;sketch=0;html=1;aspect=fixed;outlineConnect=0;gradientColor=none;fillColor=#E7157B;strokeColor=#ffffff;strokeWidth=0;fontColor=#232F3E;connectable=0;pointerEvents=1;movable=1;resizable=1;" vertex="1" parent="cron" connectable="0">
+          <mxGeometry as="geometry" x="14" y="35.0" width="40" height="40" />
+        </mxCell>
+        <mxCell id="aws-icon-jobs" value="" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.sqs;sketch=0;html=1;aspect=fixed;outlineConnect=0;gradientColor=none;fillColor=#E7157B;strokeColor=#ffffff;strokeWidth=0;fontColor=#232F3E;connectable=0;pointerEvents=1;movable=1;resizable=1;" vertex="1" parent="jobs" connectable="0">
+          <mxGeometry as="geometry" x="14" y="35.0" width="40" height="40" />
+        </mxCell>
+        <mxCell id="aws-icon-notices" value="" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.sqs;sketch=0;html=1;aspect=fixed;outlineConnect=0;gradientColor=none;fillColor=#E7157B;strokeColor=#ffffff;strokeWidth=0;fontColor=#232F3E;connectable=0;pointerEvents=1;movable=1;resizable=1;" vertex="1" parent="notices" connectable="0">
+          <mxGeometry as="geometry" x="14" y="35.0" width="40" height="40" />
+        </mxCell>
+        <mxCell id="aws-icon-s3" value="" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.s3;sketch=0;html=1;aspect=fixed;outlineConnect=0;gradientColor=none;fillColor=#7AA116;strokeColor=#ffffff;strokeWidth=0;fontColor=#232F3E;connectable=0;pointerEvents=1;movable=1;resizable=1;" vertex="1" parent="s3" connectable="0">
+          <mxGeometry as="geometry" x="14" y="35.0" width="40" height="40" />
+        </mxCell>
+        <mxCell id="aws-icon-dynamo" value="" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.dynamodb;sketch=0;html=1;aspect=fixed;outlineConnect=0;gradientColor=none;fillColor=#C925D1;strokeColor=#ffffff;strokeWidth=0;fontColor=#232F3E;connectable=0;pointerEvents=1;movable=1;resizable=1;" vertex="1" parent="dynamo" connectable="0">
+          <mxGeometry as="geometry" x="14" y="35.0" width="40" height="40" />
+        </mxCell>
+        <mxCell id="aws-icon-smtp" value="" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.simple_email_service;sketch=0;html=1;aspect=fixed;outlineConnect=0;gradientColor=none;fillColor=#E7157B;strokeColor=#ffffff;strokeWidth=0;fontColor=#232F3E;connectable=0;pointerEvents=1;movable=1;resizable=1;" vertex="1" parent="smtp" connectable="0">
+          <mxGeometry as="geometry" x="14" y="36.5" width="52" height="52" />
+        </mxCell>
+        <mxCell id="aws-icon-nat" value="" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.nat_gateway;sketch=0;html=1;aspect=fixed;outlineConnect=0;gradientColor=none;fillColor=#8C4FFF;strokeColor=#ffffff;strokeWidth=0;fontColor=#232F3E;connectable=0;pointerEvents=1;movable=1;resizable=1;" vertex="1" parent="nat" connectable="0">
+          <mxGeometry as="geometry" x="14" y="40.0" width="40" height="40" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

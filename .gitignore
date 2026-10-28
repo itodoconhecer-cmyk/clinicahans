@@ -24,7 +24,7 @@ Thumbs.db
 
 # LocalStack: token e configuracao local
 .env.localstack
-infra/localstack/**/__pycache__/
+infra/**/__pycache__/
 
 # Terraform: estado, planos e valores locais
 infra/aws/.terraform/

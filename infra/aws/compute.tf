@@ -175,7 +175,10 @@ resource "aws_launch_template" "app" {
     log_group  = aws_cloudwatch_log_group.app[each.key].name
     environment = base64encode(jsonencode(each.key == "web" ? {
       API_UPSTREAM = "${aws_lb.internal.dns_name}:80", DNS_RESOLVER = "169.254.169.253", TRUSTED_PROXY_CIDR = aws_vpc.clinic.cidr_block
-    } : local.app_environment))
+      } : merge(local.app_environment, {
+        EXAM_NOTIFICATION_WORKER_ENABLED = tostring(each.key == "worker")
+        NOTIFICATION_PORTAL_URL          = "https://${var.public_hostname}/login/login.html"
+    })))
   }))
   tag_specifications {
     resource_type = "instance"
@@ -203,7 +206,7 @@ resource "aws_autoscaling_group" "app" {
   lifecycle {
     precondition {
       condition     = each.key != "worker" || each.value.desired == 0 || var.worker_image != ""
-      error_message = "Implemente e publique a imagem do worker antes de ativar suas instancias."
+      error_message = "Informe worker_image com a imagem publicada do monolito antes de ativar suas instancias."
     }
   }
   depends_on = [aws_route.app_nat, aws_iam_role_policy.logs, aws_iam_role_policy.application, aws_iam_role_policy_attachment.ecr, aws_iam_role_policy_attachment.ssm, aws_lb_listener.api, aws_lb_listener.https]

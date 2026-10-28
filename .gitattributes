@@ -4,3 +4,4 @@ backend/Dockerfile text eol=lf
 backend/.dockerignore text eol=lf
 docker-compose.localstack.yml text eol=lf
 docker-compose.application.yml text eol=lf
+docker-compose.notifications.yml text eol=lf
