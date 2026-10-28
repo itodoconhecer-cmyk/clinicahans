@@ -259,17 +259,19 @@ Gestão seleciona um período e recebe totais, tendência em relação ao perío
 - exames e acompanhamentos pendentes/vencidos, apenas como totais;
 - valores recebidos e pendentes.
 
-Definições da versão `2026-10-v1`:
+Definições da versão `2026-10-v2`:
 - ausência = agendamentos `NO_SHOW` ÷ (`COMPLETED` + `NO_SHOW`); a tela mostra numerador e denominador;
 - cancelamento = agendamentos `CANCELLED` ÷ (`COMPLETED` + `NO_SHOW` + `CANCELLED`);
 - ocupação = minutos de agendamentos não cancelados ÷ minutos de disponibilidade recorrente atualmente ativa após bloqueios; como a agenda recorrente não possui histórico de vigência, períodos passados podem refletir a configuração atual;
 - paciente novo = paciente cuja primeira consulta `COMPLETED` registrada ocorreu no intervalo;
 - tempo até consulta = média de `starts_at - created_at` para consultas não canceladas que começam no intervalo;
 - recebíveis/recebido/pendente formam uma coorte de recebíveis criados no intervalo; recebido é o total pago até a geração e pendente é o saldo restante nessa data;
-- exames pendentes e acompanhamentos abertos são totais atuais na data de geração, não eventos criados no intervalo.
+- exames pendentes e acompanhamentos abertos consideram registros criados no intervalo cujo estado ainda está pendente ou aberto na data de geração; não reconstituem o estado histórico.
 
 ### F-GE-02 — Relatório analítico
-Gestão filtra e agrupa os indicadores por período, status, médico ou especialidade. O detalhamento mostra registros administrativos/financeiros de origem, de forma paginada e sem identificação de paciente. Dados de continuidade clínica permanecem agregados para Gestão; profissionais com acesso assistencial usam as filas próprias do sistema.
+Gestão filtra e agrupa os indicadores por período, status, médico ou especialidade. O detalhamento mostra referências e dados operacionais ou financeiros de origem, de forma paginada e sem identificação de paciente, nome de exame ou conteúdo clínico. Profissionais com acesso assistencial usam as filas próprias para o detalhe clínico.
+
+O período pode ser selecionado como intervalo, ano, mês ou dia. As quebras incluem ano, mês, dia, médico e especialidade; o usuário pode navegar do sintético à análise, à listagem de origem e ao detalhe operacional permitido. Os filtros e a população do indicador devem ser preservados em cada etapa. Como o atendimento ainda não registra sua especialidade, a classificação usa a especialidade principal atual do médico e pode não refletir mudanças históricas.
 
 ### F-GE-03 — Rastreabilidade
 Cada execução apresenta `reportRunId` (UUID do evento API_REQUEST), autor, horário, correlation ID, período, filtros, versão das definições, fórmulas e fontes dos indicadores. Totais podem ser reconciliados com referências dos registros de origem dentro da autorização do perfil. Consultas e exportações geram trilha persistente de auditoria; a exportação da página inclui `reportRunId` e filtros em evento `REPORT_EXPORT`.
@@ -306,7 +308,7 @@ Somente Admin consulta auditoria.
 | Indicadores | /api/v1/management/dashboard |
 | Relatórios sintéticos | GET /api/v1/management/reports/summary |
 | Relatórios analíticos | GET /api/v1/management/reports/analysis |
-| Origem e exportação de relatórios | GET /api/v1/management/reports/sources; POST /api/v1/management/reports/exports |
+| Origem e exportação de relatórios | GET /api/v1/management/reports/sources; GET /api/v1/management/reports/records/{type}/{id}; POST /api/v1/management/reports/exports |
 | Auditoria | /api/v1/audit |
 
 ## 17. Cenário de aceite ponta a ponta — Mariana
@@ -337,3 +339,5 @@ Uma capacidade está funcionalmente pronta quando:
 A migration `V011__weekly_clinical_partitions.sql` transforma agendamentos, consultas, recebíveis, pagamentos e resultados de exames em tabelas `RANGE` semanais. Também cria armazenamento particionado para prescrições e itens. A semana começa segunda-feira às 00:00 no fuso `America/Sao_Paulo`; a PK de cada tabela inclui o timestamp temporal. Locators preservam UUID global e recebem FKs de tabelas dependentes. `appointment_reservation_guard` conserva a exclusão global de horários entre partições. O executor de migrations entende blocos PostgreSQL `$$`; `WeeklyPartitionMaintenance` cria a semana atual e 26 semanas futuras.
 
 Consultas com faixa temporal devem filtrar diretamente o timestamp de partição. Buscas por UUID usam locator para encontrar o timestamp e restringir a partição. A migration V011 copia dados e troca as tabelas em uma única transação; aplicar em ambiente com dados requer janela de manutenção e backup verificado.
+
+A V012 corrige as funções de gatilho em instalações que já aplicaram a V011 para reconhecer a tabela física de cada semana. A carga de demonstração usa dados fictícios e cria 60 consultas por semana nas oito semanas completas anteriores; instruções e consultas de inspeção estão em `backend/README.md`.

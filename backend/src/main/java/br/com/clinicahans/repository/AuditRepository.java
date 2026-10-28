@@ -77,12 +77,23 @@ public class AuditRepository {
     }
 
     public boolean isSuccessfulReportSourcesRequest(UUID id, String username) {
+        return isSuccessfulReportRequest(id, username, "/api/v1/management/reports/sources");
+    }
+
+    public boolean isSuccessfulReportRequest(UUID id, String username, String expectedPath) {
         Integer count = jdbc.queryForObject("""
             select count(*) from audit_event
-            where id=? and action='API_REQUEST' and request_path='/api/v1/management/reports/sources'
+            where id=? and action='API_REQUEST' and request_path=?
               and outcome='SUCCESS' and username=?
-            """, Integer.class, id, username);
+            """, Integer.class, id, expectedPath, username);
         return count != null && count == 1;
+    }
+
+    public String successfulReportRequestContext(UUID id, String username, String expectedPath) {
+        return jdbc.query("""
+            select request_context::text from audit_event
+            where id=? and action='API_REQUEST' and request_path=? and outcome='SUCCESS' and username=?
+            """, rs -> rs.next() ? rs.getString(1) : null, id, expectedPath, username);
     }
 
     public List<AuditEntry> search(String entityType, String entityId, String correlationId, int limit) {

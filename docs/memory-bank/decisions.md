@@ -56,3 +56,13 @@ Motivo: suportar mais de um milhão de atendimentos mensais, permitindo poda de 
 A migração cria armazenamento semanal de prescrições e itens; a emissão, a assinatura digital e a interface clínica continuam fora da API atual.
 
 Motivo: cumprir a necessidade de retenção e escala da prescrição sem afirmar que o fluxo assistencial já foi implementado.
+
+## DEC-009 — Alocação local e AWS para crescimento
+
+A infraestrutura passa a ter Compose complementar com frontend/gateway Nginx, balanceador interno, backend Java 25, Redis e SMTP de teste. LocalStack provisiona S3, DynamoDB, filas SQS com DLQ e Scheduler às 00h e 12h em `America/Sao_Paulo`, que publica um comando para verificar exames liberados.
+
+O diretório `infra/aws` prepara a alocação real com EC2/Auto Scaling para web e API, ALBs público e interno, VPC em duas zonas, RDS PostgreSQL Multi-AZ, ElastiCache, S3, DynamoDB, SQS, Scheduler, ECR, IAM/SSM, Secrets Manager referenciado e CloudWatch. A API começa sem instâncias até preparar usuário SQL e imagens; o primeiro boot com migrations usa uma instância. Workers permanecem com capacidade zero até existir implementação.
+
+Esta decisão autoriza a preparação dos scripts, não registra uma implantação AWS realizada. Redis, anexos S3, receitas NoSQL e envio de e-mail ainda exigem integração no código. As decisões DEC-007/008 permanecem vigentes para prescrições existentes no PostgreSQL; a mudança de fonte oficial para NoSQL depende de especificação. O job só pode notificar resultados liberados e deve controlar cada exame/versão/destinatário, com mensagens sem conteúdo clínico.
+
+Motivo: alocar uma base evolutiva sem confundir serviços provisionados com funcionalidades implementadas. Mapa, diagrama, comandos e limites estão em `infra/README.md`.

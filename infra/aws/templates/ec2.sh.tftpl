@@ -1,0 +1,58 @@
+#!/bin/bash
+set -euo pipefail
+# Sem set -x: valores secretos nao podem aparecer no cloud-init.
+dnf install -y docker awscli-2 python3
+systemctl enable --now docker
+install -d -m 700 /opt/clinicahans
+cat > /opt/clinicahans/start.sh <<'START'
+#!/bin/bash
+set -euo pipefail
+export AWS_DEFAULT_REGION='${region}'
+export AWS_REGION='${region}'
+export APP_SECRET_ARN='${secret_arn}'
+export BASE_ENVIRONMENT='${environment}'
+install -d -m 700 /run/clinicahans
+python3 - <<'PY'
+import base64, json, os, subprocess
+config = json.loads(base64.b64decode(os.environ['BASE_ENVIRONMENT']))
+secret_arn = os.environ['APP_SECRET_ARN']
+if secret_arn:
+    raw = subprocess.check_output(['aws', 'secretsmanager', 'get-secret-value', '--secret-id', secret_arn, '--query', 'SecretString', '--output', 'text'])
+    secret = json.loads(raw)
+    for name in ['JWT_SECRET', 'DB_USER', 'DB_PASSWORD', 'BOOTSTRAP_ADMIN_USERNAME', 'BOOTSTRAP_ADMIN_PASSWORD']:
+        if name in secret:
+            config[name] = secret[name]
+    if len(config.get('JWT_SECRET', '')) < 32 or not config.get('DB_USER') or not config.get('DB_PASSWORD'):
+        raise RuntimeError('Secret da aplicacao incompleto')
+with open('/run/clinicahans/app.env', 'w', encoding='utf-8') as out:
+    os.chmod(out.name, 0o600)
+    for key, value in config.items():
+        if not isinstance(value, str) or '\n' in value or '\r' in value:
+            raise RuntimeError('Valor de ambiente invalido')
+        out.write(key + '=' + value + '\n')
+PY
+IMAGE='${image}'
+REGISTRY=$(printf '%s' "$IMAGE" | cut -d/ -f1)
+aws ecr get-login-password | docker login --username AWS --password-stdin "$REGISTRY"
+docker pull "$IMAGE"
+docker rm -f clinicahans >/dev/null 2>&1 || true
+exec docker run --name clinicahans --init --read-only --tmpfs /tmp:rw,noexec,nosuid,size=256m --tmpfs /app/logs:rw,uid=999,gid=999,mode=1777,size=128m --tmpfs /var/cache/nginx:rw,size=32m --tmpfs /var/run:rw,size=4m --tmpfs /etc/nginx/conf.d:rw,size=4m --security-opt no-new-privileges:true --env-file /run/clinicahans/app.env --log-driver awslogs --log-opt awslogs-region='${region}' --log-opt awslogs-group='${log_group}' --log-opt awslogs-stream="$(cat /etc/hostname)" %{ if port > 0 }-p ${port}:${port}%{ endif } "$IMAGE"
+START
+chmod 700 /opt/clinicahans/start.sh
+cat > /etc/systemd/system/clinicahans.service <<'UNIT'
+[Unit]
+Description=Clinica Hans ${tier}
+After=docker.service network-online.target
+Requires=docker.service
+[Service]
+ExecStart=/opt/clinicahans/start.sh
+ExecStop=-/usr/bin/docker stop -t 30 clinicahans
+Restart=always
+RestartSec=15
+TimeoutStartSec=600
+TimeoutStopSec=60
+[Install]
+WantedBy=multi-user.target
+UNIT
+systemctl daemon-reload
+systemctl enable --now clinicahans

@@ -97,6 +97,8 @@ Transformar a Clínica Hans de registros fragmentados para uma plataforma centra
 - Cada taxa mostra numerador, denominador e regra vigente; intervalos sem base suficiente são identificados como insuficientes, não como zero.
 - O detalhamento herda autorização do domínio de origem; Gestão recebe agregados operacionais/financeiros sem identificação do paciente nem texto clínico.
 - Toda sugestão permite chegar ao indicador e aos dados que a fundamentam, dentro do escopo autorizado.
+- **RF-099 [P1] Navegar do sintético ao registro:** permitir quebras por especialidade, médico, ano, mês e dia; preservar período e filtros na análise, na listagem e no detalhe, com acesso conforme as permissões aplicáveis e composição reconciliável.
+- **RF-100 [P1] Disponibilizar dados sintéticos de demonstração:** preparar, em ambiente de desenvolvimento identificado, pelo menos 50 consultas por semana com modalidades e profissionais variados, sem usar informações reais de pacientes.
 
 ## 11. Auditoria e conformidade
 - **RF-090 [P0] Registrar eventos de auditoria** para autenticação relevante, prontuário, registros clínicos, permissões e alterações críticas.

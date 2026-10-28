@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Visão geral | Clínica Hans</title>
-  <link rel="stylesheet" href="./visao-geral.css?v=schedule-grid-fix-01">
+  <link rel="stylesheet" href="./visao-geral.css?v=highcharts-01">
 </head>
 <body>
   <div class="app-shell">
@@ -19,6 +19,8 @@
     </main>
   </div>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
-  <script type="module" src="./visao-geral.js?v=schedule-calendar-02"></script>
+  <script defer src="../vendor/highcharts/highcharts.js"></script>
+  <script defer src="../vendor/highcharts/accessibility.js"></script>
+  <script type="module" src="./visao-geral.js?v=highcharts-01"></script>
 </body>
 </html>

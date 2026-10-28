@@ -33,7 +33,7 @@ class CriticalDatabaseIntegrationTest {
             """,Integer.class);
         Integer appointmentStatus=jdbc.queryForObject("""
             select count(*) from pg_constraint
-            where conname='chk_appointment_status'
+            where conname='chk_appointment_status' and conrelid='appointment'::regclass
             """,Integer.class);
 
         assertEquals(1,migration);

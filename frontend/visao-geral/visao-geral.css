@@ -2,3 +2,14 @@
 @import url('../components/calendar-grid.css?v=schedule-grid-fix-01');
 
 /* Estilos específicos da tela Visão geral. */
+.weekly-totals{grid-template-columns:repeat(3,minmax(0,1fr))}
+.weekly-charts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+.weekly-chart{min-width:0}
+.weekly-chart h3{margin:0 0 8px}
+.weekly-chart-container{width:100%;min-width:0;min-height:320px}
+.weekly-provenance{margin-top:20px;color:var(--muted);font-size:13px}
+.weekly-provenance summary{cursor:pointer}
+.weekly-provenance dl{overflow-wrap:anywhere}
+.weekly-provenance dd{margin:4px 0 12px}
+@media(max-width:1200px){.weekly-charts{grid-template-columns:1fr}}
+@media(max-width:600px){.weekly-totals{grid-template-columns:1fr}}

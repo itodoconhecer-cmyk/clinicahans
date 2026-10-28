@@ -30,7 +30,15 @@ Para apagar os dados do banco:
 docker compose down -v
 ```
 
-## Fluxo
+## Serviços AWS locais (opcional)
+
+Para criar S3, SQS/DLQs, DynamoDB e o agendamento de exames a cada 12 horas,
+consulte [LocalStack da Clínica Hans](../infra/localstack/README.md).
+O PostgreSQL continua usando o Compose existente.
+Para subir também frontend, backend, balanceador, Redis e SMTP de teste,
+consulte a [alocação completa](../infra/README.md), que inclui os scripts Terraform de EC2/AWS.
+
+## Fluxo de geração
 
 Tudo o mais é gerado pela IA:
 

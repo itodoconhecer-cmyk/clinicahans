@@ -252,7 +252,7 @@ LANGUAGE plpgsql
 AS $$
 BEGIN
   IF TG_OP = 'UPDATE' THEN
-    CASE TG_TABLE_NAME
+    CASE split_part(TG_TABLE_NAME, '_w', 1)
       WHEN 'appointment' THEN
         IF NEW.id IS DISTINCT FROM OLD.id OR NEW.starts_at IS DISTINCT FROM OLD.starts_at OR
            NEW.patient_id IS DISTINCT FROM OLD.patient_id OR NEW.doctor_id IS DISTINCT FROM OLD.doctor_id THEN
@@ -294,7 +294,7 @@ BEGIN
     RETURN NEW;
   END IF;
 
-  IF TG_TABLE_NAME = 'appointment' THEN
+  IF split_part(TG_TABLE_NAME, '_w', 1) = 'appointment' THEN
     INSERT INTO appointment_locator(id, partition_timestamp, patient_id, doctor_id, status)
     VALUES (NEW.id, NEW.starts_at, NEW.patient_id, NEW.doctor_id, NEW.status)
     ON CONFLICT (id) DO NOTHING;
@@ -302,7 +302,7 @@ BEGIN
       PERFORM 1 FROM appointment_locator WHERE id=NEW.id AND partition_timestamp=NEW.starts_at;
       IF NOT FOUND THEN RAISE EXCEPTION 'Identificador de agendamento duplicado.' USING ERRCODE = '23505'; END IF;
     END IF;
-  ELSIF TG_TABLE_NAME = 'encounter' THEN
+  ELSIF split_part(TG_TABLE_NAME, '_w', 1) = 'encounter' THEN
     INSERT INTO encounter_locator(id, partition_timestamp, patient_id, doctor_id, appointment_id)
     VALUES (NEW.id, NEW.started_at, NEW.patient_id, NEW.doctor_id, NEW.appointment_id)
     ON CONFLICT (id) DO NOTHING;
@@ -310,7 +310,7 @@ BEGIN
       PERFORM 1 FROM encounter_locator WHERE id=NEW.id AND partition_timestamp=NEW.started_at;
       IF NOT FOUND THEN RAISE EXCEPTION 'Identificador de consulta duplicado.' USING ERRCODE = '23505'; END IF;
     END IF;
-  ELSIF TG_TABLE_NAME = 'receivable' THEN
+  ELSIF split_part(TG_TABLE_NAME, '_w', 1) = 'receivable' THEN
     INSERT INTO receivable_locator(id, partition_timestamp, encounter_id)
     VALUES (NEW.id, NEW.created_at, NEW.encounter_id)
     ON CONFLICT (id) DO NOTHING;
@@ -318,7 +318,7 @@ BEGIN
       PERFORM 1 FROM receivable_locator WHERE id=NEW.id AND partition_timestamp=NEW.created_at;
       IF NOT FOUND THEN RAISE EXCEPTION 'Identificador financeiro duplicado.' USING ERRCODE = '23505'; END IF;
     END IF;
-  ELSIF TG_TABLE_NAME = 'payment' THEN
+  ELSIF split_part(TG_TABLE_NAME, '_w', 1) = 'payment' THEN
     INSERT INTO payment_locator(id, partition_timestamp, receivable_id)
     VALUES (NEW.id, NEW.paid_at, NEW.receivable_id)
     ON CONFLICT (id) DO NOTHING;
@@ -326,7 +326,7 @@ BEGIN
       PERFORM 1 FROM payment_locator WHERE id=NEW.id AND partition_timestamp=NEW.paid_at;
       IF NOT FOUND THEN RAISE EXCEPTION 'Identificador de pagamento duplicado.' USING ERRCODE = '23505'; END IF;
     END IF;
-  ELSIF TG_TABLE_NAME = 'exam_result' THEN
+  ELSIF split_part(TG_TABLE_NAME, '_w', 1) = 'exam_result' THEN
     INSERT INTO exam_result_locator(id, partition_timestamp, exam_order_id)
     VALUES (NEW.id, NEW.received_at, NEW.exam_order_id)
     ON CONFLICT (id) DO NOTHING;
@@ -334,7 +334,7 @@ BEGIN
       PERFORM 1 FROM exam_result_locator WHERE id=NEW.id AND partition_timestamp=NEW.received_at;
       IF NOT FOUND THEN RAISE EXCEPTION 'Identificador de resultado duplicado.' USING ERRCODE = '23505'; END IF;
     END IF;
-  ELSIF TG_TABLE_NAME = 'prescription' THEN
+  ELSIF split_part(TG_TABLE_NAME, '_w', 1) = 'prescription' THEN
     INSERT INTO prescription_locator(id, partition_timestamp, patient_id, encounter_id, doctor_id)
     VALUES (NEW.id, NEW.issued_at, NEW.patient_id, NEW.encounter_id, NEW.doctor_id)
     ON CONFLICT (id) DO NOTHING;
@@ -492,15 +492,15 @@ RETURNS trigger
 LANGUAGE plpgsql
 AS $$
 BEGIN
-  IF TG_TABLE_NAME = 'encounter' THEN
+  IF split_part(TG_TABLE_NAME, '_w', 1) = 'encounter' THEN
     DELETE FROM encounter_locator WHERE id=OLD.id;
-  ELSIF TG_TABLE_NAME = 'receivable' THEN
+  ELSIF split_part(TG_TABLE_NAME, '_w', 1) = 'receivable' THEN
     DELETE FROM receivable_locator WHERE id=OLD.id;
-  ELSIF TG_TABLE_NAME = 'payment' THEN
+  ELSIF split_part(TG_TABLE_NAME, '_w', 1) = 'payment' THEN
     DELETE FROM payment_locator WHERE id=OLD.id;
-  ELSIF TG_TABLE_NAME = 'exam_result' THEN
+  ELSIF split_part(TG_TABLE_NAME, '_w', 1) = 'exam_result' THEN
     DELETE FROM exam_result_locator WHERE id=OLD.id;
-  ELSIF TG_TABLE_NAME = 'prescription' THEN
+  ELSIF split_part(TG_TABLE_NAME, '_w', 1) = 'prescription' THEN
     DELETE FROM prescription_locator WHERE id=OLD.id;
   END IF;
   RETURN OLD;

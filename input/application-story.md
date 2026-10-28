@@ -128,6 +128,8 @@ Hans possuía muitos dados, mas poucos deles estavam organizados de maneira que 
 
 Hans passou a precisar de dois níveis de leitura. Um relatório **sintético** deve mostrar rapidamente resultados, variações e alertas operacionais. Um relatório **analítico** deve permitir filtrar e decompor esses resultados por período, situação, médico ou especialidade, chegando aos registros de origem somente quando o perfil tiver autorização.
 
+Para investigar um resultado, a equipe precisa partir do sintético, examinar a quebra analítica por especialidade, médico, ano, mês ou dia, abrir a listagem que compõe o grupo e então consultar o registro de origem autorizado. Os filtros e a definição do indicador devem acompanhar essa navegação para permitir a reconciliação dos valores.
+
 Quando um padrão exigir atenção, o sistema deve apresentar uma sugestão prática junto com os dados que a motivaram, a regra usada e a origem consultável. A sugestão orienta uma revisão da operação; não altera dados por conta própria nem substitui decisões clínicas.
 
 ## Surge uma nova visão

@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { createHash } from 'node:crypto';
 
 const root=process.cwd();
 const frontend=path.join(root,'frontend');
@@ -54,7 +55,12 @@ const screens=[
   "detalhe-auditoria",
   "logs-publicos"
 ];
-const sharedFolders=new Set(['services','state','components','utils','shared']);
+const sharedFolders=new Set(['services','state','components','utils','shared','vendor']);
+// Bibliotecas autorizadas são verificadas por hash; regras de código próprio seguem integrais.
+const vendorHashes=new Map([
+  ['frontend/vendor/highcharts/highcharts.js','d8eff087665964775f068b2ebc7d54f23458e7a4dc18c519697365b1800f5732'],
+  ['frontend/vendor/highcharts/accessibility.js','951eb02055cfc9e61db04eabba6cdfe258c8eb80998209640dea30c0613f7c87']
+]);
 
 function fail(message){throw new Error(message);}
 function read(file){return fs.readFileSync(file,'utf8');}
@@ -80,18 +86,27 @@ for(const screen of screens){
 }
 
 const files=walk(frontend);
+for(const [file,hash] of vendorHashes){
+  const absolute=path.join(root,file);
+  if(!exists(absolute)||createHash('sha256').update(fs.readFileSync(absolute)).digest('hex')!==hash) fail('Biblioteca ausente ou modificada: '+file);
+}
+for(const file of files.filter(f=>relative(f).startsWith('frontend/vendor/'))){
+  if(/\.(js|mjs|html|css)$/.test(file)&&!vendorHashes.has(relative(file))) fail('Biblioteca sem aprovação no inventário: '+relative(file));
+}
 const forbiddenFiles=files.filter(f=>/\.(jsx|tsx|ts)$/.test(f)||path.basename(f)==='package.json');
 if(forbiddenFiles.length) fail('Arquivos incompatíveis com frontend vanilla: '+forbiddenFiles.map(relative).join(', '));
 
 const forbiddenTerms=/\b(react|react-dom|vite|vue|angular|svelte|typescript)\b/i;
 for(const file of files.filter(f=>/\.(js|mjs|html)$/.test(f))){
   if(relative(file)==='frontend/verify-architecture.mjs') continue;
+  if(vendorHashes.has(relative(file))) continue;
   if(forbiddenTerms.test(read(file))) fail('Framework/bundler detectado em '+relative(file));
 }
 
 for(const file of files.filter(f=>/\.(js|mjs)$/.test(f))){
   const rel=relative(file);
   if(rel==='frontend/services/api.js'||rel==='frontend/verify-architecture.mjs') continue;
+  if(vendorHashes.has(rel)) continue;
   if(/\bfetch\s*\(/.test(read(file))) fail('fetch direto fora da camada services: '+rel);
 }
 

@@ -31,6 +31,7 @@ Para qualquer nova tela, criar um novo diretório seguindo exatamente o mesmo pa
 - `frontend/state/session.js`
 - `frontend/components/`
 - `frontend/utils/`
+- `frontend/vendor/`: bibliotecas de visualização autorizadas pelo usuário, sem framework ou build. Highcharts 13.1.1 e seu módulo de acessibilidade são servidos localmente e conferidos por SHA-256 em `verify-architecture.mjs`. Chamadas à API da aplicação continuam exclusivas de `services/api.js`.
 
 ### Integração
 - browser consome somente endpoints REST `/api/v1/**`;

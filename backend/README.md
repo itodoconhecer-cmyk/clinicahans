@@ -117,3 +117,69 @@ reinicializacoes nao duplicam os dados. A carga roda apos as migrations, em
 transacao. Nao cria logins para os medicos.
 Use `CLINICAHANS_DEMO_DATA_ENABLED=false` para desativar ou `true` para habilitar
 em outro perfil. Fora de `dev`, fica desativada por padrao.
+
+Além da agenda de demonstração, a carga cria 60 consultas concluídas em cada
+uma das oito semanas completas anteriores, com valores variados de forma
+determinística para permitir a repetição sem duplicatas. Inclui três modalidades,
+médicos de várias especialidades, recebíveis, pagamentos, pedidos de exames e
+acompanhamentos fictícios. A identidade técnica desses registros está inativa e
+sem permissão de acesso. As consultas
+geradas têm a observação `DEMO-CONSULTATION-REPORTS - registro ficticio` no
+agendamento. A carga completa é transacional e não deve ser habilitada em produção.
+
+### Particionamento e inspeção
+
+A migration V011 particiona por semana as tabelas `appointment` (início do
+agendamento), `encounter` (início da consulta), `receivable` (criação), `payment`
+(pagamento), `exam_result` (recebimento), `prescription` e `prescription_item`
+(emissão). Os limites correspondem à segunda-feira em `America/Sao_Paulo`. Os
+nomes seguem o padrão `<tabela>_wAAAAMMDD`. A aplicação cria as semanas futuras
+na inicialização e diariamente às 02:15, com 26 semanas de antecedência; a criação
+de agendamento também prepara a semana solicitada. Tabelas auxiliares `*_locator`
+preservam a unicidade dos identificadores e as referências entre tabelas.
+
+Para consultar as partições existentes no PostgreSQL:
+
+```sql
+SELECT parent.relname AS tabela, child.relname AS particao,
+       pg_get_expr(child.relpartbound, child.oid) AS limites
+FROM pg_inherits i
+JOIN pg_class parent ON parent.oid = i.inhparent
+JOIN pg_class child ON child.oid = i.inhrelid
+WHERE parent.relname IN ('appointment', 'encounter', 'receivable', 'payment',
+                         'exam_result', 'prescription', 'prescription_item')
+ORDER BY tabela, particao;
+
+SELECT tableoid::regclass AS particao, count(*) AS consultas
+FROM encounter GROUP BY 1 ORDER BY 1;
+```
+
+Em uma instalação existente a V011 copia os dados em uma transação e requer
+janela de manutenção e backup verificado. Prescrições já têm estrutura de
+armazenamento, mas a emissão e a assinatura ainda não possuem fluxo na API.
+
+Nesta máquina foi preparado um banco demonstrativo PostgreSQL 18 em
+`.local/clinicahans-pgdata` (diretório ignorado pelo Git), com banco
+`clinicahans_demo` na porta 55440. É isolado e usa autenticação local sem senha;
+essa configuração serve somente para demonstração nesta máquina. Para apontar o
+backend para ele no PowerShell, partindo da raiz do projeto:
+
+```powershell
+$env:SPRING_PROFILES_ACTIVE = 'dev'
+$env:DB_URL = 'jdbc:postgresql://127.0.0.1:55440/clinicahans_demo'
+$env:DB_USER = 'postgres'
+$env:DB_PASSWORD = ''
+# Configure JWT_SECRET, BOOTSTRAP_ADMIN_USERNAME e BOOTSTRAP_ADMIN_PASSWORD.
+Set-Location backend
+mvn spring-boot:run
+```
+
+Se o servidor demonstrativo não estiver ativo, a partir da raiz é possível
+iniciá-lo com o PostgreSQL 18 instalado neste caminho:
+
+```powershell
+$dadosDemonstracao = Join-Path (Get-Location).Path '.local\clinicahans-pgdata'
+Start-Process -FilePath 'C:\Program Files\PostgreSQL\18\bin\postgres.exe' `
+  -ArgumentList @('-D', ('"' + $dadosDemonstracao + '"'), '-p', '55440', '-h', '127.0.0.1') `
+  -WindowStyle Hidden
+```

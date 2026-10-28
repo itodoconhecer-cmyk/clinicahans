@@ -29,7 +29,7 @@ WHERE NOT EXISTS (
     SELECT 1 FROM patient WHERE id = md5('clinicahans-demo-patient-' || n)::uuid
 )
 ORDER BY n
-LIMIT (SELECT greatest(0, 20 - count(*)) FROM patient);
+ON CONFLICT (id) DO NOTHING;
 
 UPDATE patient SET insurance_card='DEMO-CARD-'||right(id::text, 8)
 WHERE id IN (SELECT md5('clinicahans-demo-patient-'||n)::uuid FROM generate_series(1,20) n)
@@ -164,11 +164,117 @@ available_candidates AS (
              AND existing.reserved_range && tstzrange(c.starts_at, c.starts_at + interval '30 minutes', '[)')
        )
 )
-INSERT INTO appointment(id, patient_id, doctor_id, starts_at, ends_at, modality, status, notes)
+INSERT INTO appointment(id, patient_id, doctor_id, starts_at, ends_at, modality, status, notes, created_at)
 SELECT appointment_id, patient_id, doctor_id, starts_at, starts_at + interval '30 minutes',
        CASE sequence_number % 3 WHEN 0 THEN 'TELEMEDICINA' WHEN 1 THEN 'PRESENCIAL' ELSE 'HIBRIDO' END,
        status,
-       'DEMO-LOAD-1000 #' || lpad(sequence_number::text, 4, '0') || ' - carga para teste operacional'
+       'DEMO-LOAD-1000 #' || lpad(sequence_number::text, 4, '0') || ' - carga para teste operacional',
+       starts_at - (1 + sequence_number % 14) * interval '1 day'
 FROM available_candidates
 WHERE preference = 1
+  AND NOT EXISTS (SELECT 1 FROM appointment_locator existing WHERE existing.id = appointment_id)
 ON CONFLICT (id, starts_at) DO NOTHING;
+
+-- Eight complete preceding weeks, 60 finished synthetic consultations per
+-- week. Week/date-based IDs make the load repeatable as time advances.
+-- The hash-derived selections vary the modality, patient and amount while
+-- keeping the same results when the application restarts.
+SELECT ensure_clinic_week_partition(
+    date_trunc('week', now() AT TIME ZONE 'America/Sao_Paulo')::date - n * 7
+) FROM generate_series(1, 8) AS n;
+
+WITH weeks AS (
+    SELECT date_trunc('week', now() AT TIME ZONE 'America/Sao_Paulo')::date - n * 7 AS week_start
+    FROM generate_series(1, 8) AS n
+), samples AS (
+    SELECT w.week_start, n,
+           w.week_start + ((n - 1) / 12) AS service_date,
+           md5('clinicahans-demo-consultation-' || w.week_start || '-' || n)::uuid AS appointment_id,
+           md5(w.week_start || '-' || n) AS sample_hash
+    FROM weeks w CROSS JOIN generate_series(1, 60) AS n
+)
+INSERT INTO appointment(id, patient_id, doctor_id, starts_at, ends_at, modality, status, notes, created_at)
+SELECT s.appointment_id, p.id, d.id,
+       (s.service_date + time '09:00' + ((s.n - 1) % 12 / 10) * interval '30 minutes') AT TIME ZONE 'America/Sao_Paulo',
+       (s.service_date + time '09:30' + ((s.n - 1) % 12 / 10) * interval '30 minutes') AT TIME ZONE 'America/Sao_Paulo',
+       CASE (get_byte(decode(s.sample_hash, 'hex'), 0) % 3)
+          WHEN 0 THEN 'PRESENCIAL' WHEN 1 THEN 'TELEMEDICINA' ELSE 'HIBRIDO' END,
+       'COMPLETED', 'DEMO-CONSULTATION-REPORTS - registro ficticio',
+       ((s.service_date + time '09:00' + ((s.n - 1) % 12 / 10) * interval '30 minutes') AT TIME ZONE 'America/Sao_Paulo')
+           - (1 + get_byte(decode(s.sample_hash, 'hex'), 2) % 14) * interval '1 day'
+FROM samples s
+JOIN doctor d ON d.id = md5('clinicahans-demo-doctor-' || (((s.n - 1) % 12 % 10) + 1))::uuid
+JOIN patient p ON p.id = md5('clinicahans-demo-patient-' || ((get_byte(decode(s.sample_hash, 'hex'), 1) % 20) + 1))::uuid
+ON CONFLICT (id, starts_at) DO NOTHING;
+
+INSERT INTO encounter(id, patient_id, doctor_id, appointment_id, chief_complaint, assessment, plan, status, started_at, completed_at)
+SELECT md5('clinicahans-demo-encounter-' || a.id)::uuid, a.patient_id, a.doctor_id, a.id,
+       'Consulta demonstrativa', 'Informacoes ficticias para relatorios', 'Acompanhamento demonstrativo',
+       'FINAL', a.starts_at, a.ends_at
+FROM appointment a
+WHERE a.notes = 'DEMO-CONSULTATION-REPORTS - registro ficticio'
+  AND NOT EXISTS (SELECT 1 FROM encounter_locator e WHERE e.appointment_id = a.id)
+ON CONFLICT (id, started_at) DO NOTHING;
+
+INSERT INTO receivable(id, encounter_id, payer_type, payer_reference, amount, due_date, status, created_at)
+SELECT md5('clinicahans-demo-receivable-' || e.id)::uuid, e.id,
+       CASE WHEN get_byte(decode(md5(e.id::text), 'hex'), 0) % 2 = 0 THEN 'PRIVATE' ELSE 'INSURANCE' END,
+       'DEMONSTRACAO', 100 + get_byte(decode(md5(e.id::text), 'hex'), 1),
+       (e.started_at AT TIME ZONE 'America/Sao_Paulo')::date,
+       CASE WHEN get_byte(decode(md5(e.id::text), 'hex'), 2) % 4 = 0 THEN 'OPEN' ELSE 'PAID' END,
+       e.started_at
+FROM encounter e
+JOIN appointment_locator a ON a.id = e.appointment_id
+JOIN appointment ap ON ap.id = a.id AND ap.starts_at = a.partition_timestamp
+WHERE ap.notes = 'DEMO-CONSULTATION-REPORTS - registro ficticio'
+  AND NOT EXISTS (SELECT 1 FROM receivable_locator r WHERE r.id = md5('clinicahans-demo-receivable-' || e.id)::uuid)
+ON CONFLICT (id, created_at) DO NOTHING;
+
+INSERT INTO payment(id, receivable_id, amount, method, paid_at)
+SELECT md5('clinicahans-demo-payment-' || r.id)::uuid, r.id, r.amount,
+       CASE get_byte(decode(md5(r.id::text), 'hex'), 0) % 3
+         WHEN 0 THEN 'PIX' WHEN 1 THEN 'CARD' ELSE 'CASH' END,
+       r.created_at + interval '15 minutes'
+FROM receivable r
+JOIN encounter_locator e ON e.id = r.encounter_id
+JOIN appointment_locator a ON a.id = e.appointment_id
+JOIN appointment ap ON ap.id = a.id AND ap.starts_at = a.partition_timestamp
+WHERE ap.notes = 'DEMO-CONSULTATION-REPORTS - registro ficticio' AND r.status = 'PAID'
+  AND NOT EXISTS (SELECT 1 FROM payment_locator p WHERE p.id = md5('clinicahans-demo-payment-' || r.id)::uuid)
+ON CONFLICT (id, paid_at) DO NOTHING;
+
+-- Disabled technical identity owns only fictitious requests; it cannot log in.
+INSERT INTO app_user(id, username, password_hash, active)
+VALUES (md5('clinicahans-demo-disabled-user')::uuid, 'demo-disabled-service', '!disabled-demonstration', false)
+ON CONFLICT DO NOTHING;
+
+INSERT INTO exam_order(id, patient_id, encounter_id, requested_by, exam_name, priority, status, expected_by, created_at)
+SELECT md5('clinicahans-demo-exam-' || e.id)::uuid, e.patient_id, e.id, u.id,
+       'Exame ficticio', 'ROUTINE',
+       CASE WHEN get_byte(decode(md5(e.id::text), 'hex'), 4) % 4 = 0 THEN 'REVIEWED' ELSE 'REQUESTED' END,
+       (e.started_at AT TIME ZONE 'America/Sao_Paulo')::date + 7, e.started_at
+FROM encounter e JOIN app_user u ON u.id = md5('clinicahans-demo-disabled-user')::uuid
+JOIN appointment_locator al ON al.id = e.appointment_id
+JOIN appointment ap ON ap.id = al.id AND ap.starts_at = al.partition_timestamp
+WHERE ap.notes = 'DEMO-CONSULTATION-REPORTS - registro ficticio'
+  AND get_byte(decode(md5(e.id::text), 'hex'), 3) % 6 = 0
+ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO follow_up(id, patient_id, encounter_id, owner_user_id, reason, priority, status, due_at, created_at)
+SELECT md5('clinicahans-demo-followup-' || e.id)::uuid, e.patient_id, e.id, u.id,
+       'Acompanhamento ficticio', 'MEDIUM',
+       CASE WHEN get_byte(decode(md5(e.id::text), 'hex'), 6) % 4 = 0 THEN 'CLOSED' ELSE 'OPEN' END,
+       e.started_at + interval '14 days', e.started_at
+FROM encounter e JOIN app_user u ON u.id = md5('clinicahans-demo-disabled-user')::uuid
+JOIN appointment_locator al ON al.id = e.appointment_id
+JOIN appointment ap ON ap.id = al.id AND ap.starts_at = al.partition_timestamp
+WHERE ap.notes = 'DEMO-CONSULTATION-REPORTS - registro ficticio'
+  AND get_byte(decode(md5(e.id::text), 'hex'), 5) % 6 = 0
+ON CONFLICT (id) DO NOTHING;
+
+-- Repair timestamps from older demo loads, restricted to marked synthetic rows.
+UPDATE appointment
+SET created_at = starts_at - (1 + get_byte(decode(md5(id::text), 'hex'), 0) % 14) * interval '1 day'
+WHERE (notes LIKE 'DEMO-LOAD-1000 #% - carga para teste operacional'
+       OR notes = 'DEMO-CONSULTATION-REPORTS - registro ficticio')
+  AND created_at > starts_at;

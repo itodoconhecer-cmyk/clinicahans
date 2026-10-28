@@ -153,19 +153,65 @@ export const financeApi = {
 
 export const managementApi = {
   dashboard: (from, to) => api.get(`/api/v1/management/dashboard?from=${from}&to=${to}`),
-  summary: (from, to) => api.get(`/api/v1/management/reports/summary?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`),
-  analysis: (from, to, type = 'APPOINTMENTS', groupBy = 'MONTH') => {
+  summary: (from, to, filters = {}) => {
+    const params = new URLSearchParams({ from, to });
+    appendReportFilters(params, filters);
+    return api.get(`/api/v1/management/reports/summary?${params.toString()}`);
+  },
+  analysis: (from, to, type = 'APPOINTMENTS', groupBy = 'MONTH', filters = {}) => {
     const params = new URLSearchParams({ from, to, type, groupBy });
+    appendReportFilters(params, filters);
     return api.get(`/api/v1/management/reports/analysis?${params.toString()}`);
   },
-  sources: (from, to, type = 'APPOINTMENTS', page = 0, size = 50, groupBy = '', groupValue = '') => {
+  sources: (from, to, type = 'APPOINTMENTS', page = 0, size = 50, groupBy = '', groupValue = '', filters = {}) => {
     const params = new URLSearchParams({ from, to, type, page: String(page), size: String(size) });
     if (groupBy) params.set('groupBy', groupBy);
     if (groupValue) params.set('groupValue', groupValue);
+    appendReportFilters(params, filters);
     return api.get(`/api/v1/management/reports/sources?${params.toString()}`);
+  },
+  record: (type, id, parentRunId = '') => {
+    const params = new URLSearchParams();
+    if (parentRunId) params.set('parentRunId', parentRunId);
+    const query = params.toString();
+    return api.get(`/api/v1/management/reports/records/${encodeURIComponent(type)}/${encodeURIComponent(id)}${query ? `?${query}` : ''}`);
   },
   trackExport: body => api.post('/api/v1/management/reports/exports', body)
 };
+
+export const operationalReportApi = {
+  analysis: filters => api.get(`/api/v1/management/operational-reports/analysis?${operationalParams(filters)}`),
+  sources: (filters, groupValue, page, size, parentRunId) => {
+    const params = operationalParams(filters);
+    params.set('groupValue', groupValue);
+    params.set('page', String(page));
+    params.set('size', String(size));
+    if (parentRunId) params.set('parentRunId', parentRunId);
+    return api.get(`/api/v1/management/operational-reports/sources?${params}`);
+  },
+  record: (filters, groupValue, id, sourceDate, parentRunId) => {
+    const params = operationalParams(filters);
+    params.set('groupValue', groupValue);
+    params.set('sourceDate', sourceDate);
+    if (parentRunId) params.set('parentRunId', parentRunId);
+    return api.get(`/api/v1/management/operational-reports/records/${encodeURIComponent(id)}?${params}`);
+  }
+};
+
+function operationalParams(filters) {
+  const params = new URLSearchParams({ from: filters.from, to: filters.to, type: filters.type, groupBy: filters.groupBy });
+  if (filters.doctorId) params.set('doctorId', filters.doctorId);
+  if (filters.specialtyId) params.set('specialtyId', filters.specialtyId);
+  if (filters.parentRunId) params.set('parentRunId', filters.parentRunId);
+  return params;
+}
+
+function appendReportFilters(params, filters) {
+  if (filters.doctorId) params.set('doctorId', filters.doctorId);
+  if (filters.specialtyId) params.set('specialtyId', filters.specialtyId);
+  if (filters.cohort) params.set('cohort', filters.cohort);
+  if (filters.parentRunId) params.set('parentRunId', filters.parentRunId);
+}
 
 export const adminApi = {
   users: () => api.get('/api/v1/admin/users'),

@@ -2,6 +2,7 @@
 backend/target/
 backend/logs/
 /logs/
+/.local/
 
 # Frontend
 frontend/node_modules/
@@ -20,3 +21,14 @@ test-results/
 # OS
 .DS_Store
 Thumbs.db
+
+# LocalStack: token e configuracao local
+.env.localstack
+infra/localstack/**/__pycache__/
+
+# Terraform: estado, planos e valores locais
+infra/aws/.terraform/
+infra/aws/*.tfstate*
+infra/aws/*.tfplan
+infra/aws/*.tfvars
+infra/aws/crash.log

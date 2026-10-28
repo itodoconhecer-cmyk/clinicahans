@@ -69,6 +69,7 @@
 - **RN-076:** detalhamento de relatório aplica no backend as permissões do domínio de origem. Gestão recebe apenas agregados sem identificadores ou atributos que revelem pacientes e sem conteúdo clínico.
 - **RN-077:** sugestões são determinísticas, exibem regra, limite, evidência e ação proposta. A versão da regra fica registrada na execução.
 - **RN-078:** sugestão é orientação operacional; não altera agenda, financeiro ou prontuário e não constitui recomendação clínica.
+- **RN-079:** cada etapa de detalhamento preserva o período, os filtros e a população que compõem o indicador. Um grupo analítico deve reconciliar com sua listagem; a abertura do registro é auditada e limitada aos dados autorizados.
 
 ## Regras de arquitetura de domínio
 - **RN-080:** estados de entidades críticas são enums controlados no backend e constraints no banco quando adequado.
@@ -79,3 +80,4 @@
 - **RN-084:** o timestamp que define a partição é imutável após a criação do registro; reagendamento deve criar/atualizar o evento conforme a regra do agregado sem deixar a linha fora da semana correspondente.
 - **RN-085:** UUID permanece globalmente único por meio de tabela locator não particionada; relações externas referenciam esse locator e o registro particionado conserva chave composta com seu timestamp.
 - **RN-086:** toda tentativa de reserva ativa precisa respeitar a exclusão global de intervalo por médico, inclusive quando um intervalo cruza o limite entre semanas.
+- **RN-087:** até que a especialidade seja registrada no atendimento, o relatório atribui a especialidade principal atual do médico de forma determinística e informa que ela não representa necessariamente a especialidade histórica da consulta.

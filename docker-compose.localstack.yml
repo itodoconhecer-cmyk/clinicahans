@@ -1,0 +1,33 @@
+# Complemento opcional: usar junto com docker-compose.yml.
+services:
+  localstack:
+    image: localstack/localstack:${LOCALSTACK_VERSION:-2026.10.0}
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:4566:4566"
+    environment:
+      LOCALSTACK_AUTH_TOKEN: ${LOCALSTACK_AUTH_TOKEN:?Defina LOCALSTACK_AUTH_TOKEN no ambiente ou em .env.localstack}
+      SERVICES: s3,sqs,dynamodb,iam,scheduler
+      AWS_DEFAULT_REGION: us-east-1
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
+      PERSISTENCE: "1"
+      DEBUG: "0"
+      SQS_ENDPOINT_STRATEGY: dynamic
+    volumes:
+      - clinicahans_localstack_data:/var/lib/localstack
+      - ./infra/localstack/ready.d:/etc/localstack/init/ready.d:ro
+      - ./infra/localstack/verify.py:/opt/clinicahans/verify.py:ro
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import json,urllib.request; s=json.load(urllib.request.urlopen('http://localhost:4566/_localstack/init/ready',timeout=5)); assert s['completed'] and any(x['name']=='10-clinicahans.py' and x['state']=='SUCCESSFUL' for x in s['scripts']) and all(x['state']=='SUCCESSFUL' for x in s['scripts'])"
+      interval: 10s
+      timeout: 8s
+      start_period: 30s
+      retries: 18
+
+volumes:
+  clinicahans_localstack_data:

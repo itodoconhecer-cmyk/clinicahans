@@ -46,6 +46,45 @@ public class AuditUseCase {
             "REPORT_EXPORT", "MANAGEMENT_REPORT", reportRunId.toString(), MDC.get("correlationId"));
     }
 
+    public void validateReportParent(UUID id, String expectedPath, Map<String, String> childContext, String... sharedFields) {
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = authenticatedUsername(auth == null ? null : auth.getName(), auth != null && auth.isAuthenticated());
+        String json = username == null ? null : repository.successfulReportRequestContext(id, username, expectedPath);
+        if (json == null)
+            throw new NotFoundException("Execução anterior de relatório não encontrada.");
+        try {
+            var parent = objectMapper.readTree(json);
+            for (String field : sharedFields) {
+                String parentValue = parent.path(field).asText("");
+                String childValue = childContext.getOrDefault(field, "");
+                if (!parentValue.equals(childValue)) throw new IllegalArgumentException("Os filtros não correspondem à execução anterior.");
+            }
+            if (parent.has("groupKeys")) {
+                String selectedGroup = childContext.getOrDefault("groupValue", "");
+                boolean included = parent.path("groupKeys").isArray() &&
+                    java.util.stream.StreamSupport.stream(parent.path("groupKeys").spliterator(), false)
+                        .anyMatch(value -> selectedGroup.equals(value.asText()));
+                if (!included) throw new NotFoundException("Grupo não encontrado na análise anterior.");
+            }
+            if (childContext.containsKey("sourceId")) {
+                String sourceId = childContext.get("sourceId");
+                boolean included = parent.path("sourceIds").isArray() &&
+                    java.util.stream.StreamSupport.stream(parent.path("sourceIds").spliterator(), false)
+                        .anyMatch(value -> sourceId.equals(value.asText()));
+                if (!included) throw new NotFoundException("Registro não encontrado na listagem anterior.");
+            }
+            if (childContext.containsKey("sourceKey")) {
+                String sourceKey = childContext.get("sourceKey");
+                boolean included = parent.path("sourceKeys").isArray() &&
+                    java.util.stream.StreamSupport.stream(parent.path("sourceKeys").spliterator(), false)
+                        .anyMatch(value -> sourceKey.equals(value.asText()));
+                if (!included) throw new NotFoundException("Registro não encontrado na listagem anterior.");
+            }
+        } catch (JsonProcessingException ex) {
+            throw new IllegalStateException("Não foi possível ler o contexto da auditoria.", ex);
+        }
+    }
+
     public UUID startRequestAudit(String method, String path, String sourceIp, Map<String, String> identifiers)
         throws JsonProcessingException {
         var auth = SecurityContextHolder.getContext().getAuthentication();
